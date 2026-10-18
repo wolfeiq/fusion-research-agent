@@ -32,7 +32,7 @@ def _text_spans(content, citation):
     return matches, None
 
 
-def review_payload(report, sources, question):
+def review_payload(report, sources, question, *, workflow_capabilities=None):
     """Build isolated citation packets plus a content-free source registry.
 
 Proposals remain unverified author text. A proposal-only source ID contributes
@@ -95,7 +95,10 @@ Large values and budget omissions are explicit; no truncated JSON is evidence.
     return {
         "question": question, "claims": claims,
         "next_runs": copy.deepcopy(report["next_runs"]),
+        "limitations": copy.deepcopy(report.get("limitations", [])),
+        "stop_reason": report.get("stop_reason", ""),
+        "workflow_capabilities": copy.deepcopy(workflow_capabilities or {}),
         "sources": [{key: copy.deepcopy(source.get(key)) for key in ("id", "kind", "uri", "sha256")}
                     for source in sources if source["id"] in references],
-        "evidence_contract": "Judge every clause against its own claim's evidence packets only. Source identities, other claims, question wording and next-run proposals are not supporting evidence. A proposal requiring facts outside the supplied citations needs revision; no whole-source fallback is available.",
+        "evidence_contract": "Judge every clause against its own claim's evidence packets only. Source identities, other claims, question wording, limitations and next-run proposals are not supporting evidence. Workflow capability facts can check statements about tool availability and recorded execution status only; they do not establish control performance. A proposal requiring facts outside the supplied citations needs revision; no whole-source fallback is available.",
     }

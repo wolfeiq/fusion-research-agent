@@ -871,7 +871,26 @@ class ResearchEngine:
 
         self.event("review", "A separate Nebius context is challenging claim support")
         claims = report["claims"]
-        payload = review_payload(report, list(self.sources.values()), question)
+        shadow_statuses = []
+        for source in self.sources.values():
+            if source.get("metadata", {}).get("adapter") != "shadow_execution":
+                continue
+            try:
+                status = json.loads(source["content"]).get("status")
+            except (ValueError, TypeError, AttributeError):
+                status = None
+            shadow_statuses.append({
+                "source_id": source["id"], "canonical_sha256": source.get("sha256"),
+                "adapter": "shadow_execution",
+                "recorded_status": status if isinstance(status, str) and status in {"completed", "failed", "cancelled", "timed_out"} else "unavailable",
+            })
+        payload = review_payload(report, list(self.sources.values()), question, workflow_capabilities={
+            "shadow_execution_enabled": self.shadow_executor is not None,
+            "shadow_attempted": self.shadow_attempted,
+            "captured_shadow_statuses": shadow_statuses,
+            "writer_can_launch_experiments": False,
+            "source_specific_helper_rejection_does_not_disable_other_tools": True,
+        })
         messages = [
             {
                 "role": "system",
@@ -897,7 +916,10 @@ class ResearchEngine:
                 "If a needed value is missing from the claim's own packet, mark the uncovered "
                 "claim uncertain/unsupported and request a narrower claim or additional citation. "
                 "Facts elsewhere in a source cannot rescue missing citation coverage: require "
-                "additional citations or a narrower claim, and return uncertain/unsupported with "
+                "settings and configuration values to have their own citations; they are substantive "
+                "clauses and may never be waived as background or setting descriptions. A /deployed "
+                "citation does not support a /raw claim, even if the two happen to agree elsewhere. "
+                "Request additional citations or a narrower claim, and return uncertain/unsupported with "
                 "a revision request if any substantive clause lacks that support. In particular, "
                 "a candidate-role diagnostic does not cite another role or baseline; differences "
                 "do not cite absolute endpoints or other control arms. Check that literature scope "
@@ -906,6 +928,11 @@ class ResearchEngine:
                 "Review EVERY next-run proposal (zero-based index): adequate only when it "
                 "has a testable hypothesis, fair paired controls, budget, metrics and stop "
                 "rule, leaves ongoing experiments unchanged, and never tunes confirmation data. "
+                "Also check limitations and stop_reason for unsupported factual statements and stale "
+                "tool-availability claims; list contradictions in gaps and do not accept them. The supplied "
+                "workflow_capabilities are read-only runtime facts, not performance evidence. A recorded "
+                "completed shadow supersedes an earlier assertion that no shadow path could run; a "
+                "source-specific helper rejection does not prove every execution path is unavailable. "
                 "Return decision accept/revise/insufficient and specific gaps for the researchers. "
                 "Accept only with adequate sources, supported scoped claims and adequate proposals. "
                 "Score rubric citation_support, experimental_fairness, actionability, scope_honesty "

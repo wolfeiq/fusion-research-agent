@@ -645,7 +645,7 @@ def test_judge_revision_replans_with_gaps_then_accepts():
     assert result["usage"]["model_calls"] <= engine.max_turns
 
 
-def test_judged_report_is_retained_when_revision_cannot_fit_remaining_budget(monkeypatch):
+def test_judged_report_is_retained_after_one_reflection_when_research_retry_cannot_fit(monkeypatch):
     engine, model, _, events = setup_engine(("revise", "accept"))
     engine.max_turns = 24  # First round uses 13, leaving less than the 12-call reserve.
     original = model.complete
@@ -664,12 +664,13 @@ def test_judged_report_is_retained_when_revision_cannot_fit_remaining_budget(mon
     result = engine.run("Retain independently judged evidence if revision cannot fit.")
     assert result["orchestration"]["rounds"] == 1
     assert result["orchestration"]["status"] == "insufficient_evidence"
-    assert result["orchestration"]["remaining_model_calls"] == 11
+    assert result["orchestration"]["remaining_model_calls"] == 8
     assert result["judge"]["decision"] == "revise"
     assert result["evidence_sufficient"] is False
     assert result["claims"][1]["verification"]["status"] == "unsupported"
     assert result["claims"][1]["text"] not in result["answer"]
-    assert model.counts["planner"] == model.counts["judge"] == 1
+    assert model.counts["planner"] == 1 and model.counts["judge"] == 2
+    assert result["orchestration"]["writer_reflections"] == 1
     assert any("12-call minimum" in item for item in result["limitations"])
     assert any(e["kind"] == "agent_revision_deferred" for e in events)
     assert not any(e["kind"] == "agent_revision" for e in events)

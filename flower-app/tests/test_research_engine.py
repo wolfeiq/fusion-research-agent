@@ -369,6 +369,30 @@ def test_standalone_review_marks_evidence_insufficient_when_final_decision_is_no
     assert result["evidence_sufficient"] is False
 
 
+def test_review_receives_ancillary_text_and_bounded_shadow_status_without_uncited_results():
+    engine, model, _, _ = make_engine(research_script())
+    source = local_source("E002")
+    source["content"] = json.dumps({"status": "completed", "uncited_result": "PRIVATE_OUTCOME_SENTINEL"})
+    source["sha256"] = hashlib.sha256(source["content"].encode()).hexdigest()
+    source["metadata"] = {"adapter": "shadow_execution"}
+    engine.sources["E002"] = source
+    engine.shadow_attempted = True
+    drive_tools_and_review(engine, "Review the complete draft and recorded capability facts.")
+    messages = model.requests[-1][0]
+    payload = json.loads(messages[1]["content"])
+    assert payload["limitations"] == report()["limitations"]
+    assert payload["stop_reason"] == report()["stop_reason"]
+    assert payload["workflow_capabilities"]["shadow_attempted"] is True
+    assert payload["workflow_capabilities"]["writer_can_launch_experiments"] is False
+    assert payload["workflow_capabilities"]["captured_shadow_statuses"] == [{
+        "source_id": "E002", "canonical_sha256": source["sha256"],
+        "adapter": "shadow_execution", "recorded_status": "completed",
+    }]
+    assert "PRIVATE_OUTCOME_SENTINEL" not in json.dumps(payload)
+    assert "setting descriptions" in messages[0]["content"]
+    assert "does not support a /raw claim" in messages[0]["content"]
+
+
 def test_finish_requires_an_explicit_evidence_assessment():
     engine, _, _, _ = make_engine()
     engine.execute("plan_research", {"questions": ["Evidence?"], "reason": "Plan."})

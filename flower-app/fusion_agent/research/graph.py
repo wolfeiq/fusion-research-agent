@@ -20,6 +20,7 @@ from .retrieval_scope import public_literature_text
 from .source_views import source_views
 
 MAX_ROUNDS = 2
+MAX_WRITER_REFLECTIONS = 1
 REVIEW_CALL_RESERVE = 7  # Up to six writer turns plus one independent judge.
 AGENTS = (
     "planner",
@@ -57,6 +58,8 @@ class ResearchState(TypedDict, total=False):
     literature_findings: dict
     draft: dict
     report: dict
+    writer_reflections: int
+    reflection_draft_ready: bool
 
 
 def _text(value, label, limit=1200):
@@ -632,11 +635,11 @@ def build_research_graph(engine):
             "gaps": [*previous["gaps"], "The post-research shadow decision reached its bounded model-call limit without submitting findings."],
         }}
 
-    def writer(state):
+    def writer(state, *, repair=False):
         event(
             "agent_start",
             "writer",
-            "Writer is comparing four independently collected specialist findings",
+            "Writer is repairing the judged draft using captured evidence" if repair else "Writer is comparing four independently collected specialist findings",
             state,
         )
         selected = {
@@ -644,12 +647,42 @@ def build_research_graph(engine):
             for key in ROLE_FINDINGS.values()
             for identifier in state[key]["evidence_ids"]
         }
+        if repair:
+            selected.update(engine.read_ids)
         sources = [
             source for source in engine.sources.values() if source["id"] in selected
         ]
+        payload = {
+            "question": state["question"],
+            **{key: state[key] for key in ROLE_FINDINGS.values()},
+            "sources": source_views(sources, reference_texts=[state[key]["summary"] for key in ROLE_FINDINGS.values()]),
+        }
+        reflection_instructions = ""
+        if repair:
+            payload.update(phase="writer_reflection", reviewed_draft=copy.deepcopy(state["report"]),
+                           judge_gaps=state.get("gaps", []), remaining_writer_calls=3)
+            reflection_instructions = (
+                "This is the single bounded reflection pass on the actual reviewed draft. Read its "
+                "per-claim verdicts, citation coverage failures, proposal judgments and judge gaps. "
+                "Repair with already captured sources: obtain needed exact citations in your first "
+                "turn, reassess evidence, then submit the whole corrected report. Narrow or omit "
+                "uncovered clauses instead of inventing support; acceptance is not required. "
+                "Configuration values and settings are substantive claims and need their own citations. "
+                "Use one precise outcome label: a /deployed citation does not establish /raw behavior, "
+                "even if values happen to match elsewhere. Reconcile limitations and stop_reason with "
+                "later recorded tool outcomes; an earlier unavailable helper does not imply all shadow "
+                "execution paths were unavailable. Keep raw learner and gate-deployed endpoints distinct "
+                "in proposals and report both where relevant. Derive proposed budgets from the captured "
+                "configuration, counting configurations and seeds, and do not add evaluation subsets twice. "
+                "Prefer the actual primary paper to a secondary or AI-generated summary. State cross-seed "
+                "behavior as a hypothesis to test, not a guaranteed prediction. "
+                "No new searches, source reads or physics runs are allowed. "
+                "There are at most three writer turns and then a fresh independent judge. "
+            )
+            engine.assessed = False
         messages = _messages(
             "writer",
-            (
+            reflection_instructions + (
                 "Synthesize all four specialist branches, checking their actual source snapshots. "
                 "Specialist prose is unverified: compare its numerical assertions against the source, "
                 "including the direction of inequalities, and discard unsupported interpretations. "
@@ -685,20 +718,17 @@ def build_research_graph(engine):
                 "Long web snapshots may be explicit partial verbatim excerpts with canonical hashes "
                 "and offsets. Cite only supplied passages; omissions do not prove absence. "
                 "Keep next runs as bounded proposals only, retaining fair controls and budgets. "
-                "Your tools cannot gather additional evidence; the judge can send gaps back to the researchers."
+                "Your tools cannot gather additional evidence."
             ),
-            {
-                "question": state["question"],
-                **{key: state[key] for key in ROLE_FINDINGS.values()},
-                "sources": source_views(sources, reference_texts=[state[key]["summary"] for key in ROLE_FINDINGS.values()]),
-            },
+            payload,
             SYSTEM,
         )
         allowed = {"assess_evidence", "cite_experiment_value", "cite_web_excerpt", "finish_report"}
-        for turn in range(6):
+        writer_turns = 3 if repair else 6
+        for turn in range(writer_turns):
             turn_allowed = allowed
-            if turn >= 4:
-                turn_allowed = {"assess_evidence"} if turn == 4 and not engine.assessed else {"finish_report"}
+            if turn >= writer_turns - 2:
+                turn_allowed = {"assess_evidence"} if turn == writer_turns - 2 and not engine.assessed else {"finish_report"}
                 messages.append({"role": "user", "content": (
                     "Citation lookup is now closed. Use already resolved citations, omit unresolved "
                     "claims, and list their gaps explicitly. Do not invent evidence or call more lookup tools. "
@@ -767,6 +797,29 @@ def build_research_graph(engine):
             "Writer could not produce a valid draft within its turn budget"
         )
 
+    def writer_reflection(state):
+        count = state.get("writer_reflections", 0) + 1
+        event("writer_reflection", "writer", "Revisiting the judged draft without new retrieval or experiments",
+              state, reflection=count, maximum_writer_calls=3, reserved_judge_calls=1)
+        try:
+            result = writer(state, repair=True)
+        except RuntimeError as exc:
+            retained = copy.deepcopy(state["report"])
+            retained["evidence_sufficient"] = False
+            retained["orchestration"].update(writer_reflections=count, status="insufficient_evidence")
+            retained["limitations"].append("The bounded writer reflection did not produce a valid replacement; the prior independently judged report is retained as insufficient evidence.")
+            event("writer_reflection_failed", "writer", str(exc)[:1200], state, reflection=count)
+            return {"report": retained, "writer_reflections": count, "reflection_draft_ready": False}
+        return {**result, "writer_reflections": count, "reflection_draft_ready": True}
+
+    def repairable_review(report):
+        return any(
+            claim.get("kind") != "hypothesis" and (
+                claim.get("verification", {}).get("status") == "unsupported"
+                or claim.get("review", {}).get("verdict") in {"uncertain", "unsupported"}
+            ) for claim in report["claims"]
+        ) or any(verdict.get("verdict") != "adequate" for verdict in report.get("judge", {}).get("proposal_verdicts", []))
+
     def judge(state):
         event(
             "agent_start",
@@ -794,12 +847,18 @@ def build_research_graph(engine):
             "max_rounds": MAX_ROUNDS,
             "status": "accepted" if accepted else "insufficient_evidence",
             "parallel_researchers": list(RESEARCHERS),
+            "writer_reflections": state.get("writer_reflections", 0),
+            "max_writer_reflections": MAX_WRITER_REFLECTIONS,
         }
         if decision == "revise" and state["round"] >= MAX_ROUNDS:
             report["limitations"].append(
                 "The judge requested further work, but the two-round research limit was reached."
             )
         remaining_calls = max(0, engine.max_turns - engine.model_calls)
+        if not accepted and repairable_review(report) and state.get("writer_reflections", 0) < MAX_WRITER_REFLECTIONS and remaining_calls < 4:
+            report["limitations"].append("Fewer than four model calls remain for one writer reflection and independent recheck; the judged report remains insufficient.")
+            event("writer_reflection_deferred", "judge", "Insufficient remaining calls for bounded writer reflection and independent recheck",
+                  state, remaining_model_calls=remaining_calls, minimum_reflection_calls=4)
         if decision == "revise" and state["round"] < MAX_ROUNDS and remaining_calls < 12:
             report["orchestration"]["revision_deferred"] = "insufficient_model_call_budget"
             report["orchestration"]["remaining_model_calls"] = remaining_calls
@@ -826,6 +885,13 @@ def build_research_graph(engine):
         return {"report": report, "gaps": gaps}
 
     def after_judge(state):
+        if (
+            not state["report"].get("evidence_sufficient")
+            and repairable_review(state["report"])
+            and state.get("writer_reflections", 0) < MAX_WRITER_REFLECTIONS
+            and engine.max_turns - engine.model_calls >= 4
+        ):
+            return "writer_reflection"
         if (
             state["report"]["judge"]["decision"] == "revise"
             and state["round"] < MAX_ROUNDS
@@ -871,7 +937,14 @@ def build_research_graph(engine):
     else:
         graph.add_edge(list(RESEARCHERS), "writer")
     graph.add_edge("writer", "judge")
-    graph.add_conditional_edges("judge", after_judge, {"planner": "planner", END: END})
+    def scoped_reflection(state):
+        with engine.agent("writer"):
+            return writer_reflection(state)
+
+    graph.add_node("writer_reflection", scoped_reflection)
+    graph.add_conditional_edges("writer_reflection", lambda state: "judge" if state.get("reflection_draft_ready") else END,
+                                {"judge": "judge", END: END})
+    graph.add_conditional_edges("judge", after_judge, {"writer_reflection": "writer_reflection", "planner": "planner", END: END})
     return graph.compile()
 
 
