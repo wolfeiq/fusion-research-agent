@@ -10,6 +10,7 @@ is ongoing; the repository does not imply that every proposed change improves RL
 The bundled measurements are recorded local CPU experiments, not newly run when
 you open the app. No Nebius VM, NVIDIA GPU deployment or production reactor control
 is claimed. The current shadow worker uses CPU and in-process aggregation.
+Read [what the agents, shadow test and worker each do](docs/shadow_workflow.md).
 
 ## Run the app and inspect real evidence
 

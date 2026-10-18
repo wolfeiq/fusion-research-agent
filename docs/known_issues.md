@@ -1,7 +1,7 @@
 # Known issues and verification limits
 
-- The latest full run (`4c57e0f656a443e98215f82f0aa11a4a`) finished with insufficient evidence, not a runtime error. Its retained primary-paper claim passed independent review; it did not produce a complete experimental answer.
-- Experimental claims were correctly withheld for incomplete citation coverage. The correction pass damaged an already-valid citation, so its replacement was rejected. Preserving supported claims during bounded repair is being implemented and tested.
+- The latest full run (`cf248e70ab054c75b45e346c475d3e96`) returned insufficient evidence. Its shadow worker stopped after 7 episodes because Windows denied replacing the progress file. No factual claim survived review. Aggregation was not reached; clipping was unmeasured.
+- Supported-claim preservation is implemented, but the latest repair exposed a report-envelope regression. That regression, malformed limitations transport and transient Windows file publication are being fixed.
 - Proposal budgets must label evaluation subsets: 64 training + 48 evaluation = 112 episodes. Gate and initial evaluations are included in the 48. A model judge incorrectly double-counted those subsets. Proposed seeds were not established as unused across all histories.
 - Exact quotes and locators do not establish semantic truth. A targeted citation-scope probe still exposes a centralized-versus-client privacy interpretation blind spot. Final scientific claims need independent source/context review.
 - Model output can violate schemas or exhaust bounded budgets. Historical failures, unsupported claims, and the earlier model-accepted report with independent defects are retained in the verification log.

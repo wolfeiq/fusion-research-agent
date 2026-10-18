@@ -31,7 +31,7 @@ bit-identical outcomes on different platforms or hardware.
 | Initial public root suite | 251 tests passed; one failure exposed a missing calibration CLI file | The missing file was added. This initial run is not relabelled as an all-pass run. |
 | Targeted follow-up after the export fix | 16 passed, no skips | This was a targeted rerun; it is separate from the subsequent full root-suite run. |
 | Full public root suite in the freshly installed hashed Windows CPU environment | 252 passed, 1 skipped | The skip concerns unused legacy Flower network transport. The CPU shadow and numerical aggregation paths were tested. |
-| Full public app suite | 936 passed, 2 skipped in 25.68 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
+| Full public app suite | 941 passed, 2 skipped in 25.94 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
 | Frontend logic suite | 33 passed | Exercises UI/HTTP contracts, public evidence selection and explicit shadow actions; no model inference or numerical experiment runs in these tests. |
 
 Counts describe separate invocations and must not be added as independent
@@ -95,9 +95,10 @@ bounded check does not resolve the distinct privacy-scope blind spot below.
 | Full attempt 18: `a65ff29c4c554f999afeee244a8e9800` | Failed before the judge: no traceable experiment claim | 26 model calls and 547,348 tokens. Three oversized citation-helper batches (14, 9, 12 calls) were rejected under the eight-call limit; the writer then invented dotted locators. Deterministic citation checks rejected those claims. |
 | Full attempt 19: `7a5ab3531a2046579e615c8c4a1b75fd` | Failed before the judge: PDF quote contained control characters | Citation helpers now executed, but one returned a canonical PDF excerpt containing U+001A/U+001B that the report validator rejects. Earlier drafts also exceeded the former eight-citation-per-claim limit. |
 | Full attempt 20: `4c57e0f656a443e98215f82f0aa11a4a` | Finished with `insufficient_evidence`; no runtime error | 32 model calls, 763,616 recorded tokens, one search, three extractions and 36 tool calls. Independent audit approved the retained primary-paper claim, but experimental claims lacked citation coverage. One reflection damaged a valid web reference and was rejected. |
-| Upcoming full attempt 21 | **Pending** | Bounded reflection is being changed to preserve supported claims while repairing flagged claims. No complete experimentally grounded answer is counted as verified yet. |
+| Full attempt 21: `cf248e70ab054c75b45e346c475d3e96` | Finished with `insufficient_evidence`; shadow worker failed | The worker encountered Windows error 5 replacing `progress.json` after 7 completed episodes. The candidate and aggregation were not reached. No factual claim survived review; some rejected/ancillary prose incorrectly described unmeasured clipping as inactive. Reflection also exposed inconsistent report-envelope handling. |
+| Upcoming full attempt 22 | **Pending** | Windows publication handling and report transport are being repaired and tested. No complete experimentally grounded answer is counted as verified yet. |
 
-The 20 recorded full attempts comprise 17 failed attempts, one model-accepted
+The 21 recorded full attempts comprise 17 failed attempts, one model-accepted
 report with independently identified defects, and two runs ending in explicit
 insufficient evidence without a runtime error. Revisions must
 preserve failed attempts and unsupported claims rather than hiding them.
@@ -220,3 +221,11 @@ these proposal/ancillary statements should be treated as independently approved.
 
 No statement in this log establishes production reactor readiness or a reliable
 cold-start advantage from federation.
+
+## Attempt 21: a retained worker failure
+
+Shadow `ed8410c85b8d4be8a102729100d271c3` completed 7 episodes (5 training, 2 evaluation; 210 action windows) before Windows denied replacing its progress file. An eighth episode has a start marker but is not counted as completed. Duration was 28.391 seconds. All 57 frozen/current source hashes and saved result/comparison hashes matched. The trace cannot identify which file handle caused the denial.
+
+Aggregation and candidate evaluation were not reached. Clipping activation and a paired cost difference were **not measured**; this is neither an RL failure nor evidence that clipping was inactive. The model output retained this distinction incorrectly in rejected claims and some ancillary text. The actual answer withheld all four claims. The output is not an independently verified research report.
+
+A separate reflection regression rejected a non-native report envelope even though the ordinary report path supports bounded legacy envelopes. The exact submitted envelope was not retained, so its particular shape cannot be reconstructed from the error. The required fix is shared decoding and strict validation, not inventing missing fields.
