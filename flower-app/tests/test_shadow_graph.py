@@ -109,6 +109,7 @@ class ShadowTeamModel(TeamModel):
         if role == "judge" and self.shadow_id:
             args = json.loads(call["arguments"])
             args["verdicts"].append({"id": "C3", "verdict": "supported",
+                                     "all_clauses_supported": True, "scope_matches": True, "unsupported_clauses": [],
                                      "reason": "The scoped recommendation matches the captured shadow result."})
             choose("review_claims", args)
         return response, usage
@@ -144,7 +145,12 @@ def test_shadow_result_flows_through_real_graph_to_writer_and_independent_judge(
     assert derived["metadata"]["input_sha256"] == original["sha256"]
     for role in ("writer", "judge"):
         payload = json.loads(model.histories[role][0][1]["content"])
-        assert any(s["id"] == model.shadow_id and s["content"] == derived["content"] for s in payload["sources"])
+        if role == "writer":
+            assert any(s["id"] == model.shadow_id and s["content"] == derived["content"] for s in payload["sources"])
+        else:
+            assert any(s["id"] == model.shadow_id and "content" not in s for s in payload["sources"])
+            assert any(e["source_id"] == model.shadow_id and e["cited_json_value"] == "development_only"
+                       for claim in payload["claims"] for e in claim["evidence"])
     writer = json.loads(model.histories["writer"][0][1]["content"])
     assert writer["federation_findings"]["evidence_ids"] == ["E001", model.shadow_id]
     assert f"[{model.shadow_id}]" in result["answer"]

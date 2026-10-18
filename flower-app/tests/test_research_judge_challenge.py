@@ -49,6 +49,10 @@ class FakeModel:
                 "actionability": 1, "scope_honesty": 0,
             },
         }
+        for verdict in data["verdicts"]:
+            supported = verdict["verdict"] == "supported"
+            verdict.update(all_clauses_supported=supported, scope_matches=supported,
+                           unsupported_clauses=[] if supported else [verdict["reason"]])
         return {"role": "assistant", "content": "", "tool_calls": [{
             "id": "review1", "type": "function", "function": {
                 "name": "review_claims", "arguments": json.dumps(data),

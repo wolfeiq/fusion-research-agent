@@ -66,6 +66,10 @@ class FakeModel:
                 "verdicts": [{"id": identifier,
                               "verdict": ("supported" if (identifier == "CONTROL" and not self.reject_control)
                                           or self.accepts else "uncertain"),
+                              "all_clauses_supported": ((identifier == "CONTROL" and not self.reject_control) or self.accepts),
+                              "scope_matches": ((identifier == "CONTROL" and not self.reject_control) or self.accepts),
+                              "unsupported_clauses": ([] if (identifier == "CONTROL" and not self.reject_control)
+                                                      or self.accepts else ["Synthetic uncovered clause."]),
                               "reason": "Synthetic verdict for offline harness checks."}
                              for identifier in ("CONTROL", "C1", "C2", "C4")],
                 "gaps": ["Repair exact citation coverage and scientific scope."], "proposal_verdicts": [],

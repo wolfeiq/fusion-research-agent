@@ -78,6 +78,10 @@ def verdicts(*, overclaim=False, omit=False):
         items.append({"id": "C002", "verdict": "supported", "reason": "The extracted sentence supports this wording."})
     if overclaim:
         items.append({"id": "C003", "verdict": "unsupported", "reason": "A simulated endpoint cannot establish universal hardware transfer."})
+    for item in items:
+        supported = item["verdict"] == "supported"
+        item.update(all_clauses_supported=supported, scope_matches=supported,
+                    unsupported_clauses=[] if supported else [item["reason"]])
     return call("review_claims", verdicts=items)
 
 
@@ -309,12 +313,60 @@ def test_reviewer_cannot_upgrade_a_wrong_quote_to_traceable():
     review = verdicts(overclaim=True)
     judgments = json.loads(review["tool_calls"][0]["function"]["arguments"])
     judgments["verdicts"][2]["verdict"] = "supported"
+    judgments["verdicts"][2].update(all_clauses_supported=True, scope_matches=True, unsupported_clauses=[])
     review["tool_calls"][0]["function"]["arguments"] = json.dumps(judgments)
     engine, _, _, _ = make_engine(research_script(data, review))
     result = drive_tools_and_review(engine, "Assess the evidence")
     assert result["claims"][2]["review"]["verdict"] == "supported"
     assert result["claims"][2]["verification"]["status"] == "unsupported"
     assert "all real reactors" not in result["answer"]
+
+
+@pytest.mark.parametrize("updates", [
+    {"all_clauses_supported": False}, {"scope_matches": False},
+    {"unsupported_clauses": ["One numerical clause lacks its own citation."]},
+    {"all_clauses_supported": 1}, {"scope_matches": "true"},
+    {"unsupported_clauses": "[]"}, {"unsupported_clauses": ["gap"] * 13},
+    {"unsupported_clauses": [""]},
+])
+def test_structured_coverage_conflict_cannot_be_hidden_behind_supported_enum(updates):
+    response = accepting_review()
+    args = json.loads(response["tool_calls"][0]["function"]["arguments"])
+    args["verdicts"][0].update(updates)
+    response["tool_calls"][0]["function"]["arguments"] = json.dumps(args)
+    engine, _, _, _ = make_engine(research_script(review=response))
+    result = drive_tools_and_review(engine, "Check full citation coverage.")
+    reviewed_claim = result["claims"][0]
+    assert reviewed_claim["review"]["raw_verdict"] == "supported"
+    assert reviewed_claim["review"]["verdict"] == "uncertain"
+    assert reviewed_claim["verification"]["status"] == "unsupported"
+    assert reviewed_claim["text"] not in result["answer"]
+    assert result["judge"]["decision"] == "revise"
+    assert result["evidence_sufficient"] is False
+
+
+def test_missing_structured_coverage_is_not_accepted_as_legacy_success():
+    response = accepting_review()
+    args = json.loads(response["tool_calls"][0]["function"]["arguments"])
+    del args["verdicts"][0]["scope_matches"]
+    response["tool_calls"][0]["function"]["arguments"] = json.dumps(args)
+    engine, _, _, _ = make_engine(research_script(review=response))
+    result = drive_tools_and_review(engine, "Require explicit scope judgment.")
+    assert result["claims"][0]["review"]["coverage_fields_valid"] is False
+    assert result["claims"][0]["review"]["verdict"] == "uncertain"
+
+
+@pytest.mark.parametrize("decision", ["revise", "insufficient"])
+def test_standalone_review_marks_evidence_insufficient_when_final_decision_is_not_accept(decision):
+    response = accepting_review()
+    args = json.loads(response["tool_calls"][0]["function"]["arguments"])
+    args["decision"] = decision
+    response["tool_calls"][0]["function"]["arguments"] = json.dumps(args)
+    engine, _, _, _ = make_engine(research_script(review=response))
+    result = drive_tools_and_review(engine, "Check final sufficiency independently of graph wrapper.")
+    assert all(claim["verification"]["status"] == "traceable" for claim in result["claims"])
+    assert result["judge"]["decision"] == decision
+    assert result["evidence_sufficient"] is False
 
 
 def test_finish_requires_an_explicit_evidence_assessment():

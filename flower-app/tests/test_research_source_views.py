@@ -85,7 +85,8 @@ def test_review_receives_quote_centered_views_but_keeps_canonical_citation_sourc
 
         def complete(self, messages, tools, tool_choice="auto"):
             self.payload = json.loads(messages[1]["content"])
-            args = {"verdicts": [{"id": "C1", "verdict": "supported", "reason": "The scoped claim matches the cited passage."}],
+            args = {"verdicts": [{"id": "C1", "verdict": "supported", "reason": "The scoped claim matches the cited passage.",
+                                 "all_clauses_supported": True, "scope_matches": True, "unsupported_clauses": []}],
                     "decision": "insufficient", "gaps": ["No measured experiment claim."],
                     "proposal_verdicts": [], "rubric": {"citation_support": 2, "experimental_fairness": 1,
                                                         "actionability": 1, "scope_honesty": 2}}

@@ -299,8 +299,20 @@ REVIEW_TOOL = function(
                         "enum": ["supported", "uncertain", "unsupported"],
                     },
                     "reason": STR,
+                    "all_clauses_supported": {
+                        "type": "boolean",
+                        "description": "True only if every substantive clause is supported by this claim's own exact cited values or quoted passage.",
+                    },
+                    "scope_matches": {
+                        "type": "boolean",
+                        "description": "Compare the claim's setting, unit, mechanism and subject with the cited passage in context. Same-paper background is insufficient: centralized gradient/sample privacy does not establish a client-level federated privacy statement.",
+                    },
+                    "unsupported_clauses": {
+                        "type": "array", "maxItems": 12,
+                        "items": {"type": "string", "minLength": 1, "maxLength": 1600},
+                    },
                 },
-                "required": ["id", "verdict", "reason"],
+                "required": ["id", "verdict", "reason", "all_clauses_supported", "scope_matches", "unsupported_clauses"],
                 "additionalProperties": False,
             },
         },
@@ -868,6 +880,13 @@ class ResearchEngine:
                 "scope, not plausibility. Look for missing seeds, unsupported causality, old "
                 "versus current runs, raw versus gate fallback, and stability versus FL benefit. "
                 "Return supported/uncertain/unsupported with a brief reason for EVERY claim. "
+                "For each verdict separately return all_clauses_supported and scope_matches as "
+                "booleans, plus unsupported_clauses listing every uncovered or mis-scoped clause. "
+                "Supported requires both booleans true and an empty unsupported_clauses list. "
+                "Compare the cited passage's actual setting, unit, mechanism and subject, not only "
+                "the paper's title or overall topic. A paragraph about centralized stochastic-gradient "
+                "privacy cannot support a client-level federated privacy claim merely because the "
+                "same paper later discusses federation; record scope_matches false for that mismatch. "
                 "A source substring match is not proof of the claim. Hypotheses remain tentative. "
                 "Every substantive clause must be supported by the claim's own cited exact JSON "
                 "locators or quoted web excerpts, interpreted in their surrounding context. "
@@ -925,9 +944,29 @@ class ResearchEngine:
                     "unsupported",
                 ):
                     raise ValueError("Invalid verdict")
+                reason = text(v["reason"], "review reason", 1600)
+                clauses = v.get("unsupported_clauses")
+                coverage_valid = (
+                    type(v.get("all_clauses_supported")) is bool
+                    and type(v.get("scope_matches")) is bool
+                    and isinstance(clauses, list) and len(clauses) <= 12
+                    and all(isinstance(item, str) and 0 < len(item.strip()) <= 1600 for item in clauses)
+                )
+                fully_supported = (
+                    coverage_valid and v["all_clauses_supported"] is True
+                    and v["scope_matches"] is True and not clauses
+                )
+                guarded_verdict = v["verdict"]
+                if not coverage_valid or (guarded_verdict == "supported" and not fully_supported):
+                    guarded_verdict = "uncertain"
+                    reason = "Structured citation coverage is missing, invalid or contradicts a supported verdict. " + reason
                 lookup[v["id"]] = {
-                    "verdict": v["verdict"],
-                    "reason": text(v["reason"], "review reason", 1600),
+                    "verdict": guarded_verdict, "raw_verdict": v["verdict"],
+                    "reason": reason,
+                    "all_clauses_supported": v.get("all_clauses_supported") if coverage_valid else None,
+                    "scope_matches": v.get("scope_matches") if coverage_valid else None,
+                    "unsupported_clauses": clauses if coverage_valid else [],
+                    "coverage_fields_valid": coverage_valid,
                 }
         except (ValueError, TypeError, KeyError, IndexError):
             lookup = {}
@@ -1038,6 +1077,8 @@ class ResearchEngine:
             "rubric_note": "0 = unmet; 1 = partially met; 2 = met. "
             "Model judgments, not calibrated probabilities",
         }
+        if decision != "accept":
+            report["evidence_sufficient"] = False
         for proposal in report["next_runs"]:
             proposal["review"] = (
                 "Hypothesis for review; not an executable or validated configuration."

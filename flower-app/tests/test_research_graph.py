@@ -377,6 +377,11 @@ class TeamModel:
                     "reason": "The computed source records the scoped bound; no efficacy claim.",
                 }
             )
+        if role == "judge":
+            for verdict in args["verdicts"]:
+                supported = verdict["verdict"] == "supported"
+                verdict.update(all_clauses_supported=supported, scope_matches=supported,
+                               unsupported_clauses=[] if supported else [verdict["reason"]])
         return {
             "role": "assistant",
             "content": "",
