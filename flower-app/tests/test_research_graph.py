@@ -401,7 +401,7 @@ def setup_engine(decisions=("accept",), **kwargs):
     events = []
     model = TeamModel(decisions, **kwargs)
     retrieval = FakeRetrieval()
-    engine = ResearchEngine([source(model.computed)], model, retrieval, events.append)
+    engine = ResearchEngine([source(model.computed)], model, retrieval, events.append, grounded_reporting=False)
     return engine, model, retrieval, events
 
 
@@ -854,7 +854,7 @@ class BadFindingsModel(TeamModel):
 def test_incomplete_branch_retains_only_personally_read_sources(role, expected_id):
     events = []
     model, retrieval = BadFindingsModel(role=role), ExtraDiscoveryRetrieval()
-    engine = ResearchEngine([source()], model, retrieval, events.append)
+    engine = ResearchEngine([source()], model, retrieval, events.append, grounded_reporting=False)
     result = engine.run("Preserve collected evidence even when a specialist fails to finish.")
     payload = json.loads(model.histories["writer"][0][1]["content"])
     key = "literature_findings" if role == "literature_researcher" else "td3_findings"
@@ -877,7 +877,7 @@ def test_incomplete_branch_retains_only_personally_read_sources(role, expected_i
 
 def test_bad_findings_ids_receive_actionable_eligible_ids_and_can_be_repaired():
     model, retrieval = BadFindingsModel(repair=True), ExtraDiscoveryRetrieval()
-    engine = ResearchEngine([source()], model, retrieval, lambda event: None)
+    engine = ResearchEngine([source()], model, retrieval, lambda event: None, grounded_reporting=False)
     result = engine.run("Repair a discovery-only citation without repeating retrieval.")
     correction = json.loads(model.histories["literature_researcher"][3][-1]["content"])
     assert correction["eligible_evidence_ids"] == ["W002"]

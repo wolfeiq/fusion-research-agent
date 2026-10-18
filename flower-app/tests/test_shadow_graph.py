@@ -124,7 +124,7 @@ def setup(*, enabled=True, **kwargs):
         return copy.deepcopy(SHADOW_RESULT)
 
     engine = ResearchEngine([source()], model, FakeRetrieval(), events.append,
-                            shadow_executor=executor if enabled else None)
+                            shadow_executor=executor if enabled else None, grounded_reporting=False)
     return engine, model, events, executions
 
 

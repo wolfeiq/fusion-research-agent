@@ -390,6 +390,7 @@ class ResearchEngine:
         max_seconds=480,
         max_calls=48,
         shadow_executor=None,
+        grounded_reporting=True,
     ):
         self.sources = {s["id"]: s for s in sources}
         self._next_web_id = len(self.sources) + 1
@@ -409,6 +410,9 @@ class ResearchEngine:
         self._agent_context = threading.local()
         self.shadow_executor = shadow_executor
         self.shadow_attempted = False
+        # Legacy free-prose reporting remains only for regression/audit fixtures.
+        # Live runs default to server-authored measured facts and exact excerpts.
+        self.grounded_reporting = grounded_reporting
 
     @contextmanager
     def agent(self, name):

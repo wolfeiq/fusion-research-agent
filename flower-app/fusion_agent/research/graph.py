@@ -724,6 +724,10 @@ def build_research_graph(engine):
         }}
 
     def writer(state, *, repair=False):
+        if engine.grounded_reporting:
+            from .grounded_writer import write_grounded
+
+            return write_grounded(engine, state, repair=repair)
         event(
             "agent_start",
             "writer",
@@ -932,12 +936,16 @@ def build_research_graph(engine):
             retained = copy.deepcopy(state["report"])
             retained["evidence_sufficient"] = False
             retained["orchestration"].update(writer_reflections=count, status="insufficient_evidence")
+            if engine.grounded_reporting:
+                retained["orchestration"]["reflection_failed"] = True
             retained["limitations"].append("The bounded writer reflection did not produce a valid replacement; the prior independently judged report is retained as insufficient evidence.")
             event("writer_reflection_failed", "writer", str(exc)[:1200], state, reflection=count)
             return {"report": retained, "writer_reflections": count, "reflection_draft_ready": False}
         return {**result, "writer_reflections": count, "reflection_draft_ready": True}
 
     def repairable_review(report):
+        if "grounded_publication" in report:
+            return report.get("judge", {}).get("decision") == "revise"
         return any(
             claim.get("kind") != "hypothesis" and (
                 claim.get("verification", {}).get("status") == "unsupported"
@@ -946,6 +954,10 @@ def build_research_graph(engine):
         ) or any(verdict.get("verdict") != "adequate" for verdict in report.get("judge", {}).get("proposal_verdicts", []))
 
     def judge(state):
+        if engine.grounded_reporting:
+            from .grounded_writer import review_grounded
+
+            return review_grounded(engine, state)
         event(
             "agent_start",
             "judge",
@@ -1010,6 +1022,12 @@ def build_research_graph(engine):
         return {"report": report, "gaps": gaps}
 
     def after_judge(state):
+        if engine.grounded_reporting:
+            if (repairable_review(state["report"])
+                    and state.get("writer_reflections", 0) < MAX_WRITER_REFLECTIONS
+                    and engine.max_turns - engine.model_calls >= 3):
+                return "writer_reflection"
+            return END
         if (
             not state["report"].get("evidence_sufficient")
             and repairable_review(state["report"])
@@ -1089,6 +1107,10 @@ def run_research_graph(engine, question):
             config={"recursion_limit": 16, "max_concurrency": 4},
         )
     report = result["report"]
+    if engine.grounded_reporting:
+        from .grounded_writer import finalize_grounded
+
+        report = finalize_grounded(engine, report)
     report["usage"] = {
         "model_calls": engine.model_calls,
         "tokens": engine.total_usage,
