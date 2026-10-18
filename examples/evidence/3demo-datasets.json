@@ -1,0 +1,169 @@
+{
+  "actual_total_budget": {
+    "evaluation_episodes": 72,
+    "total_episodes": 168,
+    "training_episodes": 96,
+    "windows": 5040
+  },
+  "baseline_source": "Frozen registered shadow baseline; exactly one listed knob changes per dataset.",
+  "configurations": [
+    "baseline",
+    "candidate"
+  ],
+  "controls": [
+    "local",
+    "reset_only",
+    "uniform",
+    "clipped"
+  ],
+  "cost_scope": "Both baseline and candidate configurations include donor training, target learning, initial, gate and report evaluations. Prior calibration and replay-only optimizer work are separate.",
+  "datasets": [
+    {
+      "actual_budget": {
+        "evaluation_episodes": 24,
+        "total_episodes": 56,
+        "training_episodes": 32,
+        "windows": 1680
+      },
+      "baseline_changed_value": 0.0003,
+      "candidate_changed_value": 0.0001,
+      "case": "sac_actor_learning",
+      "comparison_status": "complete",
+      "configuration": {
+        "change": "sac_actor_lr",
+        "rounds": 1,
+        "schema": "fusion-shadow-config-v1",
+        "seeds": [
+          29
+        ],
+        "value": 0.0001
+      },
+      "execution_status": "completed",
+      "files_sha256": {
+        "comparison.json": "a286b93d42da3515b19e1b8627cab337519983f915b26e37bc8f9dacf3caa9d3",
+        "config.json": "cf70a206b9eedfe92ecebf43a97f16bac4eef98ded3f33475e4b3a74cc8bd01b",
+        "manifest.json": "7192a80fefcccf055dee10ece8f4bb4872415c8c69a9e2ae4bbab35aa8dd207e",
+        "output/result.json": "5e12b8745f55a2bc4068b2ba9137f2fcda18a34f2a60283f58024896fde1d44b",
+        "run.json": "6dbbf25a9acc127c49a0f4e0fc0ffdb77dc414458913e0fbc52b01a6be15977f",
+        "source.zip": "a2ad7680375818c8780cb3aa06061a170c504e84cd6b023db98094354a06d288"
+      },
+      "original_run_sha256": "0880f3d743797bb601bdde481aff677df81973308b7b9c053ec980057e804e83",
+      "record_id": "examples/evidence/shadow/dc0df0a81413479e979a18895e1fe2fe/comparison.json",
+      "recorded_recommendation": "keep_baseline",
+      "run_projection_fields": [
+        "id",
+        "status",
+        "config",
+        "manifest",
+        "comparison"
+      ],
+      "source_archive_members": 57,
+      "source_members_match_public_git_commit": "2837fac587a87a07a731d8de199ef32db6df7eb6",
+      "title": "SAC actor learning rate",
+      "trial_id": "dc0df0a81413479e979a18895e1fe2fe",
+      "verification_scope": "EvidenceCatalog verified manifest/config/archive/result hashes and recomputed comparison arithmetic; all 57 ZIP member bytes match the manifest and referenced public Git commit. This is not independent physics or efficacy validation."
+    },
+    {
+      "actual_budget": {
+        "evaluation_episodes": 24,
+        "total_episodes": 56,
+        "training_episodes": 32,
+        "windows": 1680
+      },
+      "baseline_changed_value": 0.25,
+      "candidate_changed_value": 0.1,
+      "case": "sac_critic_mixing",
+      "comparison_status": "complete",
+      "configuration": {
+        "change": "sac_mix",
+        "rounds": 1,
+        "schema": "fusion-shadow-config-v1",
+        "seeds": [
+          29
+        ],
+        "value": 0.1
+      },
+      "execution_status": "completed",
+      "files_sha256": {
+        "comparison.json": "7853820992b8638bdc84e46ba2392dac1112cc5999d3f847e19f35554dea5c1c",
+        "config.json": "a1d67068bbdf03c81785538ed203c25fab119a7866f1aacb25cadcdabf02320d",
+        "manifest.json": "ca32681ef73af95e76b5b00cc8e533fed0c22150634a3dd5a38aaa05ebbcf2a0",
+        "output/result.json": "e7f789c3e569dd942159a9f5fa62927e80147535ca260c0e039afb4491099b02",
+        "run.json": "db223d5ead6de692aabacd463c3fd772e1e4a3a2278348a1ddd2c277da58b82c",
+        "source.zip": "e265c66e8154b4a9545214c710af07f484c59b0e0c3a52c165fba146687fbda6"
+      },
+      "original_run_sha256": "ccd8bd17e6ea44b765aa1f6c2e6cc9742d27c229415953a012fe31da6645e40f",
+      "record_id": "examples/evidence/shadow/fbb83d8ee93a424497aeacc0a2633dc3/comparison.json",
+      "recorded_recommendation": "keep_baseline",
+      "run_projection_fields": [
+        "id",
+        "status",
+        "config",
+        "manifest",
+        "comparison"
+      ],
+      "source_archive_members": 57,
+      "source_members_match_public_git_commit": "2837fac587a87a07a731d8de199ef32db6df7eb6",
+      "title": "SAC critic mixing",
+      "trial_id": "fbb83d8ee93a424497aeacc0a2633dc3",
+      "verification_scope": "EvidenceCatalog verified manifest/config/archive/result hashes and recomputed comparison arithmetic; all 57 ZIP member bytes match the manifest and referenced public Git commit. This is not independent physics or efficacy validation."
+    },
+    {
+      "actual_budget": {
+        "evaluation_episodes": 24,
+        "total_episodes": 56,
+        "training_episodes": 32,
+        "windows": 1680
+      },
+      "baseline_changed_value": "normalized",
+      "candidate_changed_value": "physical",
+      "case": "td3_action_coordinates",
+      "comparison_status": "complete",
+      "configuration": {
+        "change": "heating_critic_coordinates",
+        "rounds": 1,
+        "schema": "fusion-shadow-config-v1",
+        "seeds": [
+          29
+        ],
+        "value": "physical"
+      },
+      "execution_status": "completed",
+      "files_sha256": {
+        "comparison.json": "637a71337847f7252b532f7bc522b582f88a1b24d5d596a5c25c03c6eb47792f",
+        "config.json": "e5d2fd3b37a736949411dcc33fb4499b1ca9ae9b417de5766ed260a57dfbf780",
+        "manifest.json": "a0ad9ba667548fa202c59c046e86ab1929d7d3f5a5b0e3da7211cfbfa8bd5aa5",
+        "output/result.json": "ca3c7f70ce2722b46467825075a54f9be30ebf312b7b8ea86af1cc90d02c390c",
+        "run.json": "1ce0892873bd2cfb7795525ebe8bc54f1f7b5130ab83b13c166f07208d1a8bb5",
+        "source.zip": "79da549912fe1adc03cd245a77ddc9fe0124368755dd23c80f083b93f21a2fdc"
+      },
+      "original_run_sha256": "23901151c494781faa25f727d40b8f96971045ebee2f1a451d8f7e6650cce8d5",
+      "record_id": "examples/evidence/shadow/12eddcebd2c548d889b41d3f2adace91/comparison.json",
+      "recorded_recommendation": "keep_baseline",
+      "run_projection_fields": [
+        "id",
+        "status",
+        "config",
+        "manifest",
+        "comparison"
+      ],
+      "source_archive_members": 57,
+      "source_members_match_public_git_commit": "2837fac587a87a07a731d8de199ef32db6df7eb6",
+      "title": "TD3 critic action coordinates",
+      "trial_id": "12eddcebd2c548d889b41d3f2adace91",
+      "verification_scope": "EvidenceCatalog verified manifest/config/archive/result hashes and recomputed comparison arithmetic; all 57 ZIP member bytes match the manifest and referenced public Git commit. This is not independent physics or efficacy validation."
+    }
+  ],
+  "export_policy": "Five files per dataset are byte-identical to the completed trial. Only run.json is projected to id,status,config,manifest,comparison, removing process/event metadata. No provider responses, web snapshots, credentials or runtime logs are exported.",
+  "planned_budget_per_dataset": {
+    "evaluation_episodes": 24,
+    "maximum_action_windows": 1680,
+    "maximum_wall_seconds": 600,
+    "total_episodes": 56,
+    "training_episodes": 32
+  },
+  "reporting_scope": "Bundling completed simulation evidence does not retroactively validate earlier agent reports or establish a federation advantage.",
+  "schema": "fusion-three-demo-datasets-v1",
+  "scope": "Three completed local CPU TORAX development datasets with different changed controller knobs. All use the same SPARC-like setup, development seed 29 and one round; they are not three reactors or independent training-seed replications.",
+  "source_commit_scope": "The referenced commit identifies matching already-public source bytes; it is not claimed to be a recorded launch commit."
+}

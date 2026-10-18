@@ -1,0 +1,3486 @@
+{
+  "baseline": {
+    "accounting": {
+      "contribution_optimization": [
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        }
+      ],
+      "evaluation_episodes": 12,
+      "repair_optimization": [
+        {
+          "arm": "reset_only",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        },
+        {
+          "arm": "uniform",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        },
+        {
+          "arm": "clipped",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        }
+      ],
+      "training_episodes": 16,
+      "training_optimizer_updates": {
+        "beam": 294,
+        "heating": 294,
+        "joint": 0
+      },
+      "windows": 840
+    },
+    "configs": {
+      "clipping_initial_norm_fraction": 0.1,
+      "sac": {
+        "actor_lr": 0.0003,
+        "adapt_steps": 40,
+        "alpha_lr": 0.0003,
+        "batch": 32,
+        "gamma": 0.9048374180359595,
+        "head_steps": 25,
+        "hidden": 64,
+        "initial_alpha": 0.2,
+        "lr": 0.0003,
+        "mix": 0.25,
+        "rep_lr": 0.001,
+        "rep_steps": 25,
+        "repair_steps": 25,
+        "replay_capacity": 100000,
+        "reward_scale": 1.0,
+        "target_entropy": null,
+        "tau": 0.005
+      },
+      "td3": {
+        "actor_init_fraction": [
+          0.5,
+          0.5
+        ],
+        "actor_lr": 0.0001,
+        "actor_warmup_updates": 0,
+        "adapt_steps": 40,
+        "batch": 32,
+        "critic_action_coordinates": "normalized",
+        "critic_head_init": "zero",
+        "exploration": 0.1,
+        "gamma": 0.9048374180359595,
+        "head_steps": 25,
+        "hidden": 64,
+        "lr": 0.0003,
+        "mix": 0.25,
+        "noise_clip": 0.5,
+        "policy_delay": 2,
+        "rep_lr": 0.001,
+        "rep_steps": 25,
+        "repair_steps": 25,
+        "replay_capacity": 100000,
+        "reward_scale": 1.0,
+        "target_noise": 0.2,
+        "tau": 0.005
+      }
+    },
+    "seeds": [
+      {
+        "arms": {
+          "clipped": {
+            "actor_hashes": {
+              "beam": "7161821547f408a0e591b81a4211c30e648a9228861b4f8af121f4c6c0e1f9a2",
+              "heating": "d00d0e435ba61c623b2f8f93c3b1a6a25c632ae0f2b623eddc53d3c6028d57e9"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": {
+              "accept": false,
+              "cost_floor": 0.01,
+              "reason": "case_0_cost_worse_than_tolerance",
+              "relative_cost_changes": [
+                0.15095809686262576
+              ],
+              "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+              "tolerance": 0.05
+            },
+            "incumbent": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.04404085832046633,
+              "mean_beta_mae": 0.0027851544387850554,
+              "mean_cost": 0.11927660356743462,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.04404085832046633,
+                  "beta_mae": 0.0027851544387850554,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.11927660356743462,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "faeb7982fa323077872d800b686c07e79cc5146789d8538cc60f1bd3b959282f",
+              "heating_td3": "43ba56cd14d6f886b1be19f26ad160db12b46b153de3b8275161a869257e0eed"
+            }
+          },
+          "local": {
+            "actor_hashes": {
+              "beam": "e4ed1e22654e83f7416ff882f502a8ff4d93c331c8ee9f9db07d46e5f8c795d1",
+              "heating": "a0b658e9ba5b12e505db3501af538d38cadeb40af0d97a61abef983f25163cb6"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": null,
+            "learner_updates": {
+              "beam": 29,
+              "beam_actor": 29,
+              "beam_entropy_temperature": 29,
+              "heating": 29,
+              "heating_actor": 14
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "05702b909dd1c86e081eb700c656ce83f2aafbf5b13031ab7c10496f9a760f5c",
+              "heating_td3": "3db0930fc63af0f4811bc0dcad1c2b345fcd11786fe096beb9379c3cd3f0da5e"
+            }
+          },
+          "reset_only": {
+            "actor_hashes": {
+              "beam": "470b7ee4f15f9411d2a7170d8e792ccd71dfcec05252d0c033a8fe437b63f662",
+              "heating": "01203701df2ac47be381b9ac2e5d767143cdc33eff7fd88b64a276f2f7a508ed"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.04576390658059586,
+              "mean_beta_mae": 0.0028964135866316,
+              "mean_cost": 0.12301490344951123,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.04576390658059586,
+                  "beta_mae": 0.0028964135866316,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.12301490344951123,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": null,
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.04576390658059586,
+              "mean_beta_mae": 0.0028964135866316,
+              "mean_cost": 0.12301490344951123,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.04576390658059586,
+                  "beta_mae": 0.0028964135866316,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.12301490344951123,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "01e7222ddd0031e29d9a425631ef643846127301564a2b654b54d4be8395715e",
+              "heating_td3": "4093967527630f02efc142aec39c6f600fc4c2fb65a73acf77b2888a2570901a"
+            }
+          },
+          "uniform": {
+            "actor_hashes": {
+              "beam": "7161821547f408a0e591b81a4211c30e648a9228861b4f8af121f4c6c0e1f9a2",
+              "heating": "d00d0e435ba61c623b2f8f93c3b1a6a25c632ae0f2b623eddc53d3c6028d57e9"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": {
+              "accept": false,
+              "cost_floor": 0.01,
+              "reason": "case_0_cost_worse_than_tolerance",
+              "relative_cost_changes": [
+                0.15095809686262576
+              ],
+              "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+              "tolerance": 0.05
+            },
+            "incumbent": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03520509200159882,
+              "mean_beta_mae": 0.002363113226968653,
+              "mean_cost": 0.10362229498885057,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03520509200159882,
+                  "beta_mae": 0.002363113226968653,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10362229498885057,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.04404085832046633,
+              "mean_beta_mae": 0.0027851544387850554,
+              "mean_cost": 0.11927660356743462,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.04404085832046633,
+                  "beta_mae": 0.0027851544387850554,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.11927660356743462,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "faeb7982fa323077872d800b686c07e79cc5146789d8538cc60f1bd3b959282f",
+              "heating_td3": "43ba56cd14d6f886b1be19f26ad160db12b46b153de3b8275161a869257e0eed"
+            }
+          }
+        },
+        "conditions_sha256": "5ec5e9ca31b2bf89c6f172af1835229ca99116f7c509fc1fc6bfdcd8e13d390e",
+        "fixed_reference": {
+          "cases": 1,
+          "cases_with_events": 0,
+          "cases_with_invalid_physics": 0,
+          "competent": true,
+          "complete_cases": 1,
+          "mean_Te_profile_rmse_keV": 0.005918520407451514,
+          "mean_beta_mae": 0.00012051368386208904,
+          "mean_cost": 0.07699534705272773,
+          "optimizer_updates": {
+            "beam": 0,
+            "heating": 0,
+            "joint": 0
+          },
+          "per_case": [
+            {
+              "Te_profile_rmse_keV": 0.005918520407451514,
+              "beta_mae": 0.00012051368386208904,
+              "beta_within_tolerance_fraction": 1.0,
+              "complete": true,
+              "cost": 0.07699534705272773,
+              "events": [],
+              "invalid_physical_windows": [],
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "scenario": {
+                "initial_temperature_factor": 1.05
+              },
+              "seed": 299000,
+              "windows": 30
+            }
+          ],
+          "windows": 30
+        },
+        "initial": {
+          "cases": 1,
+          "cases_with_events": 0,
+          "cases_with_invalid_physics": 0,
+          "competent": false,
+          "complete_cases": 1,
+          "mean_Te_profile_rmse_keV": 0.0440384172293795,
+          "mean_beta_mae": 0.0028536132647298262,
+          "mean_cost": 0.11995299346654348,
+          "optimizer_updates": {
+            "beam": 0,
+            "heating": 0,
+            "joint": 0
+          },
+          "per_case": [
+            {
+              "Te_profile_rmse_keV": 0.0440384172293795,
+              "beta_mae": 0.0028536132647298262,
+              "beta_within_tolerance_fraction": 1.0,
+              "complete": true,
+              "cost": 0.11995299346654348,
+              "events": [],
+              "invalid_physical_windows": [],
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "scenario": {
+                "initial_temperature_factor": 1.05
+              },
+              "seed": 299000,
+              "windows": 30
+            }
+          ],
+          "windows": 30
+        },
+        "initial_pair_digest": "5449048f5b3221a5d7f4879db40a5357431821da9b5fb98fca2d4a589bd63c4a",
+        "initial_representation_hashes": {
+          "deposition_sac": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+          "heating_td3": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741"
+        },
+        "rounds": [
+          {
+            "aggregation": {
+              "clipped": {
+                "deposition_sac": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+                  "clipped_mean_norms": {
+                    "q0": 0.011771894443788056,
+                    "q1": 0.0031915720936257844
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a",
+                    "norm_matched_uniform": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a",
+                    "uniform": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    },
+                    "uniform": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "f625fec54e338038a8303cfe73f4405af429fd439575889bfc3d3108628f6525",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 0.006435997352366605,
+                      "q1": 0.0010476277670433065
+                    },
+                    "donor_cool": {
+                      "q0": 0.014265230776003683,
+                      "q1": 0.005249072630608175
+                    },
+                    "donor_warm": {
+                      "q0": 0.01463543650622778,
+                      "q1": 0.0053284020774408474
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6592810460434841,
+                    "q1": 0.6592998947528599
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 0.011771894443788056,
+                    "q1": 0.0031915720936257844
+                  },
+                  "update_ids": [
+                    "baseline:29:clipped:1:donor_cool:deposition_sac",
+                    "baseline:29:clipped:1:donor_warm:deposition_sac",
+                    "baseline:29:clipped:1:cold_target:deposition_sac"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                },
+                "heating_td3": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741",
+                  "clipped_mean_norms": {
+                    "q0": 2.672715910426905e-05,
+                    "q1": 3.0322789794154365e-05
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65",
+                    "norm_matched_uniform": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65",
+                    "uniform": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    },
+                    "uniform": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "1ce5487b63f604252069d5a0dc6370d088842d56ef8334e7a3208a3d51c28119",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 1.6296938797268305e-05,
+                      "q1": 1.5703406325730205e-05
+                    },
+                    "donor_cool": {
+                      "q0": 4.4589853255013936e-05,
+                      "q1": 5.565312888652738e-05
+                    },
+                    "donor_warm": {
+                      "q0": 2.8584978878672763e-05,
+                      "q1": 3.086283099956681e-05
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6617651203885833,
+                    "q1": 0.6575189801502899
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 2.672715910426905e-05,
+                    "q1": 3.0322789794154365e-05
+                  },
+                  "update_ids": [
+                    "baseline:29:clipped:1:donor_cool:heating_td3",
+                    "baseline:29:clipped:1:donor_warm:heating_td3",
+                    "baseline:29:clipped:1:cold_target:heating_td3"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                }
+              },
+              "uniform": {
+                "deposition_sac": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+                  "clipped_mean_norms": {
+                    "q0": 0.011771894443788056,
+                    "q1": 0.0031915720936257844
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a",
+                    "norm_matched_uniform": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a",
+                    "uniform": "8bf5ba05127cf9d4965d9304dc0600838b9111daabdae5ad544295ec137b253a"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    },
+                    "uniform": {
+                      "q0": 0.011771895795721417,
+                      "q1": 0.0031915728956573206
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "f625fec54e338038a8303cfe73f4405af429fd439575889bfc3d3108628f6525",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 0.006435997352366605,
+                      "q1": 0.0010476277670433065
+                    },
+                    "donor_cool": {
+                      "q0": 0.014265230776003683,
+                      "q1": 0.005249072630608175
+                    },
+                    "donor_warm": {
+                      "q0": 0.01463543650622778,
+                      "q1": 0.0053284020774408474
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6592810460434841,
+                    "q1": 0.6592998947528599
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 0.011771894443788056,
+                    "q1": 0.0031915720936257844
+                  },
+                  "update_ids": [
+                    "baseline:29:uniform:1:donor_cool:deposition_sac",
+                    "baseline:29:uniform:1:donor_warm:deposition_sac",
+                    "baseline:29:uniform:1:cold_target:deposition_sac"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                },
+                "heating_td3": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741",
+                  "clipped_mean_norms": {
+                    "q0": 2.672715910426905e-05,
+                    "q1": 3.0322789794154365e-05
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65",
+                    "norm_matched_uniform": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65",
+                    "uniform": "728118c204dedf6b6d1b03cd557dc71cb1ea26a032fcec8161a52c450ad24d65"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    },
+                    "uniform": {
+                      "q0": 2.6725600089422095e-05,
+                      "q1": 3.0322123429139836e-05
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "1ce5487b63f604252069d5a0dc6370d088842d56ef8334e7a3208a3d51c28119",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 1.6296938797268305e-05,
+                      "q1": 1.5703406325730205e-05
+                    },
+                    "donor_cool": {
+                      "q0": 4.4589853255013936e-05,
+                      "q1": 5.565312888652738e-05
+                    },
+                    "donor_warm": {
+                      "q0": 2.8584978878672763e-05,
+                      "q1": 3.086283099956681e-05
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6617651203885833,
+                    "q1": 0.6575189801502899
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 2.672715910426905e-05,
+                    "q1": 3.0322789794154365e-05
+                  },
+                  "update_ids": [
+                    "baseline:29:uniform:1:donor_cool:heating_td3",
+                    "baseline:29:uniform:1:donor_warm:heating_td3",
+                    "baseline:29:uniform:1:cold_target:heating_td3"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                }
+              }
+            },
+            "arms": {
+              "clipped": {
+                "actor_hashes": {
+                  "beam": "7161821547f408a0e591b81a4211c30e648a9228861b4f8af121f4c6c0e1f9a2",
+                  "heating": "d00d0e435ba61c623b2f8f93c3b1a6a25c632ae0f2b623eddc53d3c6028d57e9"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": {
+                  "accept": false,
+                  "cost_floor": 0.01,
+                  "reason": "case_0_cost_worse_than_tolerance",
+                  "relative_cost_changes": [
+                    0.15095809686262576
+                  ],
+                  "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+                  "tolerance": 0.05
+                },
+                "incumbent": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.04404085832046633,
+                  "mean_beta_mae": 0.0027851544387850554,
+                  "mean_cost": 0.11927660356743462,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.04404085832046633,
+                      "beta_mae": 0.0027851544387850554,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.11927660356743462,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "faeb7982fa323077872d800b686c07e79cc5146789d8538cc60f1bd3b959282f",
+                  "heating_td3": "43ba56cd14d6f886b1be19f26ad160db12b46b153de3b8275161a869257e0eed"
+                }
+              },
+              "local": {
+                "actor_hashes": {
+                  "beam": "e4ed1e22654e83f7416ff882f502a8ff4d93c331c8ee9f9db07d46e5f8c795d1",
+                  "heating": "a0b658e9ba5b12e505db3501af538d38cadeb40af0d97a61abef983f25163cb6"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": null,
+                "learner_updates": {
+                  "beam": 29,
+                  "beam_actor": 29,
+                  "beam_entropy_temperature": 29,
+                  "heating": 29,
+                  "heating_actor": 14
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "05702b909dd1c86e081eb700c656ce83f2aafbf5b13031ab7c10496f9a760f5c",
+                  "heating_td3": "3db0930fc63af0f4811bc0dcad1c2b345fcd11786fe096beb9379c3cd3f0da5e"
+                }
+              },
+              "reset_only": {
+                "actor_hashes": {
+                  "beam": "470b7ee4f15f9411d2a7170d8e792ccd71dfcec05252d0c033a8fe437b63f662",
+                  "heating": "01203701df2ac47be381b9ac2e5d767143cdc33eff7fd88b64a276f2f7a508ed"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.04576390658059586,
+                  "mean_beta_mae": 0.0028964135866316,
+                  "mean_cost": 0.12301490344951123,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.04576390658059586,
+                      "beta_mae": 0.0028964135866316,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.12301490344951123,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": null,
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.04576390658059586,
+                  "mean_beta_mae": 0.0028964135866316,
+                  "mean_cost": 0.12301490344951123,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.04576390658059586,
+                      "beta_mae": 0.0028964135866316,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.12301490344951123,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "01e7222ddd0031e29d9a425631ef643846127301564a2b654b54d4be8395715e",
+                  "heating_td3": "4093967527630f02efc142aec39c6f600fc4c2fb65a73acf77b2888a2570901a"
+                }
+              },
+              "uniform": {
+                "actor_hashes": {
+                  "beam": "7161821547f408a0e591b81a4211c30e648a9228861b4f8af121f4c6c0e1f9a2",
+                  "heating": "d00d0e435ba61c623b2f8f93c3b1a6a25c632ae0f2b623eddc53d3c6028d57e9"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": {
+                  "accept": false,
+                  "cost_floor": 0.01,
+                  "reason": "case_0_cost_worse_than_tolerance",
+                  "relative_cost_changes": [
+                    0.15095809686262576
+                  ],
+                  "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+                  "tolerance": 0.05
+                },
+                "incumbent": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03520509200159882,
+                  "mean_beta_mae": 0.002363113226968653,
+                  "mean_cost": 0.10362229498885057,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03520509200159882,
+                      "beta_mae": 0.002363113226968653,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10362229498885057,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.04404085832046633,
+                  "mean_beta_mae": 0.0027851544387850554,
+                  "mean_cost": 0.11927660356743462,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.04404085832046633,
+                      "beta_mae": 0.0027851544387850554,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.11927660356743462,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "faeb7982fa323077872d800b686c07e79cc5146789d8538cc60f1bd3b959282f",
+                  "heating_td3": "43ba56cd14d6f886b1be19f26ad160db12b46b153de3b8275161a869257e0eed"
+                }
+              }
+            },
+            "round": 1,
+            "target_training_shots_per_arm": 2
+          }
+        ],
+        "seed": 29,
+        "status": "complete",
+        "training_stable": true
+      }
+    ],
+    "status": "complete"
+  },
+  "candidate": {
+    "accounting": {
+      "contribution_optimization": [
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "uniform",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "heating_td3",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_cool",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "donor_warm",
+          "trunk_sgd_updates": 25
+        },
+        {
+          "arm": "clipped",
+          "frozen_replay_samples": 800,
+          "head_sgd_updates": 25,
+          "optimization_sample_uses": 1600,
+          "role": "deposition_sac",
+          "round": 1,
+          "seed": 29,
+          "source": "cold_target",
+          "trunk_sgd_updates": 25
+        }
+      ],
+      "evaluation_episodes": 12,
+      "repair_optimization": [
+        {
+          "arm": "reset_only",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        },
+        {
+          "arm": "uniform",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        },
+        {
+          "arm": "clipped",
+          "roles": {
+            "deposition_sac": {
+              "actor_adaptation_updates": 40,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 40,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            },
+            "heating_td3": {
+              "actor_adaptation_updates": 20,
+              "critic_adaptation_updates": 40,
+              "entropy_temperature_updates": 0,
+              "head_sgd_updates": 25,
+              "replay_samples": 2080
+            }
+          },
+          "round": 1,
+          "seed": 29
+        }
+      ],
+      "training_episodes": 16,
+      "training_optimizer_updates": {
+        "beam": 294,
+        "heating": 294,
+        "joint": 0
+      },
+      "windows": 840
+    },
+    "configs": {
+      "clipping_initial_norm_fraction": 0.1,
+      "sac": {
+        "actor_lr": 0.0003,
+        "adapt_steps": 40,
+        "alpha_lr": 0.0003,
+        "batch": 32,
+        "gamma": 0.9048374180359595,
+        "head_steps": 25,
+        "hidden": 64,
+        "initial_alpha": 0.2,
+        "lr": 0.0003,
+        "mix": 0.25,
+        "rep_lr": 0.001,
+        "rep_steps": 25,
+        "repair_steps": 25,
+        "replay_capacity": 100000,
+        "reward_scale": 1.0,
+        "target_entropy": null,
+        "tau": 0.005
+      },
+      "td3": {
+        "actor_init_fraction": [
+          0.5,
+          0.5
+        ],
+        "actor_lr": 0.0001,
+        "actor_warmup_updates": 0,
+        "adapt_steps": 40,
+        "batch": 32,
+        "critic_action_coordinates": "physical",
+        "critic_head_init": "zero",
+        "exploration": 0.1,
+        "gamma": 0.9048374180359595,
+        "head_steps": 25,
+        "hidden": 64,
+        "lr": 0.0003,
+        "mix": 0.25,
+        "noise_clip": 0.5,
+        "policy_delay": 2,
+        "rep_lr": 0.001,
+        "rep_steps": 25,
+        "repair_steps": 25,
+        "replay_capacity": 100000,
+        "reward_scale": 1.0,
+        "target_noise": 0.2,
+        "tau": 0.005
+      }
+    },
+    "seeds": [
+      {
+        "arms": {
+          "clipped": {
+            "actor_hashes": {
+              "beam": "f8492db1fc744f697bab5b29dfce8c4b8ba50ebc3b5c01ef6e532fa24c185b3d",
+              "heating": "64cd000b1ee6ec73d8e0662214bfc154a07a9a3989b33bab683d7ef8bfac7b12"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03364080111424611,
+              "mean_beta_mae": 0.0020534856528355684,
+              "mean_cost": 0.09957565963400318,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03364080111424611,
+                  "beta_mae": 0.0020534856528355684,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.09957565963400318,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": {
+              "accept": true,
+              "cost_floor": 0.01,
+              "reason": "pass",
+              "relative_cost_changes": [
+                -0.04572402507103994
+              ],
+              "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+              "tolerance": 0.05
+            },
+            "incumbent": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03561191923447662,
+              "mean_beta_mae": 0.0023909243257184873,
+              "mean_cost": 0.10433581198296071,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03561191923447662,
+                  "beta_mae": 0.0023909243257184873,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10433581198296071,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03364080111424611,
+              "mean_beta_mae": 0.0020534856528355684,
+              "mean_cost": 0.09957565963400318,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03364080111424611,
+                  "beta_mae": 0.0020534856528355684,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.09957565963400318,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "f8e1d0fe2b246c072fcaa34b22351dddd3d94c47328a586364f3c187403ba35b",
+              "heating_td3": "091345d66a81d5bdc60098a54a15cb0c6bc1ae03dbacbf31c6830540554b6baa"
+            }
+          },
+          "local": {
+            "actor_hashes": {
+              "beam": "2eeb21b519dacb6b72cc2a24736d7aaa844878eb13840afa1d8bdf3a0d32dedc",
+              "heating": "7556246d394b16dd04254fe869d885eb6508ff21cfa71f0d69d9b76f006a50e3"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03561191923447662,
+              "mean_beta_mae": 0.0023909243257184873,
+              "mean_cost": 0.10433581198296071,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03561191923447662,
+                  "beta_mae": 0.0023909243257184873,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10433581198296071,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": null,
+            "learner_updates": {
+              "beam": 29,
+              "beam_actor": 29,
+              "beam_entropy_temperature": 29,
+              "heating": 29,
+              "heating_actor": 14
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03561191923447662,
+              "mean_beta_mae": 0.0023909243257184873,
+              "mean_cost": 0.10433581198296071,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03561191923447662,
+                  "beta_mae": 0.0023909243257184873,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10433581198296071,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "bbd012adda992d8af0ead3b9d1d62609106dbf95d60a1f4b3459ecbb87b4e5d1",
+              "heating_td3": "7ecddf15083363a5707ab128a248b6e141d8035da15d59319054ddd2604cca20"
+            }
+          },
+          "reset_only": {
+            "actor_hashes": {
+              "beam": "b52b255f41776a0419162b7f0c2a94228c03546f6386d1f76a0a9b2983e39987",
+              "heating": "b0c1c11a9ed114073d7957ebeda2d42f2760847b949ea0c708fcbeaf33ca3856"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03567250799901675,
+              "mean_beta_mae": 0.0021879004326697407,
+              "mean_cost": 0.10289594272911977,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03567250799901675,
+                  "beta_mae": 0.0021879004326697407,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10289594272911977,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": null,
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03567250799901675,
+              "mean_beta_mae": 0.0021879004326697407,
+              "mean_cost": 0.10289594272911977,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03567250799901675,
+                  "beta_mae": 0.0021879004326697407,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10289594272911977,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "a6063e089366d8b008248154b911e5c9ec5414ef8268439069207f0f951870df",
+              "heating_td3": "6709c119ce7065a2c17673c17c51f12b14247398970fe8304a73401df26c9901"
+            }
+          },
+          "uniform": {
+            "actor_hashes": {
+              "beam": "f8492db1fc744f697bab5b29dfce8c4b8ba50ebc3b5c01ef6e532fa24c185b3d",
+              "heating": "64cd000b1ee6ec73d8e0662214bfc154a07a9a3989b33bab683d7ef8bfac7b12"
+            },
+            "deployed": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03364080111424611,
+              "mean_beta_mae": 0.0020534856528355684,
+              "mean_cost": 0.09957565963400318,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03364080111424611,
+                  "beta_mae": 0.0020534856528355684,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.09957565963400318,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "gate": {
+              "accept": true,
+              "cost_floor": 0.01,
+              "reason": "pass",
+              "relative_cost_changes": [
+                -0.04572402507103994
+              ],
+              "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+              "tolerance": 0.05
+            },
+            "incumbent": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03561191923447662,
+              "mean_beta_mae": 0.0023909243257184873,
+              "mean_cost": 0.10433581198296071,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03561191923447662,
+                  "beta_mae": 0.0023909243257184873,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.10433581198296071,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "learner_updates": {
+              "beam": 69,
+              "beam_actor": 69,
+              "beam_entropy_temperature": 69,
+              "heating": 69,
+              "heating_actor": 34
+            },
+            "raw": {
+              "cases": 1,
+              "cases_with_events": 0,
+              "cases_with_invalid_physics": 0,
+              "competent": false,
+              "complete_cases": 1,
+              "mean_Te_profile_rmse_keV": 0.03364080111424611,
+              "mean_beta_mae": 0.0020534856528355684,
+              "mean_cost": 0.09957565963400318,
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "per_case": [
+                {
+                  "Te_profile_rmse_keV": 0.03364080111424611,
+                  "beta_mae": 0.0020534856528355684,
+                  "beta_within_tolerance_fraction": 1.0,
+                  "complete": true,
+                  "cost": 0.09957565963400318,
+                  "events": [],
+                  "invalid_physical_windows": [],
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "scenario": {
+                    "initial_temperature_factor": 1.05
+                  },
+                  "seed": 299000,
+                  "windows": 30
+                }
+              ],
+              "windows": 30
+            },
+            "representation_hashes": {
+              "deposition_sac": "f8e1d0fe2b246c072fcaa34b22351dddd3d94c47328a586364f3c187403ba35b",
+              "heating_td3": "091345d66a81d5bdc60098a54a15cb0c6bc1ae03dbacbf31c6830540554b6baa"
+            }
+          }
+        },
+        "conditions_sha256": "5ec5e9ca31b2bf89c6f172af1835229ca99116f7c509fc1fc6bfdcd8e13d390e",
+        "fixed_reference": {
+          "cases": 1,
+          "cases_with_events": 0,
+          "cases_with_invalid_physics": 0,
+          "competent": true,
+          "complete_cases": 1,
+          "mean_Te_profile_rmse_keV": 0.005918520407451514,
+          "mean_beta_mae": 0.00012051368386208904,
+          "mean_cost": 0.07699534705272773,
+          "optimizer_updates": {
+            "beam": 0,
+            "heating": 0,
+            "joint": 0
+          },
+          "per_case": [
+            {
+              "Te_profile_rmse_keV": 0.005918520407451514,
+              "beta_mae": 0.00012051368386208904,
+              "beta_within_tolerance_fraction": 1.0,
+              "complete": true,
+              "cost": 0.07699534705272773,
+              "events": [],
+              "invalid_physical_windows": [],
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "scenario": {
+                "initial_temperature_factor": 1.05
+              },
+              "seed": 299000,
+              "windows": 30
+            }
+          ],
+          "windows": 30
+        },
+        "initial": {
+          "cases": 1,
+          "cases_with_events": 0,
+          "cases_with_invalid_physics": 0,
+          "competent": false,
+          "complete_cases": 1,
+          "mean_Te_profile_rmse_keV": 0.0440384172293795,
+          "mean_beta_mae": 0.0028536132647298262,
+          "mean_cost": 0.11995299346654348,
+          "optimizer_updates": {
+            "beam": 0,
+            "heating": 0,
+            "joint": 0
+          },
+          "per_case": [
+            {
+              "Te_profile_rmse_keV": 0.0440384172293795,
+              "beta_mae": 0.0028536132647298262,
+              "beta_within_tolerance_fraction": 1.0,
+              "complete": true,
+              "cost": 0.11995299346654348,
+              "events": [],
+              "invalid_physical_windows": [],
+              "optimizer_updates": {
+                "beam": 0,
+                "heating": 0,
+                "joint": 0
+              },
+              "scenario": {
+                "initial_temperature_factor": 1.05
+              },
+              "seed": 299000,
+              "windows": 30
+            }
+          ],
+          "windows": 30
+        },
+        "initial_pair_digest": "9d1502b7b508523502804887413c7dbc8ffc9c55eb45626710ee4f9aa27e4bcc",
+        "initial_representation_hashes": {
+          "deposition_sac": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+          "heating_td3": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741"
+        },
+        "rounds": [
+          {
+            "aggregation": {
+              "clipped": {
+                "deposition_sac": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+                  "clipped_mean_norms": {
+                    "q0": 0.01177226204815891,
+                    "q1": 0.003184419385158919
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43",
+                    "norm_matched_uniform": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43",
+                    "uniform": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    },
+                    "uniform": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "6eafbe58eb811d0fbedab2109d37fd862f42792122eb7c6e99a09ae30d06d2f2",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 0.006435898312393285,
+                      "q1": 0.0010485597801921508
+                    },
+                    "donor_cool": {
+                      "q0": 0.01426720840247156,
+                      "q1": 0.00523556972375955
+                    },
+                    "donor_warm": {
+                      "q0": 0.01463474726942448,
+                      "q1": 0.005321601596942032
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6592810460434841,
+                    "q1": 0.6592998947528599
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 0.01177226204815891,
+                    "q1": 0.003184419385158919
+                  },
+                  "update_ids": [
+                    "candidate:29:clipped:1:donor_cool:deposition_sac",
+                    "candidate:29:clipped:1:donor_warm:deposition_sac",
+                    "candidate:29:clipped:1:cold_target:deposition_sac"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                },
+                "heating_td3": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741",
+                  "clipped_mean_norms": {
+                    "q0": 1.4390252658557622e-05,
+                    "q1": 1.518375641959704e-05
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26",
+                    "norm_matched_uniform": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26",
+                    "uniform": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    },
+                    "uniform": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "d279063b16575d36827b50fe0487a627aeaab6f863829f9d1f78d4a0dc1c97ef",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 1.3357998536597179e-05,
+                      "q1": 1.6037541379698347e-05
+                    },
+                    "donor_cool": {
+                      "q0": 2.2692814197784333e-05,
+                      "q1": 2.0957002463815945e-05
+                    },
+                    "donor_warm": {
+                      "q0": 1.2290451480117807e-05,
+                      "q1": 1.4838221632211233e-05
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6617651203885833,
+                    "q1": 0.6575189801502899
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 1.4390252658557622e-05,
+                    "q1": 1.518375641959704e-05
+                  },
+                  "update_ids": [
+                    "candidate:29:clipped:1:donor_cool:heating_td3",
+                    "candidate:29:clipped:1:donor_warm:heating_td3",
+                    "candidate:29:clipped:1:cold_target:heating_td3"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                }
+              },
+              "uniform": {
+                "deposition_sac": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "8cc25825087b6def033e48522c3a00ffdaab880da79472799298665873d0ca1d",
+                  "clipped_mean_norms": {
+                    "q0": 0.01177226204815891,
+                    "q1": 0.003184419385158919
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43",
+                    "norm_matched_uniform": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43",
+                    "uniform": "ef4890f18707ca1d4af0842c18a83e965ae0d8b6cdc2086eb8813bc30db65a43"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    },
+                    "uniform": {
+                      "q0": 0.011772258922842855,
+                      "q1": 0.0031844165749396196
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "6eafbe58eb811d0fbedab2109d37fd862f42792122eb7c6e99a09ae30d06d2f2",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 0.006435898312393285,
+                      "q1": 0.0010485597801921508
+                    },
+                    "donor_cool": {
+                      "q0": 0.01426720840247156,
+                      "q1": 0.00523556972375955
+                    },
+                    "donor_warm": {
+                      "q0": 0.01463474726942448,
+                      "q1": 0.005321601596942032
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6592810460434841,
+                    "q1": 0.6592998947528599
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 0.01177226204815891,
+                    "q1": 0.003184419385158919
+                  },
+                  "update_ids": [
+                    "candidate:29:uniform:1:donor_cool:deposition_sac",
+                    "candidate:29:uniform:1:donor_warm:deposition_sac",
+                    "candidate:29:uniform:1:cold_target:deposition_sac"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                },
+                "heating_td3": {
+                  "arithmetic": "branch norms and delta means float64; proposal cast to base tensor dtype",
+                  "base_hash": "0c8d0d89f07559afe372951e6e47aac53800e68b8f0a86d56b22bddf0e067741",
+                  "clipped_mean_norms": {
+                    "q0": 1.4390252658557622e-05,
+                    "q1": 1.518375641959704e-05
+                  },
+                  "clipped_sources": {
+                    "q0": [],
+                    "q1": []
+                  },
+                  "clipping_factors": {
+                    "cold_target": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_cool": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    },
+                    "donor_warm": {
+                      "q0": 1.0,
+                      "q1": 1.0
+                    }
+                  },
+                  "norm_match_amplified": {
+                    "q0": false,
+                    "q1": false
+                  },
+                  "norm_match_available": {
+                    "q0": true,
+                    "q1": true
+                  },
+                  "norm_match_factors": {
+                    "q0": 1.0,
+                    "q1": 1.0
+                  },
+                  "proposal_hashes": {
+                    "clipped": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26",
+                    "norm_matched_uniform": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26",
+                    "uniform": "eea8a0152ecbed82e1f3e6b10c6c6e128dd7466ffd38eafcaae3d1aaf1f44d26"
+                  },
+                  "realized_delta_norms": {
+                    "clipped": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    },
+                    "norm_matched_uniform": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    },
+                    "uniform": {
+                      "q0": 1.4390500163985164e-05,
+                      "q1": 1.518539996437901e-05
+                    }
+                  },
+                  "revisions": {
+                    "cold_target": "frozen-shadow-v1",
+                    "donor_cool": "frozen-shadow-v1",
+                    "donor_warm": "frozen-shadow-v1"
+                  },
+                  "schema": "d279063b16575d36827b50fe0487a627aeaab6f863829f9d1f78d4a0dc1c97ef",
+                  "source_ids": [
+                    "donor_cool",
+                    "donor_warm",
+                    "cold_target"
+                  ],
+                  "source_norms": {
+                    "cold_target": {
+                      "q0": 1.3357998536597179e-05,
+                      "q1": 1.6037541379698347e-05
+                    },
+                    "donor_cool": {
+                      "q0": 2.2692814197784333e-05,
+                      "q1": 2.0957002463815945e-05
+                    },
+                    "donor_warm": {
+                      "q0": 1.2290451480117807e-05,
+                      "q1": 1.4838221632211233e-05
+                    }
+                  },
+                  "thresholds": {
+                    "q0": 0.6617651203885833,
+                    "q1": 0.6575189801502899
+                  },
+                  "uniform_mean_norms": {
+                    "q0": 1.4390252658557622e-05,
+                    "q1": 1.518375641959704e-05
+                  },
+                  "update_ids": [
+                    "candidate:29:uniform:1:donor_cool:heating_td3",
+                    "candidate:29:uniform:1:donor_warm:heating_td3",
+                    "candidate:29:uniform:1:cold_target:heating_td3"
+                  ],
+                  "weights": {
+                    "cold_target": 0.3333333333333333,
+                    "donor_cool": 0.3333333333333333,
+                    "donor_warm": 0.3333333333333333
+                  }
+                }
+              }
+            },
+            "arms": {
+              "clipped": {
+                "actor_hashes": {
+                  "beam": "f8492db1fc744f697bab5b29dfce8c4b8ba50ebc3b5c01ef6e532fa24c185b3d",
+                  "heating": "64cd000b1ee6ec73d8e0662214bfc154a07a9a3989b33bab683d7ef8bfac7b12"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03364080111424611,
+                  "mean_beta_mae": 0.0020534856528355684,
+                  "mean_cost": 0.09957565963400318,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03364080111424611,
+                      "beta_mae": 0.0020534856528355684,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.09957565963400318,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": {
+                  "accept": true,
+                  "cost_floor": 0.01,
+                  "reason": "pass",
+                  "relative_cost_changes": [
+                    -0.04572402507103994
+                  ],
+                  "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+                  "tolerance": 0.05
+                },
+                "incumbent": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03561191923447662,
+                  "mean_beta_mae": 0.0023909243257184873,
+                  "mean_cost": 0.10433581198296071,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03561191923447662,
+                      "beta_mae": 0.0023909243257184873,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10433581198296071,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03364080111424611,
+                  "mean_beta_mae": 0.0020534856528355684,
+                  "mean_cost": 0.09957565963400318,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03364080111424611,
+                      "beta_mae": 0.0020534856528355684,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.09957565963400318,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "f8e1d0fe2b246c072fcaa34b22351dddd3d94c47328a586364f3c187403ba35b",
+                  "heating_td3": "091345d66a81d5bdc60098a54a15cb0c6bc1ae03dbacbf31c6830540554b6baa"
+                }
+              },
+              "local": {
+                "actor_hashes": {
+                  "beam": "2eeb21b519dacb6b72cc2a24736d7aaa844878eb13840afa1d8bdf3a0d32dedc",
+                  "heating": "7556246d394b16dd04254fe869d885eb6508ff21cfa71f0d69d9b76f006a50e3"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03561191923447662,
+                  "mean_beta_mae": 0.0023909243257184873,
+                  "mean_cost": 0.10433581198296071,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03561191923447662,
+                      "beta_mae": 0.0023909243257184873,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10433581198296071,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": null,
+                "learner_updates": {
+                  "beam": 29,
+                  "beam_actor": 29,
+                  "beam_entropy_temperature": 29,
+                  "heating": 29,
+                  "heating_actor": 14
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03561191923447662,
+                  "mean_beta_mae": 0.0023909243257184873,
+                  "mean_cost": 0.10433581198296071,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03561191923447662,
+                      "beta_mae": 0.0023909243257184873,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10433581198296071,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "bbd012adda992d8af0ead3b9d1d62609106dbf95d60a1f4b3459ecbb87b4e5d1",
+                  "heating_td3": "7ecddf15083363a5707ab128a248b6e141d8035da15d59319054ddd2604cca20"
+                }
+              },
+              "reset_only": {
+                "actor_hashes": {
+                  "beam": "b52b255f41776a0419162b7f0c2a94228c03546f6386d1f76a0a9b2983e39987",
+                  "heating": "b0c1c11a9ed114073d7957ebeda2d42f2760847b949ea0c708fcbeaf33ca3856"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03567250799901675,
+                  "mean_beta_mae": 0.0021879004326697407,
+                  "mean_cost": 0.10289594272911977,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03567250799901675,
+                      "beta_mae": 0.0021879004326697407,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10289594272911977,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": null,
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03567250799901675,
+                  "mean_beta_mae": 0.0021879004326697407,
+                  "mean_cost": 0.10289594272911977,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03567250799901675,
+                      "beta_mae": 0.0021879004326697407,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10289594272911977,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "a6063e089366d8b008248154b911e5c9ec5414ef8268439069207f0f951870df",
+                  "heating_td3": "6709c119ce7065a2c17673c17c51f12b14247398970fe8304a73401df26c9901"
+                }
+              },
+              "uniform": {
+                "actor_hashes": {
+                  "beam": "f8492db1fc744f697bab5b29dfce8c4b8ba50ebc3b5c01ef6e532fa24c185b3d",
+                  "heating": "64cd000b1ee6ec73d8e0662214bfc154a07a9a3989b33bab683d7ef8bfac7b12"
+                },
+                "deployed": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03364080111424611,
+                  "mean_beta_mae": 0.0020534856528355684,
+                  "mean_cost": 0.09957565963400318,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03364080111424611,
+                      "beta_mae": 0.0020534856528355684,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.09957565963400318,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "gate": {
+                  "accept": true,
+                  "cost_floor": 0.01,
+                  "reason": "pass",
+                  "relative_cost_changes": [
+                    -0.04572402507103994
+                  ],
+                  "scope": "All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.",
+                  "tolerance": 0.05
+                },
+                "incumbent": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03561191923447662,
+                  "mean_beta_mae": 0.0023909243257184873,
+                  "mean_cost": 0.10433581198296071,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03561191923447662,
+                      "beta_mae": 0.0023909243257184873,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.10433581198296071,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "learner_updates": {
+                  "beam": 69,
+                  "beam_actor": 69,
+                  "beam_entropy_temperature": 69,
+                  "heating": 69,
+                  "heating_actor": 34
+                },
+                "raw": {
+                  "cases": 1,
+                  "cases_with_events": 0,
+                  "cases_with_invalid_physics": 0,
+                  "competent": false,
+                  "complete_cases": 1,
+                  "mean_Te_profile_rmse_keV": 0.03364080111424611,
+                  "mean_beta_mae": 0.0020534856528355684,
+                  "mean_cost": 0.09957565963400318,
+                  "optimizer_updates": {
+                    "beam": 0,
+                    "heating": 0,
+                    "joint": 0
+                  },
+                  "per_case": [
+                    {
+                      "Te_profile_rmse_keV": 0.03364080111424611,
+                      "beta_mae": 0.0020534856528355684,
+                      "beta_within_tolerance_fraction": 1.0,
+                      "complete": true,
+                      "cost": 0.09957565963400318,
+                      "events": [],
+                      "invalid_physical_windows": [],
+                      "optimizer_updates": {
+                        "beam": 0,
+                        "heating": 0,
+                        "joint": 0
+                      },
+                      "scenario": {
+                        "initial_temperature_factor": 1.05
+                      },
+                      "seed": 299000,
+                      "windows": 30
+                    }
+                  ],
+                  "windows": 30
+                },
+                "representation_hashes": {
+                  "deposition_sac": "f8e1d0fe2b246c072fcaa34b22351dddd3d94c47328a586364f3c187403ba35b",
+                  "heating_td3": "091345d66a81d5bdc60098a54a15cb0c6bc1ae03dbacbf31c6830540554b6baa"
+                }
+              }
+            },
+            "round": 1,
+            "target_training_shots_per_arm": 2
+          }
+        ],
+        "seed": 29,
+        "status": "complete",
+        "training_stable": true
+      }
+    ],
+    "status": "complete"
+  },
+  "conditions": {
+    "arms": [
+      "local",
+      "reset_only",
+      "uniform",
+      "clipped"
+    ],
+    "budget": {
+      "calibration_cost": "Prior calibration excluded; calibration reference retained.",
+      "configurations": 2,
+      "evaluation_episodes": 24,
+      "maximum_windows": 1680,
+      "target_training_shots_per_arm": 2,
+      "total_episodes": 56,
+      "training_episodes": 32
+    },
+    "competence": {
+      "beta_coverage": 0.9,
+      "beta_mae": 0.005,
+      "profile_rmse_keV": 0.02,
+      "windows": 30
+    },
+    "device": "sparc_like",
+    "donor_training_shots": 4,
+    "donors": {
+      "donor_cool": 0.9,
+      "donor_warm": 1.1
+    },
+    "gate_cost_floor": 0.01,
+    "gate_factor": 0.95,
+    "gate_scope": "Per-round candidate versus pre-transfer incumbent on separate gate conditions. Deployed is a diagnostic selected report, not a separately trained longitudinal branch.",
+    "gate_tolerance": 0.05,
+    "metric_scope": "Endpoint cost, beta_N tracking and temperature-profile RMSE are separate. Checkpoint competence is not shots-to-competence or cold-start efficacy.",
+    "reference_sha256": "f67f3415ce01af42c3ee73ff9376580479999d8cac9f285b6eb4aac8726a2df8",
+    "report_factor": 1.05,
+    "rounds": 1,
+    "seed_schedule": "training=seed*10000+source_index*100+shot; gate=seed*10000+8000; report=seed*10000+9000",
+    "seeds": [
+      29
+    ],
+    "source_cost_scope": "Two donors each train four shots once per configuration and seed. Frozen donor replay supplies newly fitted common-base updates each round; donor policies do not receive the aggregate.",
+    "target_initial_temperature_factor": 1.0,
+    "target_training_shots_per_round": 2,
+    "training_schedule": "simultaneous TD3 and SAC updates; 30 windows per shot",
+    "transfer_scope": "One-way repeated transfer pilot; each strategy keeps its own common-base history and continuing raw target. Actors, replay, heads, entropy and optimizers stay local.",
+    "transport_scope": "Real role-matched aggregate_variants in process; no Flower client/server or network-transport validation.",
+    "warmup_shots": 1
+  },
+  "conditions_sha256": "5ec5e9ca31b2bf89c6f172af1835229ca99116f7c509fc1fc6bfdcd8e13d390e",
+  "config": {
+    "change": "heating_critic_coordinates",
+    "rounds": 1,
+    "schema": "fusion-shadow-config-v1",
+    "seeds": [
+      29
+    ],
+    "value": "physical"
+  },
+  "elapsed_seconds": 91.3910000002943,
+  "failures": [],
+  "limitations": [
+    "Development pilot only; one to three seeds and one to two rounds cannot establish efficacy.",
+    "Fresh initialization, not resumption of active experiment checkpoints.",
+    "Tiny simultaneous-update schedule differs from the main alternating training study.",
+    "Raw policy continues after a gate rejection; deployed summaries are per-round diagnostics.",
+    "No magnetic-island suppression, mirror steering or real-reactor safety claim."
+  ],
+  "reference": {
+    "beta_N": 0.4384193858557768,
+    "calibration_simulated_seconds": 15.0,
+    "calibration_windows": 30,
+    "config_sha256": "a8e99f8393f34236193567d53a45de37ba1603621475250cca4d53f0bcaeebcb",
+    "device": "sparc_like",
+    "joint_action": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "profile_rho": [
+      0.08,
+      0.2,
+      0.32,
+      0.44000000000000006,
+      0.56,
+      0.68,
+      0.8,
+      0.92
+    ],
+    "sampled_violations": [],
+    "scope": "observed fixed-command endpoint; not whole-trajectory feasibility",
+    "target_Te_keV": [
+      4.079647018545497,
+      4.036683589789482,
+      3.943355500105994,
+      3.771721452136805,
+      3.5406606386983173,
+      3.3092445819430574,
+      3.104994021174349,
+      2.4628411916358885
+    ]
+  },
+  "runtime": {
+    "flower_transport_used": false,
+    "packages": {
+      "flwr": null,
+      "jax": "0.11.1",
+      "numpy": "2.5.3",
+      "torax": "1.4.3",
+      "torch": "2.14.1+cpu"
+    },
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "schema": "fusion-shadow-worker-result-v1",
+  "status": "complete"
+}
