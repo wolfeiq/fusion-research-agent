@@ -20,6 +20,22 @@ from fusion_agent.research.grounded_writer import (
 pytest_plugins = ["test_research_grounded_facts"]
 
 
+@pytest.fixture
+def source(source):
+    """The saved reporting fixture includes the real recorded proposal contract."""
+    from fusion_agent.research.shadow_analysis import _next_run_proposal
+
+    document = json.loads(source["content"])
+    recommendation = {"code": "keep_baseline", "automatic_apply": False,
+                      "automatic_launch": False, "efficacy_claim": False}
+    document["recommendation"] = recommendation
+    document["next_run_proposal"] = _next_run_proposal(
+        {"change": "clipping_initial_norm_fraction", "value": .001, "seeds": [17], "rounds": 1},
+        True, recommendation,
+    )
+    return encode(source, document)
+
+
 def web_source():
     content = "In centralized training, gradients are clipped for sample-level privacy."
     return {"id": "W002", "kind": "web", "title": "Synthetic source", "uri": "https://proceedings.mlr.press/v80/fujimoto18a.html",
@@ -82,8 +98,7 @@ def test_final_boundary_recompiles_instead_of_trusting_changed_report_text(sourc
     assert "No trajectories exist" not in result["limitations"]
 
 
-@pytest.mark.parametrize("field,value", [("fact_ids", ["Fimaginary"]), ("hypotheses", "[]"),
-                                        ("gaps", "none"), ("next_run_source_id", {})])
+@pytest.mark.parametrize("field,value", [("fact_ids", ["Fimaginary"]), ("next_run_source_id", {})])
 def test_selection_is_typed_and_cannot_add_evidence(source, field, value):
     args = selection(source)
     args[field] = value
@@ -406,12 +421,129 @@ def test_current_quarantine_does_not_relax_factual_or_transport_bounds(source, k
         _draft(engine, args)
 
 
-def test_historical_reporting_keeps_strict_optional_and_twelve_fact_contract(source):
+def test_multiple_saved_datasets_keep_strict_optional_and_twelve_fact_contract(source):
     engine = engine_for(source)
+    other = {**copy.deepcopy(source), "id": "E002"}
+    engine.sources[other["id"]] = other
+    engine.read_ids.add(other["id"])
     for patch in ({"gaps": "Malformed"}, {"hypotheses": [{}]},
                   {"fact_ids": [card["id"] for card in build_grounded_facts(source)][:13]}):
         with pytest.raises(ValueError):
             _draft(engine, {**selection(source), **patch})
+
+
+def test_single_saved_trial_restores_omitted_competence_and_proposal_without_new_provenance(source):
+    original = copy.deepcopy(source)
+    engine = engine_for(source, ApprovingJudge())
+    cards = build_grounded_facts(source)
+    # The deployed writer omitted clipped competence and supplied no proposal.
+    args = {**selection(source), "fact_ids": [card["id"] for card in cards if (
+        card["fact_type"] in {"trial_status", "configuration_change", "actual_budget", "paired_raw_endpoint"}
+        or card["fact_type"] == "paired_competence" and card["context"]["arm"] != "clipped")],
+        "next_run_source_id": ""}
+    draft = _draft(engine, args)
+    coverage = draft["verification"]["comparison_coverage"]
+    assert coverage == draft["verification"]["current_shadow_coverage"]
+    assert coverage["scope"] == "single_seed_saved_comparison"
+    assert coverage["origin"] == "saved_shadow_snapshot" and coverage["current_source_ids"] == []
+    assert coverage["complete"] and len(coverage["required_fact_ids"]) == 12
+    for kind in ("paired_raw_endpoint", "paired_competence"):
+        assert {card["context"]["arm"] for card in draft["claims"] if card["fact_type"] == kind} == {
+            "local", "reset_only", "uniform", "clipped"}
+    assert all(card["source_label"] == "Saved shadow trial trial17" for card in draft["claims"])
+    assert "Current research-run" not in draft["answer"]
+    proposal = draft["grounded_publication"]["recommendation"]
+    recorded = json.loads(source["content"])["next_run_proposal"]
+    assert proposal["code"] == "keep_baseline" and proposal["request"] == recorded["request"]
+    assert proposal["budget"]["total_episodes"] == 112
+    assert proposal["automatic_apply"] is proposal["automatic_launch"] is False
+    reviewed = review_grounded(engine, {"draft": draft, "question": "All saved controls", "round": 1})["report"]
+    assert finalize_grounded(engine, reviewed)["evidence_sufficient"]
+    assert source == original
+
+
+@pytest.mark.parametrize("missing", ["paired_cost", "competence", "configuration", "accounting", "proposal"])
+def test_single_saved_trial_cannot_hide_missing_required_evidence_with_judge_acceptance(source, missing):
+    document = json.loads(source["content"])
+    if missing == "paired_cost":
+        document["candidate_vs_baseline_raw_endpoint"]["clipped"]["by_seed"][0]["mean_cost_difference"] = 999
+    elif missing == "competence":
+        document["candidate_vs_baseline_raw_endpoint"]["clipped"]["by_seed"][0].pop("candidate_competent")
+    elif missing == "configuration":
+        document["branches"]["candidate"]["configs"] = {}
+    elif missing == "accounting":
+        document["branches"]["candidate"].pop("accounting")
+    else:
+        document.pop("next_run_proposal")
+    encode(source, document)
+    engine = engine_for(source, ApprovingJudge())
+    args = {"fact_ids": [], "excerpt_ids": [build_excerpt_catalogue([web_source()])[0]["id"]],
+            "hypotheses": [], "next_run_source_id": "", "gaps": []}
+    draft = _draft(engine, args)
+    assert not draft["verification"]["comparison_coverage"]["complete"]
+    assert "Incomplete saved shadow comparison" in draft["answer"]
+    assert draft["grounded_publication"]["recommendation"] is None
+    reviewed = review_grounded(engine, {"draft": draft, "question": "All saved controls", "round": 1})["report"]
+    assert not finalize_grounded(engine, reviewed)["evidence_sufficient"]
+
+
+def test_single_saved_trial_quarantines_optional_shapes_and_bounds_known_selection(source):
+    cards = build_grounded_facts(source)
+    args = {**selection(source), "fact_ids": [card["id"] for card in cards],
+            "gaps": "Malformed optional gaps", "hypotheses": {"text": "Wrong shape"}}
+    draft = _draft(engine_for(source), args)
+    assert len(args["fact_ids"]) > 12 and len(draft["claims"]) == 12
+    assert len(draft["model_interpretation"]["rejected_annotations"]) == 2
+    assert draft["model_interpretation"]["hypotheses"] == draft["model_interpretation"]["gaps"] == []
+    assert draft["fact_selection"]["omitted_optional_fact_ids"]
+    with pytest.raises(ValueError, match="Unknown grounded fact"):
+        _draft(engine_for(source), {**args, "fact_ids": args["fact_ids"] + ["Funknown"]})
+
+
+@pytest.mark.parametrize("status,execution", [("failed", "failed"), ("partial", "timed_out")])
+def test_single_saved_incomplete_trial_has_no_positive_measurements_or_executable_proposal(source, status, execution):
+    from fusion_agent.research.shadow_analysis import attach_execution_status
+
+    document = attach_execution_status(json.loads(source["content"]), execution)
+    assert document["status"] == status
+    encode(source, document)
+    args = {"fact_ids": [], "excerpt_ids": [build_excerpt_catalogue([web_source()])[0]["id"]],
+            "hypotheses": [], "next_run_source_id": "", "gaps": []}
+    draft = _draft(engine_for(source), args)
+    assert [card["fact_type"] for card in draft["claims"]] == ["trial_status"]
+    assert all(card["provenance"]["origin"] == "saved_shadow_snapshot" for card in draft["claims"])
+    proposal = draft["grounded_publication"]["recommendation"]
+    if status == "failed":
+        assert proposal["code"] == "diagnose_before_comparison" and proposal["request"] is None
+    else:
+        assert proposal is None and not draft["verification"]["comparison_coverage"]["complete"]
+
+
+def test_multiple_saved_trials_never_manufacture_a_pooled_mandatory_bundle(source):
+    other = copy.deepcopy(source)
+    other["id"] = "E002"
+    document = json.loads(other["content"])
+    document["provenance"]["trial_id"] = "other-trial"
+    encode(other, document)
+    engine = engine_for(source)
+    engine.sources[other["id"]] = other
+    engine.read_ids.add(other["id"])
+    draft = _draft(engine, selection(source))
+    assert len(draft["claims"]) == 1
+    assert draft["verification"]["comparison_coverage"]["source_ids"] == []
+    assert draft["fact_selection"]["automatically_included_fact_ids"] == []
+    assert draft["grounded_publication"]["recommendation"] is None
+
+
+def test_single_saved_multiseed_study_never_silently_selects_one_seed(source):
+    document = json.loads(source["content"])
+    document["expected_training_seeds"].append(43)
+    encode(source, document)
+    args = {"fact_ids": [], "excerpt_ids": [], "hypotheses": [], "next_run_source_id": "", "gaps": []}
+    draft = _draft(engine_for(source), args)
+    coverage = draft["verification"]["comparison_coverage"]
+    assert coverage["scope"] == "multiple_seed_saved_selection" and coverage["source_ids"] == []
+    assert coverage["required_fact_ids"] == [] and not draft["claims"]
 
 
 def test_annotation_quarantine_and_overflow_are_visible_in_writer_trace(source):
@@ -557,7 +689,7 @@ def test_writer_offers_only_eligible_references_and_no_empty_enum(source):
         def complete(self, messages, tools, tool_choice="auto"):
             payload = json.loads(messages[1]["content"])
             schema = tools[0]["function"]["parameters"]["properties"]
-            assert schema["fact_ids"]["maxItems"] == 12
+            assert schema["fact_ids"]["maxItems"] == 64
             literature = schema["excerpt_ids"]
             enum = literature["items"].get("enum")
             args = selection(source)
