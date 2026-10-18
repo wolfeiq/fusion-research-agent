@@ -15,7 +15,7 @@ Click a thumbnail to watch on Loom.
 
 | **1 · Start here** | **2 · Watch second** | **3 · Watch last** |
 | :---: | :---: | :---: |
-| [<img src="https://cdn.loom.com/sessions/thumbnails/cf02db42bac04ab5bc3c84b9c7675de1-991809d344edfc57.gif" alt="Watch project explanation, Part 1" width="280">](https://www.loom.com/share/cf02db42bac04ab5bc3c84b9c7675de1) | [<img src="https://cdn.loom.com/sessions/thumbnails/c91b19a804b3486a99e80ef7a841358c-2e6eab747cfa4598.gif" alt="Watch project explanation, Part 2" width="280">](https://www.loom.com/share/c91b19a804b3486a99e80ef7a841358c) | [<img src="https://cdn.loom.com/sessions/thumbnails/fff3a216ff464a59899e1853b2ff4c76-7d6dad1bb7da683b.gif" alt="Watch project explanation, Part 3" width="280">](https://www.loom.com/share/fff3a216ff464a59899e1853b2ff4c76) |
+| [<img src="https://cdn.loom.com/sessions/thumbnails/cf02db42bac04ab5bc3c84b9c7675de1-991809d344edfc57.gif" alt="Watch project explanation, Part 1" width="220">](https://www.loom.com/share/cf02db42bac04ab5bc3c84b9c7675de1) | [<img src="https://cdn.loom.com/sessions/thumbnails/c91b19a804b3486a99e80ef7a841358c-2e6eab747cfa4598.gif" alt="Watch project explanation, Part 2" width="220">](https://www.loom.com/share/c91b19a804b3486a99e80ef7a841358c) | [<img src="https://cdn.loom.com/sessions/thumbnails/fff3a216ff464a59899e1853b2ff4c76-7d6dad1bb7da683b.gif" alt="Watch project explanation, Part 3" width="220">](https://www.loom.com/share/fff3a216ff464a59899e1853b2ff4c76) |
 | [Watch Part 1](https://www.loom.com/share/cf02db42bac04ab5bc3c84b9c7675de1) | [Watch Part 2](https://www.loom.com/share/c91b19a804b3486a99e80ef7a841358c) | [Watch Part 3](https://www.loom.com/share/fff3a216ff464a59899e1853b2ff4c76) |
 
 ## Try the live app
