@@ -48,6 +48,7 @@ def cite_web_excerpt(source, anchor, max_words):
     if not positions:
         raise ValueError("The exact anchor was not found in the stored page")
     candidates = []
+    rejected_candidates = []
     for position in positions[:5]:
         start = offsets[position]
         anchor_end = offsets[position + len(normalized_anchor) - 1] + 1
@@ -58,15 +59,40 @@ def cite_web_excerpt(source, anchor, max_words):
         quote = content[start:end]
         if len(quote) > 2000:
             raise ValueError("Excerpt exceeds 2000 characters; use a smaller word budget or another anchor")
+        forbidden = sorted({ord(char) for char in quote if ord(char) < 32 and char not in "\n\r\t"})
+        if forbidden:
+            # PDF extraction can insert non-display controls even when the
+            # anchor itself is clean. Never hand back a citation the report
+            # validator will reject, or silently rewrite immutable source text.
+            rejected_candidates.append({
+                "locator": f"chars:{start}:{end}",
+                "reason": "unsupported control characters",
+                "codepoints": [f"U+{codepoint:04X}" for codepoint in forbidden],
+            })
+            continue
         candidates.append({
             "citation": {"source_id": source["id"], "locator": f"chars:{start}:{end}", "quote": quote},
             "context_before": content[max(0, start - 160):start],
             "context_after": content[end:end + 160],
         })
+    if not candidates:
+        codepoints = sorted({codepoint for item in rejected_candidates for codepoint in item["codepoints"]})
+        raise ValueError(
+            "Examined excerpts contain unsupported control characters "
+            f"({', '.join(codepoints)}); choose a clean prose anchor or a smaller word budget. "
+            "The stored source has not been altered."
+        )
     if len(positions) == 1:
         return candidates[0]["citation"]
-    return {
+    result = {
         "candidates": candidates, "total_matches": len(positions),
-        "omitted_matches": max(0, len(positions) - len(candidates)),
+        "omitted_matches": max(0, len(positions) - len(candidates) - len(rejected_candidates)),
         "instruction": "The anchor occurs more than once. Choose one candidate using its source context and copy only its citation object unchanged; do not join candidates.",
     }
+    if rejected_candidates:
+        result["rejected_candidates"] = rejected_candidates
+        result["instruction"] += (
+            " Occurrences containing unsupported control characters were rejected; "
+            "choose a listed clean citation or use a clean prose anchor or smaller word budget."
+        )
+    return result

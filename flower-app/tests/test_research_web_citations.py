@@ -178,3 +178,71 @@ def test_two_separate_excerpts_do_not_bypass_total_web_word_limit():
     result = validate_report(report, [saved])
     assert result["claims"][0]["verification"]["status"] == "unsupported"
     assert "25-word" in json.dumps(result)
+
+
+def test_actual_pdf_math_controls_fail_at_helper_without_rewriting_the_snapshot():
+    # The saved W005 PDF in attempt 19 returned exactly this unusable 20-word
+    # span at chars:7291:7367. The anchor is clean; the chosen following math is not.
+    excerpt = "clip(gt, c) = gt · min \x1a 1, c ∥gt∥ \x1b .\n(3) However, DP is more complex in FL"
+    saved = source(" " * 7291 + excerpt)
+    original = deepcopy(saved)
+    assert saved["content"][7291:7367] == excerpt
+    with pytest.raises(ValueError, match=r"U\+001A, U\+001B.*clean prose anchor"):
+        cite_web_excerpt(saved, "clip(gt, c)", 20)
+    assert saved == original
+    # Choosing clean prose changes only the selected span, never the source.
+    citation = cite_web_excerpt(saved, "However, DP", 8)
+    assert citation["quote"] == "However, DP is more complex in FL"
+    assert check_quote(saved, citation)["verification"]["traceable_claims"] == 1
+    assert saved == original
+
+
+@pytest.mark.parametrize("codepoint", [code for code in range(32) if chr(code) not in "\n\r\t"])
+def test_every_forbidden_report_string_control_is_rejected_even_after_a_clean_anchor(codepoint):
+    saved = source("Clean anchor " + chr(codepoint) + " following prose.")
+    original = deepcopy(saved)
+    with pytest.raises(ValueError, match="unsupported control characters.*clean prose anchor"):
+        cite_web_excerpt(saved, "Clean anchor", 5)
+    assert saved == original
+
+
+@pytest.mark.parametrize("whitespace", ["\n", "\r", "\t", "\r\n", "\u00a0"])
+def test_supported_whitespace_citations_keep_exact_offsets_and_pass_report_validation(whitespace):
+    saved = source("Clean anchor" + whitespace + "following prose.")
+    citation = cite_web_excerpt(saved, "Clean anchor", 4)
+    assert citation["quote"] == saved["content"]
+    assert check_quote(saved, citation)["verification"]["traceable_claims"] == 1
+
+
+def test_repeated_anchor_filters_invalid_candidates_and_accounts_for_each_match():
+    saved = source("Repeated anchor \x1a math. Repeated anchor clean prose. Repeated anchor \x1b math.")
+    original = deepcopy(saved)
+    result = cite_web_excerpt(saved, "Repeated anchor", 4)
+    assert result["total_matches"] == 3
+    assert result["omitted_matches"] == 0
+    assert len(result["rejected_candidates"]) == 2
+    assert [item["codepoints"] for item in result["rejected_candidates"]] == [["U+001A"], ["U+001B"]]
+    assert len(result["candidates"]) == 1
+    for candidate in result["candidates"]:
+        citation = candidate["citation"]
+        assert citation["quote"] == "Repeated anchor clean prose."
+        assert check_quote(saved, citation)["verification"]["traceable_claims"] == 1
+    assert "rejected" in result["instruction"]
+    assert saved == original
+
+
+def test_rejected_repeated_matches_are_separate_from_unexamined_matches():
+    saved = source("Repeated anchor \x1a math. " + "Repeated anchor clean prose. " * 7)
+    result = cite_web_excerpt(saved, "Repeated anchor", 4)
+    assert result["total_matches"] == 8
+    assert len(result["candidates"]) == 4
+    assert len(result["rejected_candidates"]) == 1
+    assert result["omitted_matches"] == 3
+    for candidate in result["candidates"]:
+        assert check_quote(saved, candidate["citation"])["verification"]["traceable_claims"] == 1
+
+
+def test_all_examined_repeated_occurrences_with_controls_fail_with_actionable_feedback():
+    saved = source("Repeated anchor \x1a math. Repeated anchor \x1b math.")
+    with pytest.raises(ValueError, match=r"U\+001A, U\+001B.*clean prose anchor"):
+        cite_web_excerpt(saved, "Repeated anchor", 4)
