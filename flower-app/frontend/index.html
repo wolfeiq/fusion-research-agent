@@ -10,6 +10,7 @@
 <body class="application">
 <header class="app-header"><a class="app-brand" href="#investigate">Fusion Investigator <small>RESEARCH APP</small></a>
 <nav aria-label="App sections"><a href="#research">Research</a><a href="#investigate">Investigate</a><a href="#thermal">Facility evidence</a><a href="#physics">Physics tools</a><a href="#assembly">3D assembly</a><a href="#report">Report</a></nav>
+<a class="presentation-link" href="http://127.0.0.1:8788/" target="_blank" rel="noopener">Open presentation ↗</a></header>
 <main class="app-main"><div class="app-intro"><div class="kicker">TORAX RESEARCH WORKSPACE · FLOWER AGENTAPP</div><h1>Fusion Investigator</h1><p>Ask a research question, inspect saved TORAX experiments and compare the evidence with literature. Facility investigation tools remain available below.</p><p class="muted">TORAX powers the project's control experiments. The interactive thermal tools below use a reduced 1-D model; their outputs identify the source.</p></div>
 <section class="app-section research-workspace" id="research" aria-labelledby="research-heading">
   <div class="section-content">
@@ -30,13 +31,13 @@
             <button type="button" data-research-example="transfer">Why can transfer hurt?</button>
             <button type="button" data-research-example="architecture">Audit the architecture</button>
           </div>
-          <fieldset class="research-records"><legend>SAVED PROJECT EVIDENCE <span id="research-selection-count">0 selected</span></legend><p class="muted">Select 1–8 records, including an experiment summary. Selected records are shared with the reasoning model during a live run.</p><div id="research-catalog"><p class="muted">Loading available records…</p></div></fieldset>
+          <fieldset class="research-records"><legend>SAVED TORAX DATASETS <span id="research-selection-count">0 selected</span></legend><p class="research-default-note"><strong>Default: analyze saved simulation data.</strong> These are recorded TORAX experiments, not measurements from operating reactors. Select 1–8 records, including an experiment summary. The agent reads the selected data and searches the literature; it does not start training.</p><div id="research-catalog"><p class="muted">Loading available records…</p></div></fieldset>
           <div class="research-credentials" aria-label="Provider configuration"><span id="research-nebius">Token Factory · checking</span><span id="research-tavily">Tavily · checking</span></div>
           <p id="research-provider" class="research-provider">Credentials stay on the server.</p>
           <div class="research-actions"><button id="research-live" class="primary" type="submit" disabled>Analyze with Nebius + Tavily ↗</button><button id="research-offline" class="research-secondary" type="button" disabled>Inspect local evidence</button></div>
-          <p class="research-caption">Live uses model and search credits. Local inspection is deterministic: no LLM, web search or training. Research produces proposals unless the optional shadow pilot below is enabled.</p>
+          <p class="research-caption">Research uses model and search credits to analyze saved data. Local inspection is deterministic: no LLM, web search or training. Generating new TORAX data is a separate, optional beta feature.</p>
           <p class="research-tool-note"><strong>Evidence tools:</strong> Agents read selected experiments and obtain exact citations for saved values and extracted web pages. <code>inspect_federation</code>, <code>compare_clipping</code> and <code>draft_policy_trial</code> require a selected federation dossier; recorded shadow comparisons are read as experiment evidence. These tools do not optimize an online controller.</p>
-          <label class="research-shadow-opt-in" for="research-allow-shadow"><input id="research-allow-shadow" type="checkbox"><span><strong>Let the federation strategist run one bounded shadow pilot</strong><small>Live research only. The strategist may use <code>test_shadow</code> to test one change with fresh seed 17, one round and a 600-second local limit, then review the measured results. Total research limit: 18 minutes. This does not activate a controller. Off by default.</small></span></label>
+          <label class="research-shadow-opt-in" for="research-allow-shadow"><input id="research-allow-shadow" type="checkbox"><span><strong>Live TORAX generation <span class="research-beta">Experimental / Beta — may fail</span></strong><small>Off by default. Explicitly allow the strategist to request one isolated pilot with a chosen development seed, one round and a 600-second simulation limit. It may decline to run. Total research limit: 18 minutes. Physics, learning or reporting may fail; failures and partial outputs are retained. Existing experiments and controllers are not changed.</small></span></label>
         </form>
         <div id="research-error" class="error" role="alert" hidden></div>
       </article>
@@ -80,8 +81,8 @@
       <details id="research-model-draft" class="panel research-model-draft"><summary>Unverified model interpretation and review</summary><p class="research-caption">Hypotheses, drafts and model judgments are retained for inspection. They are not part of the source-backed measurements above, even when the model judge accepts them.</p><div id="research-model-answer" class="research-model-answer"></div><div id="research-judgment" class="research-judgment"></div><div id="research-model-claims" class="research-claims"></div><div id="research-model-proposals" class="research-proposals"></div><div id="research-model-gaps"></div></details>
     </div>
     <section id="research-shadow" class="research-shadow" aria-labelledby="research-shadow-heading">
-      <div class="heading-row"><div><div class="kicker">ISOLATED LOCAL EXPERIMENT · ACTUAL TORAX</div><h3 id="research-shadow-heading">Test a change in a shadow trial.</h3></div><span id="research-shadow-status" class="pill" role="status">Checking local runtime</span></div>
-      <p class="research-lede">Compare a baseline with one bounded candidate change using paired seeds. Freeze the source and configuration first, inspect the exact pilot budget, then run that frozen trial in its own directory.</p>
+      <div class="heading-row"><div><div class="kicker">OPTIONAL LIVE SIMULATION · ACTUAL TORAX</div><h3 id="research-shadow-heading">Generate new TORAX data.</h3><span class="research-beta">Experimental / Beta — may fail</span></div><span id="research-shadow-status" class="pill" role="status">Checking local runtime</span></div>
+      <p class="research-lede">Optional manual generation, separate from saved-data research. Compare a baseline with one bounded candidate change using paired seeds. Freeze and inspect the configuration first, then explicitly start the simulation. Physics, learning or reporting may fail; failed attempts and partial results are retained.</p>
       <div class="research-shadow-layout">
         <article class="panel">
           <form id="research-shadow-form">
@@ -93,7 +94,7 @@
               <div><label for="research-shadow-rounds">ROUNDS PER ARM</label><select id="research-shadow-rounds"><option value="1">1 round</option><option value="2">2 rounds</option></select></div>
             </div>
             <p id="research-shadow-budget-hint" class="research-caption">Default paired pilot: 56 TORAX episodes (32 training + 24 evaluation). Choose 1–3 distinct seeds from 0–1,000,000 and 1–2 rounds. Separate seeds with commas. Torch/BLAS thread limit: 1; JAX may use additional threads. Shared CPU, 600-second limit.</p>
-            <p id="research-shadow-runtime" class="research-provider">Checking the laptop’s TORAX runtime…</p>
+            <p id="research-shadow-runtime" class="research-provider">Checking the server’s TORAX runtime…</p>
             <button id="research-shadow-prepare" class="primary" type="submit" disabled>Freeze trial configuration →</button>
           </form>
         </article>
@@ -105,7 +106,7 @@
           <div id="research-shadow-config" class="research-shadow-summary"><p class="muted">The frozen baseline and candidate will appear here.</p></div>
           <div id="research-shadow-budget" class="research-shadow-summary"></div>
           <details id="research-shadow-provenance" hidden><summary>Frozen source &amp; manifest</summary><pre id="research-shadow-manifest"></pre></details>
-          <div class="research-actions"><button id="research-shadow-start" type="button" class="primary" disabled>Run frozen trial ↗</button><button id="research-shadow-refresh" class="text-button" type="button">Refresh trial state</button><a id="research-shadow-export" class="quiet-link" hidden>Download trial record ↓</a></div>
+          <div class="research-actions"><button id="research-shadow-start" type="button" class="primary" disabled>Generate TORAX data (Beta) ↗</button><button id="research-shadow-refresh" class="text-button" type="button">Refresh trial state</button><a id="research-shadow-export" class="quiet-link" hidden>Download trial record ↓</a></div>
           <p class="research-caption">Fresh learners and separate trial files; CPU resources remain shared. Target controls are local, reset-only, uniform and clipped. This pilot uses in-process numerical aggregation and does not exercise Flower network transport. Existing runs and saved controllers are not modified.</p>
         </article>
       </div>

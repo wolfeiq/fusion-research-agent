@@ -19,6 +19,12 @@
   let selected = new Set();
   let catalogSeen = false;
   let catalogSignature = '';
+  // Fixed, documented development scenarios; ordering never depends on outcome.
+  const savedDatasets = new Map([
+    ['dc0df0a81413479e979a18895e1fe2fe', 'SAC learning rate: 0.0003 → 0.0001'],
+    ['fbb83d8ee93a424497aeacc0a2633dc3', 'SAC critic federation: mixing 0.25 → 0.10'],
+    ['12eddcebd2c548d889b41d3f2adace91', 'TD3 critic action coordinates: normalized → physical']
+  ].map(([id, title]) => [`examples/evidence/shadow/${id}/comparison.json`, title]));
   let traceSignature = '';
   let reportSignature = '';
   let sourceRequest = 0;
@@ -63,7 +69,8 @@
     const configured = snapshot?.configured || {};
     byId('live').disabled = active || requesting || !validSelection() || !configured.nebius || !configured.tavily;
     byId('offline').disabled = active || requesting || !validSelection();
-    byId('live').textContent = active && snapshot?.run?.mode === 'live' ? 'Research in progress…' : 'Analyze with Nebius + Tavily ↗';
+    byId('live').textContent = active && snapshot?.run?.mode === 'live' ? 'Research in progress…'
+      : byId('allow-shadow').checked === true ? 'Analyze + allow beta generation ↗' : 'Analyze saved data + literature ↗';
     byId('offline').textContent = active && snapshot?.run?.mode === 'offline' ? 'Inspecting evidence…' : 'Inspect local evidence';
     byId('live').title = !configured.nebius || !configured.tavily ? 'Configure NEBIUS_API_KEY and TAVILY_API_KEY on the server to run live research.' : '';
     byId('question').disabled = active;
@@ -86,7 +93,9 @@
         usable.find((record) => record.kind === 'protocol' && /coldstart_coupled_federation/i.test(record.id))
       ].filter(Boolean);
       const federationDefaults = ['federation:local-smoke', 'federation:kaggle-359552340'].map((id) => usable.find((record) => record.id === id)).filter(Boolean);
-      const publishedDefaults = usable.filter((record) => record.kind === 'experiment' && /^examples\/evidence\/shadow\/[a-f0-9]{32}\/comparison\.json$/.test(String(record.id))).slice(0, 2);
+      const featuredDefaults = [...savedDatasets.keys()].map((id) => usable.find((record) => record.id === id && record.kind === 'experiment')).filter(Boolean);
+      const publishedDefaults = featuredDefaults.length ? featuredDefaults
+        : usable.filter((record) => record.kind === 'experiment' && /^examples\/evidence\/shadow\/[a-f0-9]{32}\/comparison\.json$/.test(String(record.id))).slice(0, 2);
       const repair = usable.find((record) => /(?:^|\/)repair_comparison\.json$/i.test(record.id));
       const chosen = publishedDefaults.length ? publishedDefaults : federationDefaults.length
         ? [...federationDefaults, ...(repair ? [repair] : []), ...previousDefaults].slice(0, 3)
@@ -98,13 +107,16 @@
       }
       catalogSeen = true;
     } else selected = new Set([...selected].filter((id) => valid.has(id)));
-    const items = records.map((record) => {
+    const featuredOrder = [...savedDatasets.keys()];
+    const rank = (record) => savedDatasets.has(record.id) ? featuredOrder.indexOf(record.id) : featuredOrder.length;
+    const items = [...records].sort((a, b) => rank(a) - rank(b)).map((record) => {
       const row = node('label', 'research-record');
       const checkbox = node('input'); checkbox.type = 'checkbox'; checkbox.value = String(record.id); checkbox.checked = selected.has(checkbox.value);
       checkbox.dataset.invalid = String(record.status === 'invalid');
       checkbox.addEventListener('change', () => { checkbox.checked ? selected.add(checkbox.value) : selected.delete(checkbox.value); selectionChanged(); });
       const description = node('span');
-      description.append(node('strong', '', record.title || record.id), node('small', '', `${label(record.kind)} · ${label(record.status)}`));
+      description.append(node('strong', '', savedDatasets.get(record.id) || record.title || record.id), node('small', '', `${label(record.kind)} · ${label(record.status)}`));
+      if (savedDatasets.has(record.id)) description.append(node('small', '', 'Saved SPARC-like TORAX simulation · paired seed 29 · 1 round · 56 episodes · development, not confirmation.'));
       if (record.metadata?.adapter === 'federation_dossier' || String(record.id).startsWith('federation:')) description.append(node('span', 'research-telemetry-badge', 'Saved coordinator telemetry'));
       if (record.metadata?.adapter === 'shadow_comparison' || record.adapter === 'shadow_comparison') description.append(node('span', 'research-telemetry-badge', 'Recorded TORAX shadow pilot'));
       if (record.path) description.append(node('small', '', record.path));
@@ -327,9 +339,9 @@
     byId('saved-shadow-permission').textContent = !run.id ? '' : run.mode === 'offline'
       ? 'Shadow permission: unavailable in local inspection; no training runs.'
       : run.allow_shadow === true
-        ? 'Shadow permission: enabled for this run, for at most one bounded pilot. Permission does not mean a pilot ran.'
+        ? 'Live TORAX generation (Experimental / Beta): enabled for this run, for at most one bounded pilot. Permission does not mean a pilot ran. Failures are retained.'
         : run.allow_shadow === false
-          ? 'Shadow permission: disabled for this run; no pilot authorized.'
+          ? 'Live TORAX generation: disabled for this run; saved-data research only, no pilot authorized.'
           : 'Shadow permission: not recorded for this saved run.';
     byId('export').hidden = !run.id;
     if (run.id) byId('export').href = endpoint('export', {run_id: run.id});
@@ -417,7 +429,7 @@
       field('value-option').disabled = active || working || field('value-option').hidden;
       field('refresh').disabled = working;
       field('prepare').textContent = busy ? 'Saving trial request…' : 'Freeze trial configuration →';
-      field('start').textContent = active ? 'Local trial running…' : 'Run frozen trial ↗';
+      field('start').textContent = active ? 'Beta simulation running…' : 'Generate TORAX data (Beta) ↗';
       if (dirty && state?.run?.status === 'frozen') field('state-note').textContent = 'Settings changed. Freeze a new trial before running; the manifest below still belongs to the earlier frozen trial.';
     }
     function configureValue(value) {
@@ -581,7 +593,7 @@
       const status = run.status || 'idle';
       field('status').textContent = label(status);
       field('runtime').textContent = data.runtime?.available === true
-        ? 'Local RL Python environment found. The frozen worker validates simulator startup. No Nebius or Tavily key is used for the pilot.'
+        ? 'Server RL Python environment found. Experimental / Beta: startup or execution may fail. No Nebius or Tavily key is used for the pilot.'
         : `Local runtime unavailable: ${data.runtime?.reason || 'runtime availability has not been reported'}`;
       field('id').textContent = run.id ? `Trial ${run.id}` : 'No frozen trial';
       if (run.id && run.id !== knownId) {
@@ -701,6 +713,10 @@
     refreshShadow();
   }
   byId('form').addEventListener('submit', (event) => { event.preventDefault(); submit('live'); });
+  // Saved run permissions never opt a new form into physics, including browser
+  // checkbox restoration after a reload. Each fresh page starts read-only.
+  byId('allow-shadow').checked = false;
+  byId('allow-shadow').addEventListener('change', controls);
   byId('offline').addEventListener('click', () => submit('offline'));
   byId('refresh').addEventListener('click', refresh);
   byId('source-close').addEventListener('click', () => byId('source-dialog').close());

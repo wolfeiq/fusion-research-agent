@@ -140,6 +140,69 @@ test('fresh clone selects both published pilots without assuming a federation do
   assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
 });
 
+test('the three saved TORAX scenarios are default selections with readable scope, regardless of outcomes', async () => {
+  const ids = ['dc0df0a81413479e979a18895e1fe2fe', 'fbb83d8ee93a424497aeacc0a2633dc3', '12eddcebd2c548d889b41d3f2adace91'];
+  const records = ids.map((id, index) => ({
+    id: `examples/evidence/shadow/${id}/comparison.json`, title: 'Opaque original title',
+    kind: 'experiment', status: index === 1 ? 'failed' : 'complete', adapter: 'shadow_comparison'
+  }));
+  const h = await harness({researchConfigured: true, researchCatalog: [
+    {id: 'examples/evidence/shadow/993df979e388405297f0195bfca504d6/comparison.json', kind: 'experiment', status: 'complete'},
+    ...records.slice().reverse()
+  ]});
+  const checked = h.elements['research-catalog'].querySelectorAll('input').filter((input) => input.checked);
+  assert.deepEqual(checked.map((input) => input.value), records.map((row) => row.id));
+  assert.deepEqual(h.elements['research-catalog'].querySelectorAll('strong').slice(0, 3).map((item) => item.textContent), [
+    'SAC learning rate: 0.0003 → 0.0001',
+    'SAC critic federation: mixing 0.25 → 0.10',
+    'TD3 critic action coordinates: normalized → physical'
+  ]);
+  const scope = h.elements['research-catalog'].querySelectorAll('small').filter((item) => /Saved SPARC-like TORAX simulation/.test(item.textContent));
+  assert.equal(scope.length, 3);
+  assert(scope.every((item) => /paired seed 29 · 1 round · 56 episodes · development, not confirmation/.test(item.textContent)));
+  assert.equal(h.elements['research-selection-count'].textContent, '3/8 selected');
+  assert.equal(h.elements['research-allow-shadow'].checked, false);
+  assert.equal(h.elements['research-live'].textContent, 'Analyze saved data + literature ↗');
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+  h.elements['research-question'].value = 'Analyze these saved TORAX datasets';
+  h.elements['research-form'].listeners.submit({preventDefault() {}}); await flush();
+  const request = h.calls.find((call) => call.options.method === 'POST');
+  assert.deepEqual(JSON.parse(request.options.body).record_ids, records.map((row) => row.id));
+  assert.equal(JSON.parse(request.options.body).allow_shadow, false);
+});
+
+test('invalid featured data is never silently selected as a valid experiment', async () => {
+  const invalid = 'examples/evidence/shadow/dc0df0a81413479e979a18895e1fe2fe/comparison.json';
+  const valid = 'examples/evidence/shadow/fbb83d8ee93a424497aeacc0a2633dc3/comparison.json';
+  const h = await harness({researchCatalog: [
+    {id: invalid, kind: 'experiment', status: 'invalid'},
+    {id: valid, kind: 'experiment', status: 'complete'}
+  ]});
+  const controls = h.elements['research-catalog'].querySelectorAll('input');
+  assert.equal(controls.find((item) => item.value === invalid).checked, false);
+  assert.equal(controls.find((item) => item.value === invalid).disabled, true);
+  assert.deepEqual(controls.filter((item) => item.checked).map((item) => item.value), [valid]);
+});
+
+test('beta generation is visibly separate and a saved permission never opts in a new request', async () => {
+  assert.equal((html.match(/Experimental \/ Beta — may fail/g) || []).length, 2);
+  assert.match(html, /Default: analyze saved simulation data/);
+  assert.match(html, /Optional manual generation, separate from saved-data research/);
+  assert.match(html, /failures and partial outputs are retained/i);
+  assert.doesNotMatch(html, /fresh seed 17/);
+  const h = await harness({researchConfigured: true, initialResearchRun: {
+    id: 'previous-beta-run', mode: 'live', allow_shadow: true, status: 'completed', events: []
+  }});
+  assert.equal(h.elements['research-allow-shadow'].checked, false);
+  assert.match(h.elements['research-live'].textContent, /Analyze saved data/);
+  assert.match(h.get('start').textContent, /Generate TORAX data \(Beta\)/);
+  assert.match(h.get('runtime').textContent, /Experimental \/ Beta/);
+  h.elements['research-allow-shadow'].checked = true;
+  h.elements['research-allow-shadow'].listeners.change();
+  assert.equal(h.elements['research-live'].textContent, 'Analyze + allow beta generation ↗');
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
 test('original federation dossier defaults remain available without published pilots', async () => {
   const ids = ['federation:local-smoke', 'federation:kaggle-359552340', 'results/td3_heating_stability/repair_comparison.json'];
   const h = await harness({researchCatalog: ids.map((id) => ({id, kind: 'experiment', status: 'complete'}))});
