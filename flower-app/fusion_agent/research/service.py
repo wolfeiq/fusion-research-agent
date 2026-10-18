@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import re
 import threading
+import time
+import traceback
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -19,6 +22,47 @@ DEFAULT_QUESTION = (
     "cold-start reactor control? Diagnose the strongest alternative explanations "
     "and propose a small, fair next experiment with cited research."
 )
+
+_STATE_REPLACE_DELAYS = (.01, .02, .04, .08, .16)
+
+
+def _replace_state_file(temporary, target):
+    """Bounded retries for Windows reader locks, without removing old state."""
+    for attempt in range(len(_STATE_REPLACE_DELAYS) + 1):
+        try:
+            os.replace(temporary, target)
+            return
+        except PermissionError as exc:
+            if (getattr(exc, "winerror", None) not in (5, 32, 33)
+                    or attempt == len(_STATE_REPLACE_DELAYS)):
+                raise
+            time.sleep(_STATE_REPLACE_DELAYS[attempt])
+
+
+def _failure_diagnostic(exc, secrets=()):
+    """Keep bounded code locations, never exception text, source or locals."""
+    def label(value, *, filename=False):
+        if not isinstance(value, str):
+            return "<redacted>"
+        if filename:
+            value = value.replace("\\", "/").rsplit("/", 1)[-1]
+        if any(secret and secret in value for secret in secrets):
+            return "<redacted>"
+        if len(value) > 96 or not re.fullmatch(r"[A-Za-z0-9_.-]+|<(?:module|listcomp|dictcomp|setcomp|genexpr|lambda)>", value):
+            return "<redacted>"
+        return value
+
+    frames = []
+    for frame in traceback.extract_tb(exc.__traceback__, limit=-12):
+        frames.append({"file": label(frame.filename, filename=True),
+                       "function": label(frame.name), "line": frame.lineno})
+    diagnostic = {"exception_type": label(type(exc).__name__), "frames": frames,
+                  "scope": "Exception class and bounded code locations only; no exception message, source text, full paths, payload or locals."}
+    for key in ("errno", "winerror"):
+        value = getattr(exc, key, None)
+        if type(value) is int and -(2**31) <= value < 2**31:
+            diagnostic[key] = value
+    return diagnostic
 
 
 class ResearchService:
@@ -73,10 +117,10 @@ class ResearchService:
         temporary.write_text(
             json.dumps(self.run, ensure_ascii=False, allow_nan=False), encoding="utf-8"
         )
-        temporary.replace(folder / "run.json")
+        _replace_state_file(temporary, folder / "run.json")
         latest_tmp = self.state_dir / "latest.tmp"
         latest_tmp.write_text(json.dumps({"id": self.run["id"]}), encoding="utf-8")
-        latest_tmp.replace(self.state_dir / "latest.json")
+        _replace_state_file(latest_tmp, self.state_dir / "latest.json")
 
     def snapshot(self):
         with self.lock:
@@ -279,7 +323,17 @@ class ResearchService:
                 if secret:
                     message = message.replace(secret, "[redacted]")
             with self.lock:
-                self.run.update(status="failed", error=message)
+                diagnostic = _failure_diagnostic(
+                    exc, (settings.nebius_key, settings.tavily_key)
+                )
+                self.run.update(status="failed", error=message,
+                                failure_diagnostic=diagnostic)
+                self.run["events"].append({
+                    "kind": "failure_diagnostic",
+                    "message": "Research failed; bounded code-location diagnostics were retained without provider content.",
+                    "diagnostic": copy.deepcopy(diagnostic),
+                    "time": datetime.now(UTC).isoformat(),
+                })
         finally:
             with self.lock:
                 self.active = False
