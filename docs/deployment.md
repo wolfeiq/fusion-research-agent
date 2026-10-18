@@ -37,7 +37,7 @@ Missing/wrong login rejection, authenticated UI and research reads, spoofed-toke
 replacement, cross-origin rejection and stripping the browser's Authorization
 header all passed. Caddy's HTTPS configuration also passed validation.
 
-The subsequent local suite passed **1,277 tests**, with **2 skipped** and **2 warnings**.
+The subsequent local suite passed **1,308 tests**, with **2 skipped** and **2 warnings**.
 Its HTTP coverage includes public-mode authentication, Host/Origin checks, typed
 POST routing, local compatibility and a status-only health probe.
 
@@ -163,3 +163,25 @@ VM separately in the cloud console and review its billing state.
 Implementation references: [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/),
 [Compose health checks](https://docs.docker.com/reference/compose-file/services/#healthcheck),
 [uv in Docker](https://docs.astral.sh/uv/guides/integration/docker/).
+
+## Deployed saved-data verification
+
+The research-only UI and error-recovery changes are deployed at code revision
+`94ad4babf48789e8cd5f251ac0d23547949f20a1`. Its Linux image and Caddy smoke checks
+passed in [GitHub Actions run 39141449138](https://github.com/wolfeiq/fusion-research-agent/actions/runs/39141449138).
+Real HTTPS, authentication, private backend access and the new UI asset checks
+also passed on the VM.
+
+Live run `92753c1d8f4b49d5b3e62296d98536dc` completed against the single saved TD3
+critic-coordinate dataset using Nebius Token Factory and Tavily. All **44
+verification checks passed**: the 12 required fact cards, all four competence
+pairs, raw endpoint costs, source hashes and citation endpoints, and the recorded
+keep-baseline recommendation with its 112-episode proposed budget. No new physics
+was run and no experiment or aggregation policy was changed. The earlier partial
+VM run is retained separately. See [the exact tested settings and question](verified_demo.md).
+
+The primary TD3 paper excerpt is substantive methodological context about value
+estimation error; it does not establish why this coordinate change helped or
+prove a federation benefit. Successful reporting of one development dataset
+is not independent RL confirmation or a guarantee against later provider errors.
+Linux TORAX execution remains unvalidated and opt-in experimental beta.

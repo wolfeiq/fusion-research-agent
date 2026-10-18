@@ -26,7 +26,7 @@ the full trace or a bulk copy of web sources.
 The [negative verification record](examples/verification/negative_reporting_check.json)
 preserves the second scoped audit; its report is separate from the positive
 clipping reproduction.
-The default demo uses three saved CPU TORAX datasets; opening the app does not
+The demo includes three saved CPU TORAX datasets; opening the app does not
 run physics. A single-user container deployment runs on a Nebius VM, with model
 inference on Token Factory and retrieval through Tavily. Optional live TORAX
 generation is explicitly **Experimental / Beta — may fail**, requires opt-in, and
@@ -45,8 +45,9 @@ uv sync --locked --extra research --extra dev
 uv run --no-sync python dashboard.py
 ```
 
-Open http://127.0.0.1:8787/#research. The three saved development datasets are
-selected by default. Use offline inspection without credentials. These are real recorded
+Open http://127.0.0.1:8787/#research. The TD3 critic-coordinate development dataset
+is selected as the focused first audit; the two SAC datasets are also available.
+Use offline inspection without credentials. These are real recorded
 measurements; offline inspection does not use an LLM or search the web.
 Read [the evidence provenance](examples/evidence/README.md) and the
 [three-trial audit, including reporting failures](docs/three_trial_audit.md).
@@ -74,11 +75,13 @@ or return insufficient evidence. The server rebuilds the final answer from the
 selected sources; neither writer prose nor judge approval can change its facts.
 Current and historical trials remain explicitly labelled. Unknown references in
 optional hypotheses are quarantined and traced, rather than repaired or published.
-For a current bounded shadow, the server includes the complete recorded comparison
+For a current bounded shadow or one verified saved single-seed trial, the server
+includes the complete recorded comparison
 (up to 12 cards: status, changed setting, accounting, all four cost and competence
 comparisons, plus clipping when recorded). Optional model choices cannot displace
-required measurements. Saved historical evidence retains bounded model selection;
-malformed optional annotations in a current comparison are excluded and traced. A required literature
+required measurements or its recorded recommendation. Multiple saved datasets
+retain bounded selection; they are never silently pooled. Saved measurements
+remain labelled historical. Malformed optional annotations are excluded and traced. A required literature
 excerpt must come from an extracted, hash-bound snapshot at a recognized paper
 URL. Secondary summaries cannot fill that slot, even if a model judge approves.
 This URL/path check does not certify authorship, peer review or scientific quality;
@@ -145,12 +148,11 @@ flowchart LR
   COMPILE --> REPORT[Facts + attributed excerpts + proposal]
 ```
 
-The facility-investigation sections retain the earlier Flower AgentApp and
-reduced-model demonstrations. Those synthetic facilities are distinct from the
-research agent's real TORAX experiment evidence. The Flower hosted-run button is
-an optional separate workflow requiring the user's own Flower login; it is not
-the Token Factory research inference path. This repository does not require a
-Flower account for the research workspace.
+The visible app contains only the Nebius/Tavily research workspace, saved datasets,
+findings and optional beta generation. Earlier Flower/SuperGrid investigation,
+facility and reduced-model screens are hidden and inert; their scripts are not
+loaded. Retained compatibility assets and APIs are separate from this interface.
+No Flower account is required for the research workspace.
 
 See [reporting integrity](docs/reporting_integrity.md) for the current publication
 contract and [RESEARCH.md](flower-app/RESEARCH.md) for the broader tool history.
@@ -188,10 +190,9 @@ uv run --no-sync python -m pytest tests/test_shadow_trial.py -q
 
 Unit fixtures may use a synthetic plant; they are labelled and never substituted
 for the live TORAX command. A successful unit suite is not a live-provider result.
-The four 3D device views require WebGL and externally hosted pinned Three.js
-scripts; ordinary controls remain available if those views cannot load.
+Legacy 3D device assets are retained but are not loaded by the research UI.
 
-The clean Windows CPU environment passed **1,178 app tests**, **52 frontend tests**
+An earlier clean Windows CPU environment passed **1,178 app tests**, **52 frontend tests**
 and **252 root RL tests**. Two app tests and one optional legacy-transport test
 were skipped; two existing Typer/Click deprecation warnings remain. See the
 [verification log](docs/verification_log.md) and [known limits](docs/known_issues.md)
@@ -214,3 +215,17 @@ excerpt and no selection rejections. Its one unsupported improvement hypothesis
 was marked critic-rejected and never promoted into fact. These two live audits
 do not guarantee correct scientific interpretation for every question or permit
 automatic policy changes.
+
+Request recovery uses a 20-second browser timeout and a read of saved server state
+before any explicit retry. Retries never authorize TORAX generation automatically.
+Prior evidence remains labelled with its own run ID. A terminal storage failure
+keeps the current export available and prevents a new run from replacing unsaved
+evidence until storage recovers. Live model/search services can still fail; no
+dataset guarantees a successful live request or a federation benefit.
+
+
+The latest combined app suite passed **1,308 tests** (2 skipped), and all **65
+frontend tests** passed. The deployed live TD3 saved-data check passed **44/44
+verification checks** using Nebius and Tavily, without new physics. See the
+[exact tested settings and question](docs/verified_demo.md). This verifies that
+specific reporting run, not universal model correctness or a federation benefit.

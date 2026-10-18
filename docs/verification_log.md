@@ -580,3 +580,60 @@ none entered the factual answer. The [updated three-trial audit](three_trial_aud
 records these remaining interpretation limits. This is three scoped factual
 publication checks using preserved data, not three complete workflow successes,
 new independent RL replications or evidence that federation solves cold start.
+
+
+## Research-only interface and saved-data recovery
+
+The app now uses a cream/red editorial theme and exposes only research, saved
+TORAX datasets, findings and explicitly opt-in experimental beta generation.
+Legacy Flower/SuperGrid surfaces are hidden/inert and their scripts are not
+loaded. The focused TD3 critic-coordinate comparison is selected by default;
+the other two SAC datasets remain available. Dataset selection is not a promise
+of successful inference or a federation benefit.
+
+A deployed live saved-data audit (`18d40967f5dc461a8aa0a4ded53b8f1d`) completed
+with exact numerical cards and a relevant TD3 primary-paper excerpt, but omitted
+the clipped competence card and recorded recommendation. That partial audit is
+retained. The complete 11/12-card requirement now also applies to one validated
+saved single-seed comparison, preserving its historical provenance and recorded
+proposal. Multiple datasets/seeds are not silently pooled. Recompiling the exact
+failed selection restored the missing evidence without another simulation.
+
+Browser testing also exposed an offline-format mismatch: local inspection
+returned the legacy report format, so the new UI could not render its measurements.
+One-at-a-time inspection of all three published datasets now uses the same typed
+fact boundary, without inference, retrieval, judging or training. Browser QA
+confirmed 12 cards and an exact-value citation dialog for the TD3 dataset.
+Desktop and 390-pixel responsive views were inspected; the temporary viewport
+was reset afterward.
+
+Graceful recovery now includes a 20-second fetch timeout, status reconciliation
+after an uncertain POST, explicit retry with physics disabled, retained reports
+and trace with original run IDs, and safe error categories. Backend credentials
+are redacted before error truncation. Failed terminal persistence preserves the
+current export and blocks replacing unsaved evidence until storage recovers.
+Original failures and failed/partial runs are not relabelled as successes.
+
+The combined local suite passed **1,308 tests**, with **2 skipped** and **2 existing
+Typer/Click warnings** in 40.50 seconds. All **65 frontend tests** and focused Ruff
+checks passed. The credential scan found no actual configured provider-key values
+in tracked files, Git history or archived source members. These checks are separate
+from the live Nebius/Tavily audit and do not validate Linux TORAX execution.
+
+## Final deployed saved-data audit
+
+The second cloud verification, run `92753c1d8f4b49d5b3e62296d98536dc`, completed
+on deployed revision `94ad4ba` with **44/44 verification checks passing**. It
+used the frozen TD3-only question, live Nebius inference and Tavily retrieval,
+with shadow generation disabled. All 12 saved fact cards, exact source snapshots,
+citation endpoints, the recorded recommendation and full proposed budget passed.
+No new physics episodes ran; existing app/worker experiment state was unchanged.
+The first cloud audit and its omissions remain preserved and are not overwritten.
+
+Independent excerpt review identifies the scientific abstract of Fujimoto et al.,
+*Addressing Function Approximation Error in Actor-Critic Methods*, PMLR 80 (2018).
+Its value-estimation-error context is relevant to critic methodology, not direct
+causal evidence for coordinate normalization or federated cold-start gains.
+The exact tested settings/question are in [verified_demo.md](verified_demo.md).
+The code revision's Linux research-image and real-Caddy CI checks also passed
+([run 39141449138](https://github.com/wolfeiq/fusion-research-agent/actions/runs/39141449138)).
