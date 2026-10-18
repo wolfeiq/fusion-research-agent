@@ -6,7 +6,9 @@ Nebius Token Factory to produce a sourced critique and a next-experiment proposa
 An optional bounded shadow trial tests a single change with fresh controllers.
 
 This is an executable research prototype. Live-provider and end-to-end validation
-is ongoing; the repository does not imply that every proposed change improves RL.
+is ongoing. The model judge has known citation-scope false acceptances; a completed
+run is not an independently verified scientific report. The repository does not
+imply that every proposed change improves RL.
 The bundled measurements are recorded local CPU experiments, not newly run when
 you open the app. No Nebius VM, NVIDIA GPU deployment or production reactor control
 is claimed. The current shadow worker uses CPU and in-process aggregation.
@@ -137,7 +139,7 @@ for the live TORAX command. A successful unit suite is not a live-provider resul
 The four 3D device views require WebGL and externally hosted pinned Three.js
 scripts; ordinary controls remain available if those views cannot load.
 
-The clean Windows CPU environment passed **936 app tests**, **33 frontend tests**
+The clean Windows CPU environment passed **958 app tests**, **33 frontend tests**
 and **252 root RL tests**. Two app tests and one optional legacy-transport test
 were skipped; two existing Typer/Click deprecation warnings remain. See the
 [verification log](docs/verification_log.md) and [known limits](docs/known_issues.md)

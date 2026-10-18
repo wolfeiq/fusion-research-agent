@@ -97,10 +97,10 @@ bounded check does not resolve the distinct privacy-scope blind spot below.
 | Full attempt 19: `7a5ab3531a2046579e615c8c4a1b75fd` | Failed before the judge: PDF quote contained control characters | Citation helpers now executed, but one returned a canonical PDF excerpt containing U+001A/U+001B that the report validator rejects. Earlier drafts also exceeded the former eight-citation-per-claim limit. |
 | Full attempt 20: `4c57e0f656a443e98215f82f0aa11a4a` | Finished with `insufficient_evidence`; no runtime error | 32 model calls, 763,616 recorded tokens, one search, three extractions and 36 tool calls. Independent audit approved the retained primary-paper claim, but experimental claims lacked citation coverage. One reflection damaged a valid web reference and was rejected. |
 | Full attempt 21: `cf248e70ab054c75b45e346c475d3e96` | Finished with `insufficient_evidence`; shadow worker failed | The worker encountered Windows error 5 replacing `progress.json` after 7 completed episodes. The candidate and aggregation were not reached. No factual claim survived review; some rejected/ancillary prose incorrectly described unmeasured clipping as inactive. Reflection also exposed inconsistent report-envelope handling. |
-| Upcoming full attempt 22 | **Pending** | Windows publication handling and report transport are being repaired and tested. No complete experimentally grounded answer is counted as verified yet. |
+| Full attempt 22: `843402cd5dd44c9d9126ea5314ffe2b3` | Finished with `insufficient_evidence`; shadow completed | 26 model calls, 563,828 recorded tokens, one search, two extractions and 30 tool calls. The real worker completed all 56 episodes. Reflection executed and complete-record citations helped, but independent review rejected two claims retained by the model judge. |
 
-The 21 recorded full attempts comprise 17 failed attempts, one model-accepted
-report with independently identified defects, and two runs ending in explicit
+The 22 recorded full attempts comprise 17 failed attempts, one model-accepted
+report with independently identified defects, and four runs ending in explicit
 insufficient evidence without a runtime error. Revisions must
 preserve failed attempts and unsupported claims rather than hiding them.
 
@@ -232,3 +232,13 @@ Aggregation and candidate evaluation were not reached. Clipping activation and a
 A separate reflection regression rejected a non-native report envelope even though the ordinary report path supports bounded legacy envelopes. The exact submitted envelope was not retained, so its particular shape cannot be reconstructed from the error. The required fix is shared decoding and strict validation, not inventing missing fields.
 
 The publication repair is commit `4688225`: atomic replacement retries only Windows access/sharing/lock errors 5/32/33, for at most six attempts and 0.31 seconds scheduled delay, bounded by the original worker deadline. Permanent errors still fail and retain partial outputs. Commit `89f0228` shares existing report-envelope decoding between initial writing and reflection, rejects malformed container-shaped limitations, and recommends small complete citation objects rather than disconnected scalar values.
+
+## Attempt 22: worker completed, semantic review still failed
+
+Shadow `5818a87a8703477c9e29d1ba3dca4e40` completed all 56 episodes in 92.437 seconds after the Windows publication repair. It repeats development seed 17; this is integration reproduction, not another independent efficacy observation. The research workflow finished without a runtime error and executed its bounded reflection. No complete experimental research report is counted as independently verified.
+
+The retained answer still has two material citation defects. Its endpoint-cost claim gives absolute candidate/baseline costs without citing those values; the model judge improperly excused this as arithmetic behind cited differences. Its literature claim uses a centralized sample-level gradient-privacy paragraph to support federated client-update clipping and client-level privacy. The judge explicitly noticed the centralized context, then wrongly rescued the claim using the paper's overall subject. Exact quote matching and a second model context therefore do not establish semantic support. The complete-object citation guidance reduced mechanical gaps but did not solve this judgment failure.
+
+Independent integrity checks matched all 57 frozen/current source files, source archive, raw/canonical result hashes and comparison/diagnostic projections. Only `scripts/run_shadow_trial.py` changed versus attempt 21; configuration, baseline and calibration were unchanged. Accounting was 32 training + 24 evaluation episodes and 1,680 windows.
+
+Ancillary limitations remain unreliable: the model says the gate accepted a fallback, but it accepted the candidate; the stop reason calls the excluded clipping claim supported. The final answer cites historical `E001`, not the new shadow snapshot, so it must not be represented as a freshly sourced result. The proposed 56-episode budget is correct. These qualifications do not change the independent report verdict: fail.
