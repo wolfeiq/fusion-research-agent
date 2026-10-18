@@ -12,9 +12,9 @@ import json
 import re
 
 from .citation_values import cite_experiment_value
+from .grounded_excerpts import resolve_catalogue_citation
 from .grounded_facts import build_grounded_facts
 from .shadow import validate_config
-from .web_citations import cite_web_excerpt
 
 SCHEMA = "fusion-grounded-publication-v1"
 MAX_FACTS = 40
@@ -100,15 +100,16 @@ def _source_label(card):
 def _literature(registry, requests):
     cards, seen, words_by_url = [], set(), {}
     for request in _selection(requests, "literature_requests", MAX_EXCERPTS):
-        if not isinstance(request, dict) or set(request) != {"source_id", "anchor", "max_words"}:
-            raise ValueError("Literature requests require exactly source_id, anchor and max_words")
+        if (not isinstance(request, dict) or set(request) not in (
+                {"source_id", "anchor", "max_words"}, {"source_id", "anchor", "max_words", "locator"})):
+            raise ValueError("Literature requests require exactly source_id, anchor and max_words, with optional validated locator")
+        if "locator" in request and request["locator"] is None:
+            raise ValueError("A selected literature locator must identify an exact helper candidate")
         source_id = request["source_id"]
         if not isinstance(source_id, str) or source_id not in registry:
             raise ValueError("Unknown literature source ID")
         source = registry[source_id]
-        citation = cite_web_excerpt(source, request["anchor"], request["max_words"])
-        if "candidates" in citation:
-            raise ValueError("Ambiguous literature anchor; select a longer unique anchor from the stored source")
+        citation = resolve_catalogue_citation(source, request["anchor"], request["max_words"], request.get("locator"))
         identity = (source_id, citation["locator"])
         if identity in seen:
             raise ValueError("Duplicate literature excerpt")

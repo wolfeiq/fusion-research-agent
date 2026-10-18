@@ -9,6 +9,7 @@ from fusion_agent.research.grounded_excerpts import (
     MAX_PER_SOURCE,
     MAX_TOTAL,
     build_excerpt_catalogue,
+    resolve_catalogue_citation,
 )
 from fusion_agent.research.web_citations import cite_web_excerpt
 
@@ -30,7 +31,7 @@ def assert_exact(entry, captured):
     assert 1 <= len(entry["quote"].split()) <= 25
     assert entry["source_sha256"] == captured["sha256"]
     request = entry["request"]
-    actual = cite_web_excerpt(captured, request["anchor"], request["max_words"])
+    actual = resolve_catalogue_citation(captured, request["anchor"], request["max_words"], request.get("locator"))
     assert actual == {"source_id": captured["id"], "quote": entry["quote"], "locator": entry["locator"]}
 
 
@@ -181,3 +182,83 @@ def test_repeated_content_has_bounded_anchor_attempts(monkeypatch):
     captured = source("Clipping limits transmitted updates before aggregation. " * 500)
     assert module.build_excerpt_catalogue(captured) == []
     assert len(calls) == module.MAX_CANDIDATE_ATTEMPTS
+
+
+def test_front_matter_and_publication_metadata_never_become_scientific_options():
+    captured = source(
+        "Proceedings of Machine Learning Research\n[edit]\n"
+        "Learning controllers share value functions across heterogeneous environments.\n"
+        "Wei Wang, An Author\nProceedings of The International Conference, PMLR 151:18-37, 2022.\n"
+        "Abstract\nThe algorithm averages value functions across different transition dynamics.\n"
+        "These results concern tabular environments rather than physical reactor controllers.\n"
+        "Cite this Paper\nAn Author and Wei Wang. Learning controllers share value functions.\n"
+        "BibTeX\n@inproceedings{author2022learning}")
+    before = deepcopy(captured)
+    entries = build_excerpt_catalogue(captured, "Wang PMLR value functions")
+    assert entries
+    abstract_end = captured["content"].index("Abstract") + len("Abstract")
+    citation_start = captured["content"].index("Cite this Paper")
+    for entry in entries:
+        _, start, end = entry["locator"].split(":")
+        assert abstract_end <= int(start) < int(end) <= citation_start
+        assert "Wang" not in entry["quote"] and "PMLR" not in entry["quote"]
+        assert_exact(entry, captured)
+    assert captured == before
+
+
+@pytest.mark.parametrize("heading", ["References", "7. References", "## Bibliography", "Citation", "Endnote"])
+def test_bibliography_and_export_sections_are_excluded_even_when_question_matches(heading):
+    captured = source("## Abstract\nThe actor learns policies while maximizing expected entropy.\n"
+                      "Introduction\nThe critic provides estimated values for policy learning.\n"
+                      + heading + "\nSmith and Jones studied reactor heating controls across heterogeneous clients.")
+    entries = build_excerpt_catalogue(captured, "Smith Jones reactor heating heterogeneous clients")
+    assert entries and all("Smith" not in entry["quote"] for entry in entries)
+    for entry in entries:
+        assert_exact(entry, captured)
+
+
+def test_metadata_only_capture_does_not_offer_a_publication_slot():
+    captured = source("Wang, Zhihua Zhang\nProceedings of The 25th International Conference on Artificial Intelligence and Statistics, PMLR 151:18-37, 2022.")
+    assert build_excerpt_catalogue(captured, "federated learning") == []
+
+
+def test_metadata_and_navigation_lines_without_abstract_do_not_bridge_into_prose():
+    captured = source("[Home]\nProceedings of a Research Conference, 2026.\n"
+                      "Clipping limits transmitted updates before aggregation.\n"
+                      "Download PDF\nDOI: 10.1234/example\n"
+                      "The actor maximizes reward together with policy entropy.")
+    entries = build_excerpt_catalogue(captured, "actor entropy clipping")
+    assert len(entries) == 2
+    assert all(not any(word in entry["quote"] for word in ["Home", "Proceedings", "Download", "DOI"]) for entry in entries)
+    for entry in entries:
+        assert_exact(entry, captured)
+
+
+def test_reference_word_inside_scientific_sentence_is_not_a_section_boundary():
+    captured = source("Abstract\nReferences to a shared critic do not imply shared replay data. "
+                      "The actor remains local to its experimental environment.")
+    entries = build_excerpt_catalogue(captured)
+    assert len(entries) == 2
+    assert any(entry["quote"].startswith("References to") for entry in entries)
+
+
+def test_bibtex_duplicate_resolves_only_exact_helper_body_candidate():
+    abstract = "The actor maximizes expected reward together with policy entropy."
+    captured = source("An Author and Another Author.\nAbstract\n" + abstract
+                      + "\nCite this Paper\nBibTeX\nabstract = { " + abstract + " }")
+    entries = build_excerpt_catalogue(captured, "actor entropy")
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry["quote"] == abstract
+    request = entry["request"]
+    assert request["locator"] == entry["locator"]
+    raw = cite_web_excerpt(captured, request["anchor"], request["max_words"])
+    assert raw["total_matches"] == 2
+    assert any(item["citation"]["locator"] == entry["locator"] for item in raw["candidates"])
+    assert_exact(entry, captured)
+
+
+def test_identical_body_occurrences_still_ambiguous_with_excluded_bibliography():
+    sentence = "The actor maximizes expected reward together with policy entropy."
+    captured = source("Abstract\n" + sentence + " " + sentence + "\nReferences\nAn Author studies algorithms.")
+    assert build_excerpt_catalogue(captured, "actor entropy") == []

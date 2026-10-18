@@ -159,6 +159,39 @@ def test_ambiguous_and_corrupt_pdf_excerpts_are_rejected(text, anchor, max_words
         build_publication(data, selected(data), [{"source_id": "W001", "anchor": anchor, "max_words": max_words}])
 
 
+def test_explicit_body_locator_revalidates_helper_candidate_and_cannot_select_bibliography():
+    from fusion_agent.research.web_citations import cite_web_excerpt
+
+    sentence = "The actor maximizes expected reward together with policy entropy."
+    data = sources()
+    data[1] = captured("W001", "Abstract\n" + sentence + "\nBibTeX\nabstract = { " + sentence + " }",
+                       kind="web", status="extracted")
+    args = {"source_id": "W001", "anchor": "The actor maximizes expected reward together", "max_words": 9}
+    choices = cite_web_excerpt(data[1], args["anchor"], args["max_words"])["candidates"]
+    original = copy.deepcopy(data)
+    report = build_publication(data, selected(data), [{**args, "locator": choices[0]["citation"]["locator"]}])
+    assert report["literature_excerpts"][0]["evidence"] == [choices[0]["citation"]]
+    assert report["literature_excerpts"][0]["quote"] == sentence
+    assert data == original
+    for locator in ["chars:0:10", "chars:999:9999", None, "made-up"]:
+        with pytest.raises(ValueError, match="locator"):
+            build_publication(data, selected(data), [{**args, "locator": locator}])
+    with pytest.raises(ValueError, match="outside retained"):
+        build_publication(data, selected(data), [{**args, "locator": choices[1]["citation"]["locator"]}])
+
+
+def test_explicit_locator_cannot_resolve_duplicate_scientific_body_sentences():
+    from fusion_agent.research.web_citations import cite_web_excerpt
+
+    sentence = "The actor maximizes expected reward together with policy entropy."
+    data = sources()
+    data[1] = captured("W001", "Abstract\n" + sentence + " " + sentence, kind="web", status="extracted")
+    args = {"source_id": "W001", "anchor": "The actor maximizes", "max_words": 9}
+    locator = cite_web_excerpt(data[1], args["anchor"], args["max_words"])["candidates"][0]["citation"]["locator"]
+    with pytest.raises(ValueError, match="Ambiguous"):
+        build_publication(data, selected(data), [{**args, "locator": locator}])
+
+
 def test_quote_budget_applies_across_ids_for_same_url_and_duplicate_requests():
     data = sources()
     data[1] = captured("W001", " ".join(f"word{i}" for i in range(40)), kind="web", status="extracted")
