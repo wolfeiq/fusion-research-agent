@@ -112,6 +112,54 @@ def _batch_limit(message, role, allowed_names):
     return MAX_TOOL_BATCH
 
 
+def _protected_claims(report):
+    """Keep only canonical scientific fields from previously checked claims."""
+    protected = {}
+    for claim in report["claims"]:
+        if (claim.get("verification", {}).get("status") == "traceable"
+                and claim.get("review", {}).get("verdict") == "supported"):
+            protected[claim["id"]] = {
+                key: copy.deepcopy(claim[key]) for key in ("id", "text", "kind", "confidence")
+            }
+            protected[claim["id"]]["evidence"] = [
+                {key: copy.deepcopy(item[key]) for key in ("source_id", "quote", "locator")}
+                for item in claim["evidence"]
+            ]
+    return protected
+
+
+def _preserve_protected_claims(args, protected):
+    """Merge server-owned claims; validate all new/changed science downstream."""
+    from .verification import MAX_CLAIMS
+
+    if not isinstance(args, dict) or set(args) != {"answer", "claims", "next_runs", "limitations", "stop_reason"}:
+        raise ValueError("Reflection finish_report requires exactly the five native flat report fields")
+    if len(json.dumps(args, ensure_ascii=False, allow_nan=False)) > 50_000:
+        raise ValueError("report exceeds the 50000-character limit")
+    claims = args["claims"]
+    if not isinstance(claims, list) or len(claims) > MAX_CLAIMS:
+        raise ValueError(f"Reflection claims must be a native array of at most {MAX_CLAIMS} items")
+    seen, merged, replaced = set(), [], []
+    for claim in claims:
+        if not isinstance(claim, dict) or not isinstance(claim.get("id"), str):
+            raise ValueError("Each reflection claim must have a string ID")  # noqa: TRY004 - public schema API
+        identifier = claim["id"]
+        if identifier in seen:
+            raise ValueError("Claim IDs must be unique")
+        seen.add(identifier)
+        if identifier in protected:
+            if claim != protected[identifier]:
+                replaced.append(identifier)
+            merged.append(copy.deepcopy(protected[identifier]))
+        else:
+            merged.append(copy.deepcopy(claim))
+    restored = [identifier for identifier in protected if identifier not in seen]
+    merged.extend(copy.deepcopy(protected[identifier]) for identifier in restored)
+    return {**args, "claims": merged}, {"protected_claim_ids": list(protected),
+                                         "replaced_submitted_claim_ids": replaced,
+                                         "restored_omitted_claim_ids": restored}
+
+
 def _messages(role, instructions, payload, system):
     return [
         {
@@ -690,12 +738,20 @@ def build_research_graph(engine):
             "sources": source_views(sources, reference_texts=[state[key]["summary"] for key in ROLE_FINDINGS.values()]),
         }
         reflection_instructions = ""
+        protected = {}
         if repair:
+            protected = _protected_claims(state["report"])
             payload.update(phase="writer_reflection", reviewed_draft=copy.deepcopy(state["report"]),
-                           judge_gaps=state.get("gaps", []), remaining_writer_calls=3)
+                           judge_gaps=state.get("gaps", []), remaining_writer_calls=3,
+                           protected_claims=copy.deepcopy(list(protected.values())))
             reflection_instructions = (
                 "This is the single bounded reflection pass on the actual reviewed draft. Read its "
                 "per-claim verdicts, citation coverage failures, proposal judgments and judge gaps. "
+                "The server owns protected_claims, which already passed traceability and semantic review. "
+                "Do not rewrite their text, IDs, quotes or offsets: the server retains them unchanged "
+                "even if omitted or resubmitted differently. Revise flagged claims, proposals, limitations "
+                "and stop_reason only. New claims still need exact evidence. The fresh judge will recheck "
+                "ALL claims, including protected ones, and may reject any of them. "
                 "Repair with already captured sources: obtain needed exact citations in your first "
                 "turn, reassess evidence, then submit the whole corrected report. Narrow or omit "
                 "uncovered clauses instead of inventing support; acceptance is not required. "
@@ -706,6 +762,10 @@ def build_research_graph(engine):
                 "execution paths were unavailable. Keep raw learner and gate-deployed endpoints distinct "
                 "in proposals and report both where relevant. Derive proposed budgets from the captured "
                 "configuration, counting configurations and seeds, and do not add evaluation subsets twice. "
+                "Label gate and initial-evaluation counts as subsets of total evaluation costs when recorded "
+                "that way. Proposed additional development seeds are not known to be unused unless the seed "
+                "inventory was checked. Evidence absent from a selected snapshot is not necessarily absent "
+                "from the project. If claims are withheld, stop_reason must not say all measurements were cited. "
                 "Prefer the actual primary paper to a secondary or AI-generated summary. State cross-seed "
                 "behavior as a hypothesis to test, not a guaranteed prediction. "
                 "No new searches, source reads or physics runs are allowed. "
@@ -810,6 +870,11 @@ def build_research_graph(engine):
                             + ", ".join(sorted(turn_allowed))
                         )
                     args = json.loads(call["function"]["arguments"])
+                    if repair and name == "finish_report":
+                        args, preserved = _preserve_protected_claims(args, protected)
+                        event("writer_protected_claims_preserved", "writer",
+                              "Previously supported and traceable claims were preserved unchanged; all merged claims still require fresh review",
+                              state, **preserved, fresh_review_required=True)
                     event(
                         "agent_tool",
                         "writer",

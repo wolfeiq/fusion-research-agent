@@ -331,6 +331,8 @@ class TeamModel:
                         )
                     },
                 )
+                if json.loads(messages[1]["content"]).get("phase") == "writer_reflection":
+                    args = json.loads(args["report_json"])
         elif role == "judge":
             decision = self.decisions[min(step - 1, len(self.decisions) - 1)]
             name, args = (

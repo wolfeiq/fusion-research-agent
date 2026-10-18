@@ -1,10 +1,13 @@
 """A judged citation defect gets one bounded repair using captured evidence."""
 
 import json
+from copy import deepcopy
 
 import pytest
 from test_research_graph import report, setup_engine
 from test_shadow_graph import setup as setup_shadow
+
+from fusion_agent.research.graph import _preserve_protected_claims, _protected_claims
 
 
 def install_reflection_model(monkeypatch, engine, model, *, repair=True, fail_draft=False):
@@ -134,3 +137,116 @@ def test_reflection_requires_four_remaining_calls_including_independent_judge(mo
     deferred = next(event for event in events if event["kind"] == "writer_reflection_deferred")
     assert deferred["remaining_model_calls"] == 3
     assert deferred["minimum_reflection_calls"] == 4
+
+
+@pytest.mark.parametrize("omit", [False, True])
+def test_reflection_cannot_damage_previously_supported_citation_and_all_claims_are_rejudged(monkeypatch, omit):
+    engine, model, _, events = setup_engine()
+    reflections = install_reflection_model(monkeypatch, engine, model)
+    original = model.complete
+    source_snapshot = None
+
+    def rewrite_supported_claim(messages, tools, tool_choice="auto"):
+        nonlocal source_snapshot
+        response, usage = original(messages, tools, tool_choice)
+        payload = json.loads(messages[1]["content"])
+        call = response["tool_calls"][0]["function"]
+        if payload.get("phase") == "writer_reflection":
+            if source_snapshot is None:
+                source_snapshot = deepcopy(engine.sources)
+            assert {claim["id"] for claim in payload["protected_claims"]} == {"C1", "C2"}
+            for claim in payload["protected_claims"]:
+                assert set(claim) == {"id", "text", "kind", "confidence", "evidence"}
+                assert all(set(citation) == {"source_id", "quote", "locator"} for citation in claim["evidence"])
+            if call["name"] == "finish_report":
+                draft = json.loads(call["arguments"])
+                if omit:
+                    draft["claims"] = [claim for claim in draft["claims"] if claim["id"] != "C2"]
+                else:
+                    claim = next(claim for claim in draft["claims"] if claim["id"] == "C2")
+                    claim["text"] = "An invented replacement conclusion."
+                    claim["evidence"][0].update(quote="Invented quote", locator="chars:395:480")
+                call["arguments"] = json.dumps(draft)
+        return response, usage
+
+    monkeypatch.setattr(model, "complete", rewrite_supported_claim)
+    result = engine.run("Repair the flagged claim while keeping the checked passage immutable.")
+    assert len(reflections) == 2 and model.counts["judge"] == 2
+    assert result["orchestration"]["status"] == "accepted"
+    saved = report(model.web_id)["claims"][1]
+    actual = next(claim for claim in result["claims"] if claim["id"] == "C2")
+    assert actual["text"] == saved["text"]
+    assert {key: actual["evidence"][0][key] for key in saved["evidence"][0]} == saved["evidence"][0]
+    preserved = next(event for event in events if event["kind"] == "writer_protected_claims_preserved")
+    assert preserved["fresh_review_required"] is True
+    assert "C2" in preserved["restored_omitted_claim_ids" if omit else "replaced_submitted_claim_ids"]
+    assert {claim["id"] for claim in json.loads(model.histories["judge"][-1][1]["content"])["claims"]} == {"C1", "C2", "C_BAD"}
+    assert engine.sources == source_snapshot
+
+
+def test_fresh_judge_can_reject_a_protected_claim(monkeypatch):
+    engine, model, _, events = setup_engine()
+    reflections = install_reflection_model(monkeypatch, engine, model)
+    original = model.complete
+
+    def reject_on_recheck(messages, tools, tool_choice="auto"):
+        response, usage = original(messages, tools, tool_choice)
+        call = response["tool_calls"][0]["function"]
+        if call["name"] == "review_claims" and reflections:
+            args = json.loads(call["arguments"])
+            claim = next(item for item in args["verdicts"] if item["id"] == "C2")
+            claim.update(verdict="unsupported", all_clauses_supported=False, scope_matches=False,
+                         unsupported_clauses=["The passage has narrower scope."], reason="The passage has narrower scope.")
+            args.update(decision="insufficient", gaps=["The previously accepted paper claim needs a narrower scope."])
+            call["arguments"] = json.dumps(args)
+        return response, usage
+
+    monkeypatch.setattr(model, "complete", reject_on_recheck)
+    result = engine.run("Recheck every claim independently, including previously supported claims.")
+    assert any(event["kind"] == "writer_protected_claims_preserved" for event in events)
+    assert result["orchestration"]["status"] == "insufficient_evidence"
+    rejected = next(claim for claim in result["claims"] if claim["id"] == "C2")
+    assert rejected["review"]["verdict"] == "unsupported"
+    assert rejected["text"] not in result["answer"]
+
+
+def test_reflection_does_not_protect_unknown_citations_in_a_flagged_claim(monkeypatch):
+    engine, model, _, events = setup_engine()
+    install_reflection_model(monkeypatch, engine, model)
+    original = model.complete
+
+    def unknown_source(messages, tools, tool_choice="auto"):
+        response, usage = original(messages, tools, tool_choice)
+        call = response["tool_calls"][0]["function"]
+        if json.loads(messages[1]["content"]).get("phase") == "writer_reflection" and call["name"] == "finish_report":
+            draft = json.loads(call["arguments"])
+            draft["claims"][-1]["evidence"][0]["source_id"] = "UNKNOWN_SOURCE"
+            call["arguments"] = json.dumps(draft)
+        return response, usage
+
+    monkeypatch.setattr(model, "complete", unknown_source)
+    result = engine.run("Keep unknown sources unsupported even if the model calls them supported.")
+    assert result["orchestration"]["status"] == "insufficient_evidence"
+    bad = next(claim for claim in result["claims"] if claim["id"] == "C_BAD")
+    assert bad["verification"]["status"] == "unsupported"
+    assert all("C_BAD" not in event["protected_claim_ids"] for event in events if event["kind"] == "writer_protected_claims_preserved")
+
+
+def test_protected_merge_rejects_duplicate_ids_and_does_not_invent_protected_claims():
+    draft = report()
+    reviewed = deepcopy(draft)
+    for claim in reviewed["claims"]:
+        claim.update(verification={"status": "unsupported"}, review={"verdict": "unsupported"})
+    assert _protected_claims(reviewed) == {}
+    merged, audit = _preserve_protected_claims(draft, {})
+    assert merged == draft and audit["protected_claim_ids"] == []
+    reviewed["claims"][0].update(verification={"status": "traceable"}, review={"verdict": "supported"})
+    protected = _protected_claims(reviewed)
+    duplicate = deepcopy(draft)
+    duplicate["claims"].append(deepcopy(duplicate["claims"][0]))
+    with pytest.raises(ValueError, match="Claim IDs must be unique"):
+        _preserve_protected_claims(duplicate, protected)
+    oversized = deepcopy(draft)
+    oversized["claims"][0]["text"] = "x" * 50_000
+    with pytest.raises(ValueError, match="50000-character"):
+        _preserve_protected_claims(oversized, protected)
