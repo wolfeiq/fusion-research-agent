@@ -65,6 +65,21 @@ def _failure_diagnostic(exc, secrets=()):
     return diagnostic
 
 
+def _public_failure_message(exc, secrets=()):
+    """Redact complete credentials before applying the public message bound."""
+    from .providers import ProviderError
+
+    message = (
+        str(exc)
+        if isinstance(exc, (ValueError, RuntimeError, ProviderError))
+        else "Research failed while processing a response; inspect the saved trace and retry"
+    )
+    # Redacting after slicing can leave a credential prefix at the boundary.
+    for secret in sorted((value for value in secrets if value), key=len, reverse=True):
+        message = message.replace(secret, "[redacted]")
+    return message[:1500]
+
+
 class ResearchService:
     def __init__(
         self,
@@ -163,6 +178,18 @@ class ResearchService:
         with self.lock:
             if self.active:
                 raise ValueError("A research run is already active")
+            if self.run.get("persistence_failure", {}).get("terminal_state_persistence_confirmed") is False:
+                # A prior final report may exist only in this session. Preserve
+                # it, including its failure audit, before replacing self.run.
+                # _save already bounds transient Windows replace retries.
+                try:
+                    self._save()
+                except Exception:  # noqa: BLE001 - do not expose storage errors or replace retained evidence
+                    raise ValueError(
+                        "The previous research run could not be saved, so a new run was not started. "
+                        "Download its run export before restarting this server, then check "
+                        "available storage and write permissions and retry."
+                    ) from None
             sources = []
             for index, record_id in enumerate(record_ids, 1):
                 source = self.catalog.snapshot(record_id)
@@ -309,19 +336,9 @@ class ResearchService:
                     )
         except Exception as exc:  # noqa: BLE001 - isolate background job failures
             # Only our safe validation/provider messages may reach the browser.
-            from .providers import ProviderError
-
-            known = isinstance(exc, (ValueError, RuntimeError, ProviderError))
-            message = (
-                str(exc)[:1500]
-                if known
-                else (
-                    "Research failed while processing a response; inspect the saved trace and retry"
-                )
+            message = _public_failure_message(
+                exc, (settings.nebius_key, settings.tavily_key)
             )
-            for secret in (settings.nebius_key, settings.tavily_key):
-                if secret:
-                    message = message.replace(secret, "[redacted]")
             with self.lock:
                 diagnostic = _failure_diagnostic(
                     exc, (settings.nebius_key, settings.tavily_key)
@@ -338,7 +355,34 @@ class ResearchService:
             with self.lock:
                 self.active = False
                 self.run["finished_at"] = datetime.now(UTC).isoformat()
-                self._save()
+                try:
+                    self._save()
+                except Exception as exc:  # noqa: BLE001 - preserve the session export when terminal persistence fails
+                    diagnostic = _failure_diagnostic(
+                        exc, (settings.nebius_key, settings.tavily_key)
+                    )
+                    # _save keeps atomic old snapshots and already bounds Windows
+                    # replace retries. Do not recursively save this failure or
+                    # claim the final report is durable when publication failed.
+                    self.run["persistence_failure"] = {
+                        "terminal_state_persistence_confirmed": False,
+                        "previous_run_status": self.run["status"],
+                        "previous_error": self.run.get("error"),
+                        "diagnostic": diagnostic,
+                        "evidence_scope": "Current server-session export and the last successfully saved snapshot; final disk contents are unconfirmed.",
+                    }
+                    message = (
+                        "The final research state could not be saved. Download the run export "
+                        "before restarting this server, then check available storage and write "
+                        "permissions. Captured evidence remains available in this session; "
+                        "the final on-disk state is unconfirmed."
+                    )
+                    self.run.update(status="failed", error=message)
+                    self.run["events"].append({
+                        "kind": "persistence_failure", "message": message,
+                        "diagnostic": copy.deepcopy(diagnostic),
+                        "time": datetime.now(UTC).isoformat(),
+                    })
 
     def export(self, run_id):
         if not isinstance(run_id, str) or not re.fullmatch(r"[a-f0-9]{32}", run_id):
