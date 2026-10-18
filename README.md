@@ -7,6 +7,8 @@ An optional bounded shadow trial tests a single change with fresh controllers.
 
 ## Watch the project explanation — in order
 
+SLIDES/BACKGROUND: https://canva.link/ejfvat1x8t121re
+
 **Please watch the three videos in this order: 1 → 2 → 3.**
 
 Click a thumbnail to watch on Loom.
