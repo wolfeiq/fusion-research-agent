@@ -13,6 +13,11 @@ from .policy import CHANGES, compare_clipping, dossier, draft_policy_trial
 from .providers import ProviderError, public_url
 from .verification import render_answer, validate_report
 
+
+class ModelCallBudgetReserved(RuntimeError):
+    """A collecting agent must yield its remaining calls to the writer/judge."""
+
+
 SYSTEM = """You are the Fusion Research Advisor, a research layer above saved
 TORAX/Flower TD3/SAC experiments. Primary reasoning is on Nebius Token Factory;
 all web retrieval is through Tavily. Your task is a sourced answer and bounded
@@ -406,13 +411,15 @@ class ResearchEngine:
                 "Research time budget reached; no final answer was certified"
             )
 
-    def request(self, messages, tools, tool_choice="auto"):
+    def request(self, messages, tools, tool_choice="auto", *, reserve_calls=0):
         self.check_budget()
         if len(json.dumps(messages)) > 260_000:
             raise RuntimeError(
                 "Research context budget reached; narrow the selected evidence"
             )
         with self._lock:
+            if reserve_calls and self.model_calls >= self.max_turns - reserve_calls:
+                raise ModelCallBudgetReserved("Remaining model calls are reserved for writing and independent review")
             if self.model_calls >= self.max_turns:
                 raise RuntimeError("Research model-call budget reached")
             self.model_calls += 1
@@ -877,6 +884,15 @@ class ResearchEngine:
                 "versus current runs, raw versus gate fallback, and stability versus FL benefit. "
                 "Return supported/uncertain/unsupported with a brief reason for EVERY claim. "
                 "A source substring match is not proof of the claim. Hypotheses remain tentative. "
+                "Every substantive clause must be supported by the claim's own cited exact JSON "
+                "locators or quoted web excerpts, interpreted in their surrounding context. "
+                "Facts elsewhere in a source cannot rescue missing citation coverage: require "
+                "additional citations or a narrower claim, and return uncertain/unsupported with "
+                "a revision request if any substantive clause lacks that support. In particular, "
+                "a candidate-role diagnostic does not cite another role or baseline; differences "
+                "do not cite absolute endpoints or other control arms. Check that literature scope "
+                "matches (client versus sample privacy, centralized versus federated learning, "
+                "parameter versus update-delta clipping); do not generalize from a nearby paragraph. "
                 "Review EVERY next-run proposal (zero-based index): adequate only when it "
                 "has a testable hypothesis, fair paired controls, budget, metrics and stop "
                 "rule, leaves ongoing experiments unchanged, and never tunes confirmation data. "

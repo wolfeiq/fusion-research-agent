@@ -554,6 +554,19 @@ def test_writer_terminal_turns_retain_resolved_claims_and_report_unresolved_evid
     assert any(event["kind"] == "agent_tool_rejected" and "unavailable on the current writer turn" in event["message"] for event in events)
 
 
+@pytest.mark.parametrize("gaps,description", [
+    (["private detail"] * 13, "list of length 13"),
+    ('["private detail"]', "str of length 18"),
+])
+def test_findings_gap_error_reports_safe_actual_type_and_count(gaps, description):
+    engine, _, _, _ = setup_engine()
+    with pytest.raises(ValueError) as raised:
+        _findings({"summary": "Scoped findings.", "evidence_ids": [], "gaps": gaps}, engine, "td3_specialist", set())
+    assert "remaining gaps must be a list of at most 12 strings" in str(raised.value)
+    assert description in str(raised.value)
+    assert "private detail" not in str(raised.value)
+
+
 def test_full_graph_parallel_contexts_citations_judgment_and_proposals():
     engine, model, retrieval, events = setup_engine()
     result = engine.run("What should we test next?")
@@ -615,6 +628,7 @@ def test_full_graph_parallel_contexts_citations_judgment_and_proposals():
 
 def test_judge_revision_replans_with_gaps_then_accepts():
     engine, model, _, events = setup_engine(("revise", "accept"))
+    engine.max_turns = 30  # Two complete rounds plus all four writer repair turns.
     result = engine.run("What should we test next?")
     assert result["orchestration"]["rounds"] == 2
     assert result["orchestration"]["status"] == "accepted"

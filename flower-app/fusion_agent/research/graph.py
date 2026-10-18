@@ -20,6 +20,7 @@ from .retrieval_scope import public_literature_text
 from .source_views import source_views
 
 MAX_ROUNDS = 2
+REVIEW_CALL_RESERVE = 7  # Up to six writer turns plus one independent judge.
 AGENTS = (
     "planner",
     "td3_specialist",
@@ -66,7 +67,13 @@ def _text(value, label, limit=1200):
 
 def _strings(value, label, limit=12, length=600):
     if not isinstance(value, list) or len(value) > limit:
-        raise ValueError(f"{label} must be a list of at most {limit} strings")
+        received = type(value).__name__
+        if isinstance(value, (list, str, dict)):
+            received += f" of length {len(value)}"
+        raise ValueError(
+            f"{label} must be a list of at most {limit} strings; received {received}. "
+            "Return a native JSON array within the stated bounds."
+        )
     return [_text(item, label, length) for item in value]
 
 
@@ -158,7 +165,7 @@ def build_research_graph(engine):
         ) from None
 
     # Import at construction, avoiding an engine -> graph -> engine import cycle.
-    from .engine import STR, SYSTEM, TOOLS, function
+    from .engine import STR, SYSTEM, TOOLS, ModelCallBudgetReserved, function
 
     tools_by_name = {item["function"]["name"]: item for item in TOOLS}
     plan_tool = copy.deepcopy(tools_by_name["plan_research"])
@@ -370,9 +377,9 @@ def build_research_graph(engine):
             # Stop gathering before the local limit (or shared budget) strands
             # read evidence without findings. Keep all final review calls free.
             remaining_calls = engine.max_turns - engine.model_calls
-            if remaining_calls <= 5:
+            if remaining_calls <= REVIEW_CALL_RESERVE:
                 break
-            terminal = turn == 5 or remaining_calls == 6
+            terminal = turn == 5 or remaining_calls == REVIEW_CALL_RESERVE + 1
             turn_allowed = set() if terminal else allowed
             if terminal:
                 messages.append({"role": "user", "content": json.dumps({
@@ -382,9 +389,13 @@ def build_research_graph(engine):
                 # Some compatible endpoints stall on a named forced tool even
                 # when the same single-tool schema works with auto selection.
                 # Execution still permits only submit_findings on this turn.
-                message = engine.request(messages, [findings_tool])
+                tools_for_turn = [findings_tool]
             else:
-                message = engine.request(messages, tools)
+                tools_for_turn = tools
+            try:
+                message = engine.request(messages, tools_for_turn, reserve_calls=REVIEW_CALL_RESERVE)
+            except ModelCallBudgetReserved:
+                break
             messages.append(message)
             calls = _calls(message)
             if not calls:
@@ -489,9 +500,9 @@ def build_research_graph(engine):
                 **previous,
                 "evidence_ids": list(dict.fromkeys([*previous["evidence_ids"], *retained])),
             }}
-        # Leave room for all four writer turns and one judge call. A lack of
+        # Leave room for all six writer turns and one judge call. A lack of
         # budget is a documented skip, never a silent forced experiment.
-        if engine.max_turns - engine.model_calls <= 5:
+        if engine.max_turns - engine.model_calls <= REVIEW_CALL_RESERVE:
             event("shadow_decision_skipped", role,
                   "The remaining model-call budget is reserved for the writer and judge", state)
             return {"federation_findings": {
@@ -540,9 +551,12 @@ def build_research_graph(engine):
               "Federation strategist is deciding whether to test after reading all specialist findings",
               state, phase="post_research_shadow_decision")
         for _ in range(6):
-            if engine.max_turns - engine.model_calls <= 5:
+            if engine.max_turns - engine.model_calls <= REVIEW_CALL_RESERVE:
                 break
-            message = engine.request(messages, tools)
+            try:
+                message = engine.request(messages, tools, reserve_calls=REVIEW_CALL_RESERVE)
+            except ModelCallBudgetReserved:
+                break
             messages.append(message)
             calls = _calls(message)
             if not calls:

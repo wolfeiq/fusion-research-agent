@@ -267,7 +267,7 @@ def test_parallel_federation_role_cannot_launch_before_other_findings():
 
 def test_shadow_decision_reserves_writer_and_judge_calls():
     engine, model, events, executions = setup()
-    engine.max_turns = 15
+    engine.max_turns = 17  # Ten research calls plus six writer turns and a judge.
     result = engine.run("Complete the report even when there is no budget for a pilot decision.")
     assert result["orchestration"]["status"] == "accepted"
     assert not model.decision_payloads and not executions
@@ -277,9 +277,9 @@ def test_shadow_decision_reserves_writer_and_judge_calls():
 
 def test_revision_retains_measured_shadow_evidence_without_a_second_decision():
     engine, model, events, executions = setup(decisions=("revise", "accept"))
-    # The successful path needs 29 calls, plus two reserved writer correction
+    # The successful path needs 29 calls, plus four reserved writer correction
     # calls. This explicit budget exercises revision without another pilot.
-    engine.max_turns = 31
+    engine.max_turns = 33
     result = engine.run("Challenge the first draft and retain all pilot outcomes.")
     assert result["orchestration"]["rounds"] == 2
     assert result["orchestration"]["status"] == "accepted"
