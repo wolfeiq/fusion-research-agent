@@ -14,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
+from deployment import AccessPolicy
 from fusion_agent.sites import load_sites
 from fusion_agent.tools import Toolbox
 
@@ -247,7 +248,9 @@ TWIN_PAGES = {
 TWIN_PAGES = {k: v for k, v in TWIN_PAGES.items() if v.exists()}
 
 
-def make_server(app, port=8787):
+def make_server(app, port=8787, *, access=None):
+    access = access or AccessPolicy()
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_):
             pass
@@ -278,16 +281,33 @@ def make_server(app, port=8787):
             self.wfile.write(payload)
 
         def valid_host(self):
-            return self.headers.get("Host") in {
-                f"127.0.0.1:{self.server.server_port}",
-                f"localhost:{self.server.server_port}",
-            }
+            return len(self.headers.get_all("Host", [])) == 1 and access.valid_host(
+                self.headers.get("Host"), self.server.server_port
+            )
+
+        def authorized(self):
+            return self.valid_host() and access.authenticated(self.headers)
+
+        def local_health(self):
+            return (
+                self.path == "/healthz"
+                and len(self.headers.get_all("Host", [])) == 1
+                and access.local_health(
+                    self.headers.get("Host"), self.server.server_port,
+                    self.client_address[0],
+                )
+            )
 
         def do_GET(self):
-            if not self.valid_host():
-                self.send({"error": "Invalid host"}, 403)
+            if self.local_health():
+                self.send({"status": "ok"})
                 return
-            if self.path == "/api/run":
+            if not self.authorized():
+                self.send({"error": "Access denied"}, 403)
+                return
+            if self.path == "/healthz":
+                self.send({"status": "ok"})
+            elif self.path == "/api/run":
                 self.send(app.snapshot())
             elif self.path == "/api/research":
                 self.send(app.research.snapshot())
@@ -374,23 +394,32 @@ def make_server(app, port=8787):
         def do_HEAD(self):
             # Availability check for the fixed reactor asset set; never reads a
             # user-supplied filesystem path or executes a tool.
-            status = 403 if not self.valid_host() else 200 if self.path in TWIN_PAGES else 404
+            status = (200 if self.local_health() else 403 if not self.authorized()
+                      else 200 if self.path in TWIN_PAGES or self.path == "/healthz"
+                      else 404)
             self.send_response(status)
             self.send_header("Content-Length", "0")
             self.end_headers()
 
         def do_POST(self):
             origin = self.headers.get("Origin")
-            allowed_origin = {
-                f"http://127.0.0.1:{self.server.server_port}",
-                f"http://localhost:{self.server.server_port}",
-            }
             if (
-                not self.valid_host()
-                or origin not in allowed_origin
+                not self.authorized()
+                or len(self.headers.get_all("Origin", [])) != 1
+                or not access.valid_origin(origin, self.server.server_port)
                 or self.headers.get("X-Fusion-UI") != "1"
                 or self.headers.get("Content-Type") != "application/json"
             ):
+                # A bounded body drain avoids closing a socket with unread POST
+                # bytes (which can reset the connection before the 403 reaches
+                # a Windows client). It never parses or executes the request.
+                try:
+                    rejected_length = int(self.headers.get("Content-Length", "0"))
+                    if 0 < rejected_length <= 65536:
+                        self.connection.settimeout(2)
+                        self.rfile.read(rejected_length)
+                except (ValueError, OSError):
+                    pass
                 self.send(
                     {"error": "Only same-origin dashboard requests are allowed"}, 403
                 )
@@ -433,15 +462,24 @@ def make_server(app, port=8787):
             except (ValueError, TypeError) as exc:
                 self.send({"error": str(exc)}, 400)
 
-    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    return ThreadingHTTPServer((access.bind, port), Handler)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8787)
+    parser.add_argument("--bind", default=os.environ.get("FUSION_BIND", "127.0.0.1"))
     parser.add_argument("--import-log", type=Path)
     parser.add_argument("--run-id")
     args = parser.parse_args()
+    try:
+        access = AccessPolicy(
+            bind=args.bind,
+            public_origin=os.environ.get("FUSION_PUBLIC_ORIGIN") or None,
+            proxy_token=os.environ.get("FUSION_PROXY_TOKEN") or None,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
     app = Dashboard()
     if args.import_log:
         if not args.run_id or not args.run_id.isdecimal():
@@ -465,8 +503,9 @@ def main():
             "partner evidence, validate a candidate, and recommend the next diagnostic.",
             **decode_logs(args.import_log.read_text(encoding="utf-8-sig")),
         )
-    server = make_server(app, args.port)
-    print(f"Fusion Investigator: http://127.0.0.1:{server.server_port}", flush=True)
+    server = make_server(app, args.port, access=access)
+    url = access.public_origin or f"http://127.0.0.1:{server.server_port}"
+    print(f"Fusion Investigator: {url}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

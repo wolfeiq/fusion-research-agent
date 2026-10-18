@@ -1,0 +1,67 @@
+name: fusion-research-agent
+services:
+  app:
+    build:
+      context: ..
+      target: ${FUSION_IMAGE_TARGET:-research}
+    init: true
+    restart: unless-stopped
+    environment:
+      FUSION_BIND: 0.0.0.0
+      FUSION_PUBLIC_ORIGIN: https://${FUSION_DOMAIN:?Set FUSION_DOMAIN}
+      FUSION_PROXY_TOKEN_FILE: /run/secrets/proxy_token
+      NEBIUS_API_KEY_FILE: /run/secrets/nebius_api_key
+      TAVILY_API_KEY_FILE: /run/secrets/tavily_api_key
+      NEBIUS_BASE_URL: ${NEBIUS_BASE_URL:?Set the Token Factory base URL}
+      NEBIUS_MODEL: ${NEBIUS_MODEL:?Set the Token Factory model}
+      NEBIUS_MAX_OUTPUT_TOKENS: ${NEBIUS_MAX_OUTPUT_TOKENS:-12000}
+      NEBIUS_ENABLE_THINKING: ${NEBIUS_ENABLE_THINKING:-false}
+    secrets: [proxy_token, nebius_api_key, tavily_api_key]
+    volumes:
+      - research_state:/app/flower-app/.dashboard
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 512
+    cpus: ${FUSION_CPUS:-4}
+    mem_limit: ${FUSION_MEMORY:-12g}
+    stop_grace_period: 20s
+    # Deliberately no host ports: only the authenticated proxy can reach app.
+    networks: [backend]
+  proxy:
+    image: caddy:2.11.2-alpine
+    entrypoint: ["/bin/sh", "/etc/caddy/entrypoint.sh"]
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      FUSION_DOMAIN: ${FUSION_DOMAIN:?Set FUSION_DOMAIN}
+    secrets: [proxy_token, caddy_auth]
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy-entrypoint.sh:/etc/caddy/entrypoint.sh:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    security_opt: [no-new-privileges:true]
+    networks: [backend]
+networks:
+  backend:
+    # Outbound HTTPS is needed for Token Factory, Tavily and certificate issuance.
+    driver: bridge
+volumes:
+  research_state:
+  caddy_data:
+  caddy_config:
+secrets:
+  proxy_token:
+    file: ./secrets/proxy_token.txt
+  caddy_auth:
+    file: ./secrets/caddy_auth.txt
+  nebius_api_key:
+    file: ./secrets/nebius_api_key.txt
+  tavily_api_key:
+    file: ./secrets/tavily_api_key.txt

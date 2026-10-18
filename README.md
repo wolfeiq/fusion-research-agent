@@ -150,6 +150,15 @@ contract and [RESEARCH.md](flower-app/RESEARCH.md) for the broader tool history.
 Each numerical pilot is developmental evidence. One seed cannot establish
 federation efficacy, and endpoint cost is not shots-to-competence.
 
+## Deploy to Nebius AI Cloud
+
+Use the [single-user container deployment](docs/deployment.md) for HTTPS, password
+authentication and persistent reports. The `research` image uses Token Factory
+and Tavily against saved evidence; the optional `shadow` image also runs bounded
+CPU TORAX trials. Keep API keys in runtime secret files. The deployment guide
+lists the Linux build, provider and physics checks required before calling a VM
+ready; a passing local test suite alone does not establish cloud readiness.
+
 ## Tests
 
 From `flower-app`:

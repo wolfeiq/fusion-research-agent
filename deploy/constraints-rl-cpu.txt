@@ -1,0 +1,10 @@
+# Direct versions observed in the reference runtime, not a Linux transitive lock.
+# Install Torch using its CPU wheel index before installing the root project.
+torax==1.4.3
+torch==2.14.1
+jax==0.11.1
+jaxlib==0.11.1
+numpy==2.5.3
+scipy==1.18.1
+gymnasium==1.3.0
+matplotlib==3.11.2

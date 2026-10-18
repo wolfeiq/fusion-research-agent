@@ -1,0 +1,78 @@
+name: Container smoke
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research-container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      FUSION_PROXY_TOKEN: ci-only-dummy-token-at-least-thirty-two-characters
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build research image with locked app dependencies
+        run: docker build --target research -t fusion-research:test .
+      - name: Start private test container without provider keys
+        run: |
+          docker network create fusion-smoke-network
+          docker run -d --name fusion-smoke --read-only --tmpfs /tmp:mode=1777 \
+            --network fusion-smoke-network --network-alias app \
+            -v fusion-smoke-state:/app/flower-app/.dashboard \
+            -p 127.0.0.1:18787:8787 \
+            -e FUSION_BIND=0.0.0.0 -e FUSION_PUBLIC_ORIGIN=https://fusion.example.com \
+            -e FUSION_PROXY_TOKEN fusion-research:test
+          for attempt in $(seq 1 30); do
+            if [ "$(docker inspect --format '{{.State.Health.Status}}' fusion-smoke)" = healthy ]; then exit 0; fi
+            sleep 2
+          done
+          docker logs fusion-smoke
+          exit 1
+      - name: Verify auth, CSRF, health and UI without inference
+        run: python3 deploy/smoke.py
+      - name: Validate Caddy authentication and TLS configuration
+        run: |
+          mkdir -p deploy/secrets
+          hash=$(docker run --rm caddy:2.11.2-alpine caddy hash-password --plaintext ci-only-dummy-password)
+          printf 'demo %s\n' "$hash" > deploy/secrets/caddy_auth.txt
+          docker run --rm -e FUSION_DOMAIN=fusion.example.com -e FUSION_PROXY_TOKEN \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/secrets/caddy_auth.txt:/run/secrets/caddy_auth:ro" \
+            caddy:2.11.2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Exercise Caddy login and proxy routing against the real app
+        run: |
+          docker run -d --name fusion-proxy-smoke --network fusion-smoke-network \
+            -p 127.0.0.1:18788:80 \
+            -e FUSION_DOMAIN=http://fusion.example.com -e FUSION_PROXY_TOKEN \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/secrets/caddy_auth.txt:/run/secrets/caddy_auth:ro" \
+            caddy:2.11.2-alpine
+          python3 deploy/proxy_smoke.py
+      - name: Verify Caddy strips login headers and replaces spoofed proxy tokens
+        run: |
+          docker run -d --name fusion-probe --network fusion-smoke-network \
+            --network-alias probe --read-only -e FUSION_PROXY_TOKEN \
+            -v "$PWD/deploy/proxy_probe.py:/tmp/proxy_probe.py:ro" \
+            fusion-research:test /app/flower-app/.venv/bin/python /tmp/proxy_probe.py
+          python3 -c 'from pathlib import Path; source=Path("deploy/Caddyfile").read_text(); assert source.count("reverse_proxy app:8787") == 1; Path("deploy/Caddyfile.probe").write_text(source.replace("reverse_proxy app:8787", "reverse_proxy probe:8787"))'
+          docker run -d --name fusion-probe-proxy --network fusion-smoke-network \
+            -p 127.0.0.1:18789:80 \
+            -e FUSION_DOMAIN=http://fusion.example.com -e FUSION_PROXY_TOKEN \
+            -v "$PWD/deploy/Caddyfile.probe:/etc/caddy/Caddyfile:ro" \
+            -v "$PWD/deploy/secrets/caddy_auth.txt:/run/secrets/caddy_auth:ro" \
+            caddy:2.11.2-alpine
+          python3 deploy/proxy_smoke.py --base http://127.0.0.1:18789 --probe
+      - name: Container logs on failure
+        if: failure()
+        run: |
+          docker logs fusion-smoke || true
+          docker logs fusion-proxy-smoke || true
+          docker logs fusion-probe-proxy || true
+      - name: Stop disposable test container
+        if: always()
+        run: |
+          docker rm -f fusion-smoke fusion-proxy-smoke fusion-probe fusion-probe-proxy || true
+          docker network rm fusion-smoke-network || true

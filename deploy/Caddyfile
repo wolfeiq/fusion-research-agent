@@ -1,0 +1,21 @@
+{
+    admin off
+}
+
+{$FUSION_DOMAIN} {
+    basic_auth {
+        import /run/secrets/caddy_auth
+    }
+    request_body {
+        max_size 64KB
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        Referrer-Policy "no-referrer"
+        -Server
+    }
+    reverse_proxy app:8787 {
+        header_up -Authorization
+        header_up X-Fusion-Proxy-Token {$FUSION_PROXY_TOKEN}
+    }
+}
