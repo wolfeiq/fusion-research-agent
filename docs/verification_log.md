@@ -31,7 +31,8 @@ bit-identical outcomes on different platforms or hardware.
 | Initial public root suite | 251 tests passed; one failure exposed a missing calibration CLI file | The missing file was added. This initial run is not relabelled as an all-pass run. |
 | Targeted follow-up after the export fix | 16 passed, no skips | This was a targeted rerun; it is separate from the subsequent full root-suite run. |
 | Full public root suite in the freshly installed hashed Windows CPU environment | 252 passed, 1 skipped | The skip concerns unused legacy Flower network transport. The CPU shadow and numerical aggregation paths were tested. |
-| Full public app suite | 941 passed, 2 skipped in 25.94 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
+| Full public app suite | 958 passed, 2 skipped in 26.30 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
+| Windows publication and shadow-worker regression after the partial-run failure | 49 passed in 28.20 seconds | Injected transient/persistent publication failures, deadline limits and existing numerical worker tests; no learner settings changed. |
 | Frontend logic suite | 33 passed | Exercises UI/HTTP contracts, public evidence selection and explicit shadow actions; no model inference or numerical experiment runs in these tests. |
 
 Counts describe separate invocations and must not be added as independent
@@ -229,3 +230,5 @@ Shadow `ed8410c85b8d4be8a102729100d271c3` completed 7 episodes (5 training, 2 ev
 Aggregation and candidate evaluation were not reached. Clipping activation and a paired cost difference were **not measured**; this is neither an RL failure nor evidence that clipping was inactive. The model output retained this distinction incorrectly in rejected claims and some ancillary text. The actual answer withheld all four claims. The output is not an independently verified research report.
 
 A separate reflection regression rejected a non-native report envelope even though the ordinary report path supports bounded legacy envelopes. The exact submitted envelope was not retained, so its particular shape cannot be reconstructed from the error. The required fix is shared decoding and strict validation, not inventing missing fields.
+
+The publication repair is commit `4688225`: atomic replacement retries only Windows access/sharing/lock errors 5/32/33, for at most six attempts and 0.31 seconds scheduled delay, bounded by the original worker deadline. Permanent errors still fail and retain partial outputs. Commit `89f0228` shares existing report-envelope decoding between initial writing and reflection, rejects malformed container-shaped limitations, and recommends small complete citation objects rather than disconnected scalar values.
