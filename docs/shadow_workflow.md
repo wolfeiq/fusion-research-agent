@@ -23,11 +23,13 @@ flowchart LR
     R --> D[Federation strategist: test or skip]
     D -->|Opt-in: one bounded attempt| S[Freeze source, calibration and configuration]
     S --> W[Local CPU worker: baseline + candidate]
-    W -->|Measured results + hashes| A[Writer + citation checks]
+    W -->|Measured results + hashes| F[Server builds typed fact cards]
+    F --> A[Writer selects fact IDs and exact excerpts]
     D -->|Evidence and decision| A
-    A --> J[Separate judge context]
-    J --> O[Reviewed recommendation or insufficient evidence]
-    J -->|Bounded revision| A
+    A --> J[Judge critiques relevance and hypotheses]
+    J --> B[Server recompiles publication from sources]
+    B --> O[Facts, attributed excerpts and proposed next run]
+    J -->|One bounded selection revision| A
 ```
 
 ## What the small experiment compares
@@ -69,12 +71,44 @@ sandbox: CPU and memory are still shared with other local work.
 
 ## Why measurement and judgment both matter
 
-Mechanical checks verify source identity, exact JSON pointers, quotations and
-recorded numerical comparisons. They can prove that a cited value occurs in the
-source; they cannot prove that a sentence interprets it correctly. The separate
-judge context examines support, fairness, missing evidence and proposal budgets.
-That judge is also a model and can miss errors, so independent human/source review
-remains necessary for scientific claims.
+The server builds descriptive fact cards from recognized, hash-bound experiment
+schemas. It checks paired arithmetic, evaluation conditions, clipping records
+and actual accounting, then supplies exact source citations. The writer chooses
+card IDs and at most one prevalidated literature excerpt ID rather than writing
+factual claims, quote text, anchors or offsets. The server rebuilds the final
+answer from those selections using the original question and captured sources.
+Up to 12 fact cards can include the baseline/candidate settings for all seven
+registered change types. The required literature slot accepts extracted,
+hash-bound pages at recognized paper URLs; secondary summaries do not fill it.
+Missing eligible literature yields insufficient evidence. This location check
+does not establish authorship, scientific quality or applicability.
+
+The judge critiques relevance, missing evidence and untested hypotheses. Its
+approval cannot change a recorded fact, invent a result or establish that a
+paper applies to the controller. Optional hypotheses with unknown or unread
+source references are quarantined, traced and excluded from the displayed
+interpretations. Their references are not repaired. The factual checks stay
+strict, and a failed current worker is not replaced with a historical result.
+
+One complete live run of this reporting path passed 35 independent checks:
+seven Nebius-backed roles, Tavily retrieval, a real 56-episode TORAX shadow and
+a source-bound report. Its eight fact cards clearly separate seven current
+observations from one historical gate observation. Local tests also exercise
+an overly accepting judge and malicious report mutations. Neither this one
+live pass nor the tests guarantee useful selections for every question or
+scientific validity. See [reporting integrity](reporting_integrity.md) and the
+retained failures in the [verification log](verification_log.md).
+The later negative check 27 retrieved primary papers but produced no report:
+its three excerpt-anchor selections exceeded their requested word limits.
+The server-built immutable excerpt catalogue was implemented in commit
+`19d08c4`. The same-question live check 28 passed 41 independent factual/reporting
+checks: all requested learning-rate settings, four unfavorable cost comparisons
+and four competence comparisons were preserved; an unsupported improvement
+hypothesis was critic-rejected. The exact TD3 paper excerpt supports fair
+multi-seed evaluation, not the candidate's efficacy. It read saved evidence and
+launched no new physics. The recommendation keeps the baseline; its further
+112-episode diagnostic proposal was not launched. These reporting passes do not
+guarantee autonomous scientific reliability.
 
 Read **raw learner performance separately from gate-selected fallback**. A gate
 can retain the incumbent when the new candidate performs poorly; its displayed
@@ -89,4 +123,5 @@ Implementation: [agent graph](../flower-app/fusion_agent/research/graph.py),
 [shadow service](../flower-app/fusion_agent/research/shadow.py),
 [numerical worker and budget](../scripts/run_shadow_trial.py),
 [comparison analysis](../flower-app/fusion_agent/research/shadow_analysis.py),
-[citation verification](../flower-app/fusion_agent/research/verification.py).
+[typed fact builder](../flower-app/fusion_agent/research/grounded_facts.py),
+[publication boundary](../flower-app/fusion_agent/research/grounded_publication.py).

@@ -2,8 +2,13 @@
 
 This log separates installation, deterministic checks, numerical experiments and
 live research-agent behavior. A passing test suite or a model judge's acceptance
-is not independent scientific verification. End-to-end research verification is
-still in progress; the pending final run is not counted as a completed success.
+is not independent scientific verification. Live attempt 25 has separately
+passed 35 independent reporting/integrity checks. This is a scoped workflow pass,
+not an efficacy claim; all preceding attempts remain recorded. A separate
+no-shadow negative check completed partially; its repeated check then failed
+excerpt selection. After the excerpt-ID fix, check 28 separately passed 41
+independent factual/reporting checks without new physics. These are two scoped
+reporting passes, not scientific efficacy or general reliability guarantees.
 
 ## Fresh public-repository runtime
 
@@ -31,9 +36,18 @@ bit-identical outcomes on different platforms or hardware.
 | Initial public root suite | 251 tests passed; one failure exposed a missing calibration CLI file | The missing file was added. This initial run is not relabelled as an all-pass run. |
 | Targeted follow-up after the export fix | 16 passed, no skips | This was a targeted rerun; it is separate from the subsequent full root-suite run. |
 | Full public root suite in the freshly installed hashed Windows CPU environment | 252 passed, 1 skipped | The skip concerns unused legacy Flower network transport. The CPU shadow and numerical aggregation paths were tested. |
-| Full public app suite | 958 passed, 2 skipped in 26.30 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
+| Full public app suite before typed reporting | 958 passed, 2 skipped in 26.30 seconds | Skips: absent private-checkpoint fixture and unavailable host symlink creation. Two existing Typer/Click warnings remain. Provider doubles in unit tests do not establish live research quality. |
 | Windows publication and shadow-worker regression after the partial-run failure | 49 passed in 28.20 seconds | Injected transient/persistent publication failures, deadline limits and existing numerical worker tests; no learner settings changed. |
-| Frontend logic suite | 33 passed | Exercises UI/HTTP contracts, public evidence selection and explicit shadow actions; no model inference or numerical experiment runs in these tests. |
+| Frontend logic suite before typed reporting | 33 passed | Exercises UI/HTTP contracts, public evidence selection and explicit shadow actions; no model inference or numerical experiment runs in these tests. |
+| Full public app suite with typed reporting and hypothesis quarantine | 1,043 passed, 2 skipped in 37.67 seconds; Ruff passed | Same two skips and existing Typer/Click warnings. Covers source-bound facts, exact excerpts, current/historical selection, failed workers, final recompilation and quarantine of optional unsupported references. Mock providers do not establish live quality. |
+| Frontend logic suite with typed publication | 52 passed | Covers separate facts, attributed excerpts, untested hypotheses, rejected-hypothesis exclusion and proposal display as well as existing UI/HTTP contracts. |
+| Targeted service-failure suite after `08dfbec` | 53 passed | Safe diagnostic redaction, bounded traceback locations, transient Windows replacement recovery, permanent failures and retained old state. |
+| Full public app suite after `08dfbec` | 1,055 passed, 2 skipped in 26.09 seconds; Ruff passed | Same two skips and existing Typer/Click warnings. This supersedes the full-suite count above; separate invocations must not be added. |
+| Configuration-card extension after `e720987` | 127 focused tests passed | Explicit baseline/candidate values for seven registered knobs, missing/invalid inputs and existing fact/publication boundaries. |
+| Primary-source eligibility, writer and graph after `6496e1b` | 84 focused tests passed | URL/paper-path and extracted snapshot checks; secondary material cannot satisfy the required slot even with judge approval; missing eligible evidence remains insufficient. |
+| Full public app suite after configuration and primary-reference fixes | 1,151 passed, 2 skipped in 27.60 seconds; Ruff passed | Same two skips and existing warnings. Frontend remains 52 passed. Prior invocations are retained but must not be added. |
+| Immutable excerpt catalogue after `19d08c4` | 23 direct tests passed; independent focused run: 81 passed | Bounded catalogue, exact helper validation, immutable IDs, source hashes and original-question reconstruction. These invocations are separate from the full suite. |
+| Full public app suite after `19d08c4` | 1,178 passed, 2 skipped in 27.53 seconds; Ruff passed | Two existing Typer/Click warnings remain. Frontend stays at 52 passed. This is automated coverage, not a new live pass. |
 
 Counts describe separate invocations and must not be added as independent
 coverage. Earlier test runs and failures remain documented in
@@ -98,11 +112,20 @@ bounded check does not resolve the distinct privacy-scope blind spot below.
 | Full attempt 20: `4c57e0f656a443e98215f82f0aa11a4a` | Finished with `insufficient_evidence`; no runtime error | 32 model calls, 763,616 recorded tokens, one search, three extractions and 36 tool calls. Independent audit approved the retained primary-paper claim, but experimental claims lacked citation coverage. One reflection damaged a valid web reference and was rejected. |
 | Full attempt 21: `cf248e70ab054c75b45e346c475d3e96` | Finished with `insufficient_evidence`; shadow worker failed | The worker encountered Windows error 5 replacing `progress.json` after 7 completed episodes. The candidate and aggregation were not reached. No factual claim survived review; some rejected/ancillary prose incorrectly described unmeasured clipping as inactive. Reflection also exposed inconsistent report-envelope handling. |
 | Full attempt 22: `843402cd5dd44c9d9126ea5314ffe2b3` | Finished with `insufficient_evidence`; shadow completed | 26 model calls, 563,828 recorded tokens, one search, two extractions and 30 tool calls. The real worker completed all 56 episodes. Reflection executed and complete-record citations helped, but independent review rejected two claims retained by the model judge. |
+| Full attempt 23: `90c553019d654f2c966882cd10d240fd` | Failed: writer could not select a valid evidence packet within its bounded budget | The new typed publication path did not produce a report because optional hypotheses referenced unread or unknown sources. The shadow completed 56 episodes in 98.468 seconds; all 57 protected source hashes remained unchanged. |
+| Full attempt 24: `9bcfc668aecd4b17a2e8608882747e1f` | Failed while processing a response | No report or current shadow source was recorded. No traceback was retained; the root cause remains unproven. Later safe diagnostics and replacement retries do not retrospectively diagnose this attempt. |
+| Full attempt 25: `2208045d8aea469690a67d442dec46c2` | Completed; passed 35 independent reporting/integrity checks | All seven roles used Nebius inference with Tavily search/extraction and one real shadow. Recorded 22 model calls, 419,110 tokens, two searches, three extractions and 17 tool calls. The source-bound report passed audit; this is not scientific efficacy evidence. |
+| No-shadow negative check 26: `e1f7f92987e14e8bbb80b24aa1125da7` | Completed partially; not a full independent pass | Four unfavorable cost differences and keep-baseline advice were correct. The exact quotation came from TinyCTO secondary coverage; baseline learning rate and uniform/clipped competence details were missing. |
+| Repeated no-shadow negative check 27: `58b5629613d94afebdbcbb5583c08057` | Failed; no report | Primary papers were extracted, but all three writer selections failed with `The entire anchor must fit within max_words`. No new physics ran. |
+| No-shadow negative check 28: `6792cb0daad24ac38f12c717755d320b` | Completed; passed 41 independent factual/reporting checks | 12 exact saved-evidence facts, complete learning-rate/cost/competence coverage, one exact primary TD3 excerpt and keep-baseline advice. Its improvement hypothesis was critic-rejected. No new physics ran. |
 
-The 22 recorded full attempts comprise 17 failed attempts, one model-accepted
-report with independently identified defects, and four runs ending in explicit
-insufficient evidence without a runtime error. Revisions must
-preserve failed attempts and unsupported claims rather than hiding them.
+Across all 28 completed research runs, including the no-shadow negative checks,
+there are 20 failed runs, two completed reports with independent defects
+(the earlier model-accepted attempt 13 and partial check 26), four explicit
+insufficient-evidence outcomes without a runtime error, and two independently
+audited reporting passes (25 and 28). The passes are scoped to their actual
+workflows: 25 includes a new shadow, while 28 reads a saved unfavorable pilot.
+Neither pass erases earlier failures or establishes autonomous scientific reliability.
 
 ### Attempt 16: completed execution, incomplete scientific answer
 
@@ -209,17 +232,21 @@ these proposal/ancillary statements should be treated as independently approved.
 
 ## Work still required
 
-- Complete and independently audit the bounded writer reflection, including raw
-  versus gated citations, the baseline clipping setting, executed-tool scope and
-  the complete 112-episode follow-up budget.
-- Address the remaining centralized-versus-client privacy scope blind spot.
-- Complete a full live question-to-search-to-extraction-to-reviewed-answer run,
-  preserving its trace and any failed branches.
-- Independently check the complete final claim set, including citation coverage,
-  quoted context, exact numerical values and limits of applicability.
-- Keep fresh-environment reproduction, developmental pilots and genuinely new
-  paired-seed confirmation results separate in any presentation.
+- Preserve the two scoped live audits and all earlier failures as regression
+  evidence. Check 26 remains partial and check 27 failed despite check 28's pass.
+- Broaden robustness beyond the one independently audited live workflow: varied
+  questions, irrelevant literature, unavailable sources and failed workers must
+  remain explicit rather than becoming invented findings.
+- Preserve the publication boundary as features change: current/historical
+  provenance, exact numerical values, clipping identities, raw versus gated
+  outcomes, quoted context and proposal accounting remain review requirements.
+- Use the new safe diagnostics if a response-processing failure recurs. The old
+  traceback-free attempt 24 cannot be retroactively assigned a root cause.
+- Keep developmental reproductions and genuinely new paired-seed confirmation
+  results separate. Exact source quotation does not establish applicability,
+  a causal mechanism or a scientific federation benefit.
 
+See [reporting integrity](reporting_integrity.md) for the default boundary.
 No statement in this log establishes production reactor readiness or a reliable
 cold-start advantage from federation.
 
@@ -242,3 +269,162 @@ The retained answer still has two material citation defects. Its endpoint-cost c
 Independent integrity checks matched all 57 frozen/current source files, source archive, raw/canonical result hashes and comparison/diagnostic projections. Only `scripts/run_shadow_trial.py` changed versus attempt 21; configuration, baseline and calibration were unchanged. Accounting was 32 training + 24 evaluation episodes and 1,680 windows.
 
 Ancillary limitations remain unreliable: the model says the gate accepted a fallback, but it accepted the candidate; the stop reason calls the excluded clipping claim supported. The final answer cites historical `E001`, not the new shadow snapshot, so it must not be represented as a freshly sourced result. The proposed 56-episode budget is correct. These qualifications do not change the independent report verdict: fail.
+
+
+## Attempts 23 and 24: typed publication and retained runtime failures
+
+The default reporting architecture now selects server-authored fact IDs and exact
+source excerpts. The final publication is rebuilt from the captured evidence;
+free model interpretations and a model judge's approval cannot author measured
+claims. Current-run and historical provenance are explicit. Proposal budgets are
+validated against the fixed shadow protocol. This change responds to the scope
+errors preserved in attempt 22; it does not erase them.
+
+Attempt 23's real shadow again completed 56 episodes in 98.468 seconds, with all
+57 protected source hashes checked. The writer used invalid source references
+in optional hypotheses, and its bounded selection attempts failed. No report was
+published. Commit `6027357` now quarantines those optional interpretations,
+records `hypothesis_rejected` events and excludes them from the displayed
+hypotheses. References are not guessed or repaired. Factual selections, citations
+and proposal checks remain strict. Repeating seed 17 is integration reproduction,
+not independent evidence of federation efficacy.
+
+Attempt 24 failed while processing a response before a current shadow result or
+report was recorded. Its generic error has no retained traceback; the root cause
+remains unproven. A transient Windows file lock is a hypothesis, not a finding.
+The later attempt 25 passed a separate independent publication audit, recorded
+below. Local automated checks alone do not substitute for that audit.
+
+Commit `08dfbec` adds safe observability for future failures: exception class,
+up to 12 bounded filename/function/line records and numeric OS error codes.
+Exception text, full paths, source text, provider payloads and locals are omitted.
+The service retries Windows access/sharing/lock replacement errors 5/32/33 for
+at most six attempts and 0.31 seconds of scheduled delay per replacement. It
+never deletes the previous state to force a write. Permanent or exhausted errors
+still fail. The 53 targeted service tests and the later 1,055-test app suite
+verify those code paths; they do not prove that a file lock caused attempt 24.
+
+
+## Attempt 25: independently audited live reporting pass
+
+Run `2208045d8aea469690a67d442dec46c2` completed the full question-to-retrieval-to-
+shadow-to-publication workflow. All seven LangGraph roles used Nebius Token
+Factory, and Tavily performed two searches and three page extractions. The
+recorded usage was 22 model calls, 419,110 tokens and 17 tool calls. The final
+report passed 35 independent reporting and integrity checks.
+
+Shadow `b4838455d2a0460d8007314be78af07a` completed all 56 real TORAX episodes in
+93.469 seconds: 32 training plus 24 evaluation, with 1,680 action windows. All
+57 protected source files matched. The audit recomputed all endpoint mean costs
+exactly from saved rewards and checked the source-bound numerical evidence.
+The run repeats development seed 17; it is integration reproduction, not an
+additional independent cold-start or federation efficacy observation.
+
+The publication contains eight server-authored fact cards. Seven are bound to
+the current shadow; the remaining gate observation is explicitly labelled as
+historical. Its single literature excerpt is an exact attributed 25-word
+quotation from the primary PMLR paper, without an invented paraphrase claiming
+broader applicability. The report submitted no hypotheses, and no model prose
+was promoted into a factual claim.
+
+The next-run proposal comes from the current source and remains a proposal:
+112 episodes = 64 training + 48 evaluation. Gate (16), initial/fixed (8) and
+report (24) episodes are disjoint subsets of evaluation, not extra episodes.
+Prior calibration and optimizer work remain separate. No policy was automatically
+activated and no recommended follow-up was launched by publication.
+
+This is a scoped pass for this live reporting workflow. It does not establish
+universal agent reliability, simulator validity, reactor safety, applicability
+of every cited method or a reliable cold-start benefit. The prior 24 attempts
+remain unchanged in the failure history. A public, explicit projection is
+available in [reporting_check.json](../examples/verification/reporting_check.json):
+two local source snapshots, eight facts, 35 checks and one 25-word attributed
+excerpt. It is not the full decision trace and does not reproduce bulk web text.
+
+
+## Negative check 26 and configuration/primary-reference fixes
+
+Run `e1f7f92987e14e8bbb80b24aa1125da7` read the saved unfavorable learning-rate
+pilot without launching a new shadow. It correctly reported cost increases in
+all four paired arms and recommended keeping the baseline. Its exact literature
+excerpt came from TinyCTO secondary coverage, and the selected facts omitted
+the baseline learning rate and the uniform/clipped competence flags. The report
+was therefore only a partial answer, not a complete independently accepted pass.
+
+Commit `e720987` adds typed configuration cards for all seven registered knobs,
+including explicit baseline/candidate change values, and permits up to 12
+selected fact cards. It passed 127 focused tests. No missing values are guessed.
+
+Commit `6496e1b` checks recognized primary-publication hosts and paper paths,
+plus actual extracted, hash-bound snapshots. Secondary coverage cannot satisfy
+the required literature slot even when a model judge accepts it; an absent
+eligible primary excerpt keeps the report insufficient. An already discovered
+eligible page may be extracted on the literature agent's final turn without
+adding model turns. The 84 focused eligibility/writer/graph tests passed.
+The check is a conservative URL/location heuristic, not certification of
+authorship, peer review, quality or scientific applicability.
+
+The full suite after these changes passed 1,151 tests with two skips and two
+existing warnings in 27.60 seconds; Ruff passed and the frontend remains at
+52 passed. The same-question negative check 27,
+`58b5629613d94afebdbcbb5583c08057`, subsequently failed without producing a report.
+All three bounded writer selections returned `The entire anchor must fit within
+max_words`. Retrieval had succeeded: extracted primary sources included the TD3
+PMLR HTML/PDF and Henderson arXiv paper. The failure occurred in constructing a
+valid excerpt selection, not in obtaining primary literature. No new physics ran.
+
+Commit `19d08c4` subsequently implemented a server-built catalogue of exact,
+immutable excerpt IDs. The writer selects at most one offered entry instead of
+constructing quote text, anchors or offsets. Each entry is hash-bound and passes
+the exact citation helper. The original question is preserved for deterministic
+reconstruction. Catalogue generation is bounded to 12 entries per source and
+48 globally, with at most 128 candidates and 24 helper calls per source.
+
+The catalogue passed 23 direct tests and an independent 81-test focused run.
+The full app suite passed 1,178 tests with two skips and two existing Typer/Click
+warnings in 27.53 seconds; Ruff passed, and frontend coverage remains 52 passed.
+These separate invocations must not be added together as independent coverage.
+Same-question check 28 subsequently passed an independent audit, described below.
+Check 27 remains failed in the aggregate counts.
+
+
+## Check 28: independently audited unfavorable-result reporting pass
+
+Run `6792cb0daad24ac38f12c717755d320b` completed the same no-shadow question that
+checks 26 and 27 did not fully answer. It passed 41 independent factual/reporting
+checks. Recorded usage was 18 model calls, 248,374 tokens, three Tavily searches,
+four extractions and 15 tool calls. There were zero evidence-selection rejections.
+
+All 12 published fact cards matched the explicitly labelled saved pilot
+`993df979e388405297f0195bfca504d6`. They include the actual TD3 actor learning-rate
+change from 0.0001 to 0.00005, all four positive candidate-minus-baseline raw cost
+differences (the candidate was worse), and false/false baseline/candidate
+competence flags for local, reset-only, uniform and clipped arms. No favorable
+claim was substituted for this negative result.
+
+The literature card is an exact 25-word excerpt from the actual Fujimoto TD3
+PMLR PDF, relevant to fair multi-seed evaluation. It does not establish actor
+learning-rate efficacy. The judge marked the one model-generated improvement
+hypothesis `critic_rejected`; it remained unverified and never entered the
+factual answer. The exact source excerpt is distinct from that rejected hypothesis.
+
+The recommendation keeps the baseline. Its unlaunched 112-episode follow-up
+proposal would repeat the same losing candidate on development seeds 29 and 43
+for diagnosis: 64 training + 48 evaluation, with 16 gate, 8 initial/fixed and
+24 report episodes inside evaluation. It neither approves adoption of the
+candidate nor establishes those seeds as globally unused. No new shadow,
+physics, policy activation or change to current experiments occurred.
+
+The [public negative verification record](../examples/verification/negative_reporting_check.json)
+preserves this scoped audit alongside the positive clipping reproduction. It
+contains 12 facts, 41 checks, manual review, the proposal and one 25-word paper
+excerpt, with no added experiment source snapshots. Each fact/proposal quotation
+matches the already-public pilot comparison at commit `f0a0174`; the artifact
+records its fixture path, commit and SHA. It introduces no new experiment
+metrics or private paths. The literature quotation ends mid-sentence at “perform”
+and is explicitly an excerpt. The rejected hypothesis and unverified gap notes
+are not factual findings.
+
+This pass verifies the reporting of saved unfavorable evidence. It is not an
+independent RL replicate, a federation efficacy claim or a guarantee of correct
+autonomous scientific decisions for every future question.

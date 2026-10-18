@@ -1,0 +1,577 @@
+{
+  "schema": "fusion-public-reporting-check-v1",
+  "run_id": "2208045d8aea469690a67d442dec46c2",
+  "scope": "Audited live reporting integration. Repeats development seed17; not independent scientific confirmation. This is an explicit projection, not the full decision trace.",
+  "facts": [
+    {
+      "id": "F79b72624c8ceefab637cb3d2",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "trial_status",
+      "text": "This shadow source records execution status completed and comparison status complete.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/status",
+          "quote": "\"completed\""
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/status",
+          "quote": "\"complete\""
+        }
+      ],
+      "fact_type": "trial_status",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {},
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F1ecd6927ad431a0de3006e42",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "policy_activation",
+      "text": "The shadow execution records policy_activated=false.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/policy_activated",
+          "quote": "false"
+        }
+      ],
+      "fact_type": "policy_activation",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {},
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F9ca2e5b24a0be692d855f3b0",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "paired_raw_endpoint",
+      "text": "For training seed 17, the clipped arm's paired raw endpoint mean-cost difference (candidate minus baseline) is -2.387716166712961e-05. This is an endpoint cost difference, not a shots-to-competence measurement.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/comparable",
+          "quote": "true"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/mean_cost_difference",
+          "quote": "-2.387716166712961e-05"
+        }
+      ],
+      "fact_type": "paired_raw_endpoint",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "clipped",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F20a82b33f8ec1b7f88604731",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "configuration",
+      "text": "The candidate configuration records clipping_initial_norm_fraction=0.001.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/candidate/configs/clipping_initial_norm_fraction",
+          "quote": "0.001"
+        }
+      ],
+      "fact_type": "configuration",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {
+        "configuration": "candidate",
+        "parameter": "clipping_initial_norm_fraction"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F0478ecf1a61195e125dcc1a2",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "configuration",
+      "text": "The baseline configuration records clipping_initial_norm_fraction=0.1.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/baseline/configs/clipping_initial_norm_fraction",
+          "quote": "0.1"
+        }
+      ],
+      "fact_type": "configuration",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {
+        "configuration": "baseline",
+        "parameter": "clipping_initial_norm_fraction"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F095c923141bb9eddae5fbe60",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "actual_budget",
+      "text": "Summing the two configurations' recorded accounting gives 32 training episodes plus 24 evaluation episodes (56 total), with 1680 action windows. These are executed episode totals, not optimizer-update counts; prior calibration is not included in this sum.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/baseline/accounting/training_episodes",
+          "quote": "16"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/candidate/accounting/training_episodes",
+          "quote": "16"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/baseline/accounting/evaluation_episodes",
+          "quote": "12"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/candidate/accounting/evaluation_episodes",
+          "quote": "12"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/baseline/accounting/windows",
+          "quote": "840"
+        },
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/comparison/branches/candidate/accounting/windows",
+          "quote": "840"
+        }
+      ],
+      "fact_type": "actual_budget",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {},
+      "derived": true,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F78071db453228767c6f7f445",
+      "source_id": "D4a3cefb66d9bc5e4",
+      "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "kind": "clipping",
+      "text": "For candidate, training seed 17, round 1, the clipped arm's deposition SAC q1 critic clipped 2 of 3 recorded contributors. Recorded clipping factors: donor_cool=0.5479361196579833, donor_warm=0.5602643765227932, cold_target=1.0.",
+      "evidence": [
+        {
+          "source_id": "D4a3cefb66d9bc5e4",
+          "locator": "/round_aggregation_diagnostics/records/3",
+          "quote": "{\"arm\": \"clipped\", \"clipped_source_counts\": {\"q0\": 2, \"q1\": 2}, \"clipped_sources\": {\"q0\": [\"donor_cool\", \"donor_warm\"], \"q1\": [\"donor_cool\", \"donor_warm\"]}, \"clipping_factors\": {\"cold_target\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_cool\": {\"q0\": 0.4757837589477034, \"q1\": 0.5479361196579833}, \"donor_warm\": {\"q0\": 0.4924631020105224, \"q1\": 0.5602643765227932}}, \"configuration\": \"candidate\", \"proposal_hashes\": {\"clipped\": \"e2838de8f8909fd0afd862edbe16eb96285eae7c026c5707a0aee4444a57ff6f\", \"uniform\": \"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\"}, \"raw_json_pointer\": \"/candidate/seeds/0/rounds/0/aggregation/clipped/deposition_sac\", \"recorded_uniform_and_clipped_hashes_equal\": false, \"role\": \"deposition_sac\", \"round\": 1, \"seed\": 17, \"source_count\": 3, \"source_ids\": [\"donor_cool\", \"donor_warm\", \"cold_target\"], \"source_norms\": {\"cold_target\": {\"q0\": 0.005944303046938988, \"q1\": 0.0038254682381914863}, \"donor_cool\": {\"q0\": 0.01385673709211142, \"q1\": 0.012032422596349165}, \"donor_warm\": {\"q0\": 0.013387420161062083, \"q1\": 0.011767656884500093}}, \"status\": \"recorded_scalars_consistent\", \"thresholds\": {\"q0\": 0.006592810460434841, \"q1\": 0.006592998947528598}}"
+        }
+      ],
+      "fact_type": "clipping",
+      "provenance": {
+        "adapter": "shadow_execution",
+        "origin": "research_shadow_execution",
+        "scope": "new isolated development pilot; failures retained; no current policy activation",
+        "input_source_id": "E001",
+        "trial_id": "b4838455d2a0460d8007314be78af07a"
+      },
+      "context": {
+        "configuration": "candidate",
+        "seed": 17,
+        "round": 1,
+        "role": "deposition_sac",
+        "arm": "clipped",
+        "critic": "q1"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a"
+    },
+    {
+      "id": "F4093c2d78b73a5ffff8d3629",
+      "source_id": "E001",
+      "source_sha256": "cfbf759cdea183d9c8fb8ac8788e3204a6e3389ffd91ca0e5ee097d727c09431",
+      "kind": "gate_outcome",
+      "text": "For candidate, training seed 17, clipped, the gate accepted the proposal. The recorded raw endpoint mean cost is 0.09626584305007646; the separately recorded gate-selected deployed endpoint mean cost is 0.09626584305007646. The gate decision does not turn the deployed diagnostic into evidence of raw learning.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/seeds/17/arms/clipped/gate/accept",
+          "quote": "true"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/seeds/17/arms/clipped/raw/mean_cost",
+          "quote": "0.09626584305007646"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/seeds/17/arms/clipped/deployed/mean_cost",
+          "quote": "0.09626584305007646"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/seeds/17/seed",
+          "quote": "17"
+        }
+      ],
+      "fact_type": "gate_outcome",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "43d55b69d02440b3a019cf9b64f6845a"
+      },
+      "context": {
+        "configuration": "candidate",
+        "seed": 17,
+        "arm": "clipped",
+        "outcome": "gate_selected_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 43d55b69d02440b3a019cf9b64f6845a"
+    }
+  ],
+  "experiment_sources": [
+    {
+      "id": "D4a3cefb66d9bc5e4",
+      "title": "Measured isolated TORAX shadow comparison",
+      "kind": "experiment",
+      "uri": "derived:E001/test_shadow",
+      "content": "{\"budget\": {\"evaluation_episodes\": 24, \"maximum_action_windows\": 1680, \"maximum_wall_seconds\": 600, \"rounds\": 1, \"scope\": \"Both configurations; donor pretraining, target learning, initial, gate and endpoint evaluations. Replay-only optimizer work is recorded separately. Existing calibration is additional sunk cost.\", \"seeds\": 1, \"total_episodes\": 56, \"training_episodes\": 32}, \"comparison\": {\"branches\": {\"baseline\": {\"accounting\": {\"contribution_optimization\": {\"projection\": \"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\", \"record_count\": 12, \"summed_by_role\": {\"deposition_sac\": {\"frozen_replay_samples\": 4800, \"head_sgd_updates\": 150, \"optimization_sample_uses\": 9600, \"trunk_sgd_updates\": 150}, \"heating_td3\": {\"frozen_replay_samples\": 4800, \"head_sgd_updates\": 150, \"optimization_sample_uses\": 9600, \"trunk_sgd_updates\": 150}}}, \"evaluation_episodes\": 12, \"repair_optimization\": {\"projection\": \"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\", \"record_count\": 3, \"summed_by_role\": {\"deposition_sac\": {\"actor_adaptation_updates\": 120, \"critic_adaptation_updates\": 120, \"entropy_temperature_updates\": 120, \"head_sgd_updates\": 75, \"replay_samples\": 6240}, \"heating_td3\": {\"actor_adaptation_updates\": 60, \"critic_adaptation_updates\": 120, \"entropy_temperature_updates\": 0, \"head_sgd_updates\": 75, \"replay_samples\": 6240}}}, \"source_target_split\": \"Training episode total combines donor and target work; no separate actual category totals were exported.\", \"training_episodes\": 16, \"training_optimizer_updates\": {\"beam\": 294, \"heating\": 294, \"joint\": 0}, \"windows\": 840}, \"configs\": {\"clipping_initial_norm_fraction\": 0.1, \"sac\": {\"actor_lr\": 0.0003, \"adapt_steps\": 40, \"alpha_lr\": 0.0003, \"batch\": 32, \"gamma\": 0.9048374180359595, \"head_steps\": 25, \"hidden\": 64, \"initial_alpha\": 0.2, \"lr\": 0.0003, \"mix\": 0.25, \"rep_lr\": 0.001, \"rep_steps\": 25, \"repair_steps\": 25, \"replay_capacity\": 100000, \"reward_scale\": 1.0, \"target_entropy\": null, \"tau\": 0.005}, \"td3\": {\"actor_init_fraction\": [0.5, 0.5], \"actor_lr\": 0.0001, \"actor_warmup_updates\": 0, \"adapt_steps\": 40, \"batch\": 32, \"critic_action_coordinates\": \"normalized\", \"critic_head_init\": \"zero\", \"exploration\": 0.1, \"gamma\": 0.9048374180359595, \"head_steps\": 25, \"hidden\": 64, \"lr\": 0.0003, \"mix\": 0.25, \"noise_clip\": 0.5, \"policy_delay\": 2, \"rep_lr\": 0.001, \"rep_steps\": 25, \"repair_steps\": 25, \"replay_capacity\": 100000, \"reward_scale\": 1.0, \"target_noise\": 0.2, \"tau\": 0.005}}, \"seeds\": {\"17\": {\"arms\": {\"clipped\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}, \"gate\": {\"accept\": true, \"cost_floor\": 0.01, \"reason\": \"pass\", \"relative_cost_changes\": [-0.14558461859621574], \"scope\": \"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\", \"tolerance\": 0.05}, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}}, \"local\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04049012025671159, \"mean_beta_mae\": 0.0026292950644285014, \"mean_cost\": 0.11269908564750696, \"valid_complete\": true}, \"gate\": null, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04049012025671159, \"mean_beta_mae\": 0.0026292950644285014, \"mean_cost\": 0.11269908564750696, \"valid_complete\": true}}, \"reset_only\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03101069677084712, \"mean_beta_mae\": 0.002023094538967955, \"mean_cost\": 0.09642419901977173, \"valid_complete\": true}, \"gate\": null, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03101069677084712, \"mean_beta_mae\": 0.002023094538967955, \"mean_cost\": 0.09642419901977173, \"valid_complete\": true}}, \"uniform\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}, \"gate\": {\"accept\": true, \"cost_floor\": 0.01, \"reason\": \"pass\", \"relative_cost_changes\": [-0.14558461859621574], \"scope\": \"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\", \"tolerance\": 0.05}, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}}}, \"competence_checkpoints\": [{\"raw_competence\": {\"clipped\": false, \"local\": false, \"reset_only\": false, \"uniform\": false}, \"round\": 1, \"target_training_shots_per_arm\": 2}], \"conditions_match\": true, \"initial\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04404662001837146, \"mean_beta_mae\": 0.002854303929320362, \"mean_cost\": 0.11997210081541802, \"valid_complete\": true}, \"seed\": 17, \"status\": \"complete\", \"training_stable\": true}}, \"status\": \"complete\"}, \"candidate\": {\"accounting\": {\"contribution_optimization\": {\"projection\": \"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\", \"record_count\": 12, \"summed_by_role\": {\"deposition_sac\": {\"frozen_replay_samples\": 4800, \"head_sgd_updates\": 150, \"optimization_sample_uses\": 9600, \"trunk_sgd_updates\": 150}, \"heating_td3\": {\"frozen_replay_samples\": 4800, \"head_sgd_updates\": 150, \"optimization_sample_uses\": 9600, \"trunk_sgd_updates\": 150}}}, \"evaluation_episodes\": 12, \"repair_optimization\": {\"projection\": \"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\", \"record_count\": 3, \"summed_by_role\": {\"deposition_sac\": {\"actor_adaptation_updates\": 120, \"critic_adaptation_updates\": 120, \"entropy_temperature_updates\": 120, \"head_sgd_updates\": 75, \"replay_samples\": 6240}, \"heating_td3\": {\"actor_adaptation_updates\": 60, \"critic_adaptation_updates\": 120, \"entropy_temperature_updates\": 0, \"head_sgd_updates\": 75, \"replay_samples\": 6240}}}, \"source_target_split\": \"Training episode total combines donor and target work; no separate actual category totals were exported.\", \"training_episodes\": 16, \"training_optimizer_updates\": {\"beam\": 294, \"heating\": 294, \"joint\": 0}, \"windows\": 840}, \"configs\": {\"clipping_initial_norm_fraction\": 0.001, \"sac\": {\"actor_lr\": 0.0003, \"adapt_steps\": 40, \"alpha_lr\": 0.0003, \"batch\": 32, \"gamma\": 0.9048374180359595, \"head_steps\": 25, \"hidden\": 64, \"initial_alpha\": 0.2, \"lr\": 0.0003, \"mix\": 0.25, \"rep_lr\": 0.001, \"rep_steps\": 25, \"repair_steps\": 25, \"replay_capacity\": 100000, \"reward_scale\": 1.0, \"target_entropy\": null, \"tau\": 0.005}, \"td3\": {\"actor_init_fraction\": [0.5, 0.5], \"actor_lr\": 0.0001, \"actor_warmup_updates\": 0, \"adapt_steps\": 40, \"batch\": 32, \"critic_action_coordinates\": \"normalized\", \"critic_head_init\": \"zero\", \"exploration\": 0.1, \"gamma\": 0.9048374180359595, \"head_steps\": 25, \"hidden\": 64, \"lr\": 0.0003, \"mix\": 0.25, \"noise_clip\": 0.5, \"policy_delay\": 2, \"rep_lr\": 0.001, \"rep_steps\": 25, \"repair_steps\": 25, \"replay_capacity\": 100000, \"reward_scale\": 1.0, \"target_noise\": 0.2, \"tau\": 0.005}}, \"seeds\": {\"17\": {\"arms\": {\"clipped\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03088303158063124, \"mean_beta_mae\": 0.002020066732968027, \"mean_cost\": 0.09626584305007646, \"valid_complete\": true}, \"gate\": {\"accept\": true, \"cost_floor\": 0.01, \"reason\": \"pass\", \"relative_cost_changes\": [-0.1457964232234878], \"scope\": \"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\", \"tolerance\": 0.05}, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03088303158063124, \"mean_beta_mae\": 0.002020066732968027, \"mean_cost\": 0.09626584305007646, \"valid_complete\": true}}, \"local\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04049012025671159, \"mean_beta_mae\": 0.0026292950644285014, \"mean_cost\": 0.11269908564750696, \"valid_complete\": true}, \"gate\": null, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04049012025671159, \"mean_beta_mae\": 0.0026292950644285014, \"mean_cost\": 0.11269908564750696, \"valid_complete\": true}}, \"reset_only\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03101069677084712, \"mean_beta_mae\": 0.002023094538967955, \"mean_cost\": 0.09642419901977173, \"valid_complete\": true}, \"gate\": null, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03101069677084712, \"mean_beta_mae\": 0.002023094538967955, \"mean_cost\": 0.09642419901977173, \"valid_complete\": true}}, \"uniform\": {\"deployed\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}, \"gate\": {\"accept\": true, \"cost_floor\": 0.01, \"reason\": \"pass\", \"relative_cost_changes\": [-0.14558461859621574], \"scope\": \"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\", \"tolerance\": 0.05}, \"raw\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.03089530102744358, \"mean_beta_mae\": 0.0020219735336203803, \"mean_cost\": 0.09628972021174359, \"valid_complete\": true}}}, \"competence_checkpoints\": [{\"raw_competence\": {\"clipped\": false, \"local\": false, \"reset_only\": false, \"uniform\": false}, \"round\": 1, \"target_training_shots_per_arm\": 2}], \"conditions_match\": true, \"initial\": {\"cases\": 1, \"cases_with_events\": 0, \"cases_with_invalid_physics\": 0, \"competent\": false, \"complete_cases\": 1, \"condition_signature\": \"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\", \"mean_Te_profile_rmse_keV\": 0.04404662001837146, \"mean_beta_mae\": 0.002854303929320362, \"mean_cost\": 0.11997210081541802, \"valid_complete\": true}, \"seed\": 17, \"status\": \"complete\", \"training_stable\": true}}, \"status\": \"complete\"}}, \"candidate_vs_baseline_raw_endpoint\": {\"clipped\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"deployed_comparison\": {\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -1.226944681233938e-05, \"mean_beta_mae_difference\": -1.9068006523533139e-06, \"mean_cost_difference\": -2.387716166712961e-05, \"relative_cost_change\": -0.00024797207442936914}, \"mean_Te_profile_rmse_keV_difference\": -1.226944681233938e-05, \"mean_beta_mae_difference\": -1.9068006523533139e-06, \"mean_cost_difference\": -2.387716166712961e-05, \"relative_cost_change\": -0.00024797207442936914, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -2.387716166712961e-05, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"local\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"deployed_comparison\": {\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0}, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 0, \"median_paired_cost_difference\": 0.0, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 1}, \"reset_only\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"deployed_comparison\": {\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0}, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 0, \"median_paired_cost_difference\": 0.0, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 1}, \"uniform\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"deployed_comparison\": {\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0}, \"mean_Te_profile_rmse_keV_difference\": 0.0, \"mean_beta_mae_difference\": 0.0, \"mean_cost_difference\": 0.0, \"relative_cost_change\": 0.0, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 0, \"median_paired_cost_difference\": 0.0, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 1}}, \"conditions_sha256\": \"ae3c4cb98cd4a5c7d276a9d6fedb190cbc837b3c2669b1a08bd39186aaa39073\", \"execution_status\": \"completed\", \"expected_training_seeds\": [17], \"failures\": [], \"fairness\": {\"condition_hash_scope\": \"Worker-recorded conditions, not a fresh raw trajectory audit\", \"independent_replicate_unit\": \"training seed\", \"reasons\": [], \"same_recorded_conditions\": true}, \"frozen_budget\": {\"calibration_cost\": \"Prior calibration excluded; calibration reference retained.\", \"configurations\": 2, \"evaluation_episodes\": 24, \"maximum_windows\": 1680, \"target_training_shots_per_arm\": 2, \"total_episodes\": 56, \"training_episodes\": 32}, \"limitations\": [\"Development shadow experiment only; no reactor deployment or automatic policy adoption.\", \"One training seed cannot establish a federation benefit; conditions are not independent replicates.\", \"Endpoint cost, beta_N tracking MAE and Te temperature-profile RMSE measure different outcomes.\", \"Initial and one or two round checkpoints do not establish a shots-to-competence speedup.\", \"Gate-selected deployed results are diagnostic fallback outcomes; raw learning continues separately.\", \"Source training, target training, gate/evaluation work and optimizer updates must be counted separately.\"], \"next_run_proposal\": {\"automatic_apply\": false, \"automatic_launch\": false, \"budget\": {\"calibration_scope\": \"Existing frozen reference reused; prior calibration work excluded.\", \"configurations\": 2, \"cpu_threads\": 1, \"donor_training_episodes\": 32, \"evaluation_episodes\": 48, \"gate_episodes\": 16, \"initial_and_fixed_evaluation_episodes\": 8, \"maximum_wall_seconds\": 600, \"maximum_windows\": 3360, \"optimizer_scope\": \"Log contribution, head-repair, adaptation and entropy optimizer work separately; episode counts are not optimizer-work counts.\", \"report_episodes\": 24, \"target_training_episodes\": 32, \"total_episodes\": 112, \"training_episodes\": 64}, \"invariants\": [\"Same source revision, calibration, candidate change/value, paired physical conditions, donor budgets, reporting matrix and local/reset/uniform/clipped controls.\", \"Same round count; distinguish raw outcomes from gate fallback and endpoint metrics from shots to competence.\", \"Create a new frozen manifest and retain this original attempt; no launch or installation is authorized by the recommendation.\"], \"reason\": \"Repeat the identical baseline/candidate hypothesis across two additional paired development seeds, preserving null and negative outcomes. Keep the baseline meanwhile; do not change a knob to manufacture a federation win.\", \"request\": {\"change\": \"clipping_initial_norm_fraction\", \"rounds\": 1, \"schema\": \"fusion-shadow-config-v1\", \"seeds\": [29, 43], \"value\": 0.001}, \"seed_selection_scope\": \"Unused by this saved trial only. Check the development/confirmation ledger before launch; this proposal does not scan other runs.\", \"status\": \"proposal_only\"}, \"provenance\": {\"manifest_identity\": \"9d1ea8adabbcafcca6409f1b3ede81975f3be76e75fd8fc741cc597f9317f531\", \"result_sha256\": \"6a3119a07ef4773d0700b6c12ea35d2cdb1e746f95bdb47348f65b7497352c41\", \"source_zip_sha256\": \"f28a277aed255669c18f8e363f0787a034d2f7b713d9c93aeaab3cb2d0a00637\", \"trial_id\": \"b4838455d2a0460d8007314be78af07a\"}, \"recommendation\": {\"automatic_apply\": false, \"automatic_launch\": false, \"code\": \"repeat_varied_paired_seeds\", \"efficacy_claim\": false, \"text\": \"The candidate has lower observed raw endpoint cost in at least one arm of this development check. Freeze it and repeat across additional paired training seeds; this is not a federation efficacy or cold-start speedup claim.\"}, \"schema\": \"fusion-shadow-comparison-v1\", \"status\": \"complete\", \"within_branch_raw_federation\": {\"baseline\": {\"clipped_vs_local\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.009594819229268008, \"mean_beta_mae_difference\": -0.0006073215308081211, \"mean_cost_difference\": -0.016409365435763365, \"relative_cost_change\": -0.14560335908214497, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.016409365435763365, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"clipped_vs_reset_only\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.00011539574340354089, \"mean_beta_mae_difference\": -1.1210053475745746e-06, \"mean_cost_difference\": -0.00013447880802813783, \"relative_cost_change\": -0.0013946582849038032, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.00013447880802813783, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"uniform_vs_local\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.009594819229268008, \"mean_beta_mae_difference\": -0.0006073215308081211, \"mean_cost_difference\": -0.016409365435763365, \"relative_cost_change\": -0.14560335908214497, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.016409365435763365, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"uniform_vs_reset_only\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.00011539574340354089, \"mean_beta_mae_difference\": -1.1210053475745746e-06, \"mean_cost_difference\": -0.00013447880802813783, \"relative_cost_change\": -0.0013946582849038032, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.00013447880802813783, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}}, \"candidate\": {\"clipped_vs_local\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.009607088676080348, \"mean_beta_mae_difference\": -0.0006092283314604744, \"mean_cost_difference\": -0.016433242597430495, \"relative_cost_change\": -0.14581522558957885, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.016433242597430495, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"clipped_vs_reset_only\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.00012766519021588027, \"mean_beta_mae_difference\": -3.0278059999278885e-06, \"mean_cost_difference\": -0.00015835596969526744, \"relative_cost_change\": -0.0016422845230251448, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.00015835596969526744, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"uniform_vs_local\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.009594819229268008, \"mean_beta_mae_difference\": -0.0006073215308081211, \"mean_cost_difference\": -0.016409365435763365, \"relative_cost_change\": -0.14560335908214497, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.016409365435763365, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}, \"uniform_vs_reset_only\": {\"by_seed\": [{\"baseline_competent\": false, \"candidate_competent\": false, \"comparable\": true, \"mean_Te_profile_rmse_keV_difference\": -0.00011539574340354089, \"mean_beta_mae_difference\": -1.1210053475745746e-06, \"mean_cost_difference\": -0.00013447880802813783, \"relative_cost_change\": -0.0013946582849038032, \"seed\": 17}], \"higher_cost_seeds\": 0, \"lower_cost_seeds\": 1, \"median_paired_cost_difference\": -0.00013447880802813783, \"paired_training_seeds\": 1, \"tied_cost_seeds\": 0}}}, \"worker_reported_status\": \"complete\", \"worker_result_sha256\": \"96e02124939dc9acaade0b332e7707bcc675fd22b57a452a886b6db64b2c9bd4\"}, \"config\": {\"change\": \"clipping_initial_norm_fraction\", \"rounds\": 1, \"schema\": \"fusion-shadow-config-v1\", \"seeds\": [17], \"value\": 0.001}, \"error\": null, \"manifest_identity\": \"9d1ea8adabbcafcca6409f1b3ede81975f3be76e75fd8fc741cc597f9317f531\", \"policy_activated\": false, \"round_aggregation_diagnostics\": {\"arm_scope\": \"Only the actually selected clipped arm is shown; hypothetical clipped proposals recorded under the uniform arm are excluded.\", \"missing_json_pointers\": [], \"raw_result_sha256\": \"6a3119a07ef4773d0700b6c12ea35d2cdb1e746f95bdb47348f65b7497352c41\", \"records\": [{\"arm\": \"clipped\", \"clipped_source_counts\": {\"q0\": 0, \"q1\": 0}, \"clipped_sources\": {\"q0\": [], \"q1\": []}, \"clipping_factors\": {\"cold_target\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_cool\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_warm\": {\"q0\": 1.0, \"q1\": 1.0}}, \"configuration\": \"baseline\", \"proposal_hashes\": {\"clipped\": \"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\", \"uniform\": \"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\"}, \"raw_json_pointer\": \"/baseline/seeds/0/rounds/0/aggregation/clipped/heating_td3\", \"recorded_uniform_and_clipped_hashes_equal\": true, \"role\": \"heating_td3\", \"round\": 1, \"seed\": 17, \"source_count\": 3, \"source_ids\": [\"donor_cool\", \"donor_warm\", \"cold_target\"], \"source_norms\": {\"cold_target\": {\"q0\": 2.065479137657679e-05, \"q1\": 2.794796036753122e-05}, \"donor_cool\": {\"q0\": 2.5363614219228373e-05, \"q1\": 3.1446774409467525e-05}, \"donor_warm\": {\"q0\": 3.5024709948334e-05, \"q1\": 4.375503705729863e-05}}, \"status\": \"recorded_scalars_consistent\", \"thresholds\": {\"q0\": 0.6617651203885833, \"q1\": 0.6575189801502899}}, {\"arm\": \"clipped\", \"clipped_source_counts\": {\"q0\": 0, \"q1\": 0}, \"clipped_sources\": {\"q0\": [], \"q1\": []}, \"clipping_factors\": {\"cold_target\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_cool\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_warm\": {\"q0\": 1.0, \"q1\": 1.0}}, \"configuration\": \"baseline\", \"proposal_hashes\": {\"clipped\": \"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\", \"uniform\": \"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\"}, \"raw_json_pointer\": \"/baseline/seeds/0/rounds/0/aggregation/clipped/deposition_sac\", \"recorded_uniform_and_clipped_hashes_equal\": true, \"role\": \"deposition_sac\", \"round\": 1, \"seed\": 17, \"source_count\": 3, \"source_ids\": [\"donor_cool\", \"donor_warm\", \"cold_target\"], \"source_norms\": {\"cold_target\": {\"q0\": 0.005944303046938988, \"q1\": 0.0038254682381914863}, \"donor_cool\": {\"q0\": 0.01385673709211142, \"q1\": 0.012032422596349165}, \"donor_warm\": {\"q0\": 0.013387420161062083, \"q1\": 0.011767656884500093}}, \"status\": \"recorded_scalars_consistent\", \"thresholds\": {\"q0\": 0.6592810460434841, \"q1\": 0.6592998947528599}}, {\"arm\": \"clipped\", \"clipped_source_counts\": {\"q0\": 0, \"q1\": 0}, \"clipped_sources\": {\"q0\": [], \"q1\": []}, \"clipping_factors\": {\"cold_target\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_cool\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_warm\": {\"q0\": 1.0, \"q1\": 1.0}}, \"configuration\": \"candidate\", \"proposal_hashes\": {\"clipped\": \"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\", \"uniform\": \"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\"}, \"raw_json_pointer\": \"/candidate/seeds/0/rounds/0/aggregation/clipped/heating_td3\", \"recorded_uniform_and_clipped_hashes_equal\": true, \"role\": \"heating_td3\", \"round\": 1, \"seed\": 17, \"source_count\": 3, \"source_ids\": [\"donor_cool\", \"donor_warm\", \"cold_target\"], \"source_norms\": {\"cold_target\": {\"q0\": 2.065479137657679e-05, \"q1\": 2.794796036753122e-05}, \"donor_cool\": {\"q0\": 2.5363614219228373e-05, \"q1\": 3.1446774409467525e-05}, \"donor_warm\": {\"q0\": 3.5024709948334e-05, \"q1\": 4.375503705729863e-05}}, \"status\": \"recorded_scalars_consistent\", \"thresholds\": {\"q0\": 0.006617651203885832, \"q1\": 0.006575189801502899}}, {\"arm\": \"clipped\", \"clipped_source_counts\": {\"q0\": 2, \"q1\": 2}, \"clipped_sources\": {\"q0\": [\"donor_cool\", \"donor_warm\"], \"q1\": [\"donor_cool\", \"donor_warm\"]}, \"clipping_factors\": {\"cold_target\": {\"q0\": 1.0, \"q1\": 1.0}, \"donor_cool\": {\"q0\": 0.4757837589477034, \"q1\": 0.5479361196579833}, \"donor_warm\": {\"q0\": 0.4924631020105224, \"q1\": 0.5602643765227932}}, \"configuration\": \"candidate\", \"proposal_hashes\": {\"clipped\": \"e2838de8f8909fd0afd862edbe16eb96285eae7c026c5707a0aee4444a57ff6f\", \"uniform\": \"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\"}, \"raw_json_pointer\": \"/candidate/seeds/0/rounds/0/aggregation/clipped/deposition_sac\", \"recorded_uniform_and_clipped_hashes_equal\": false, \"role\": \"deposition_sac\", \"round\": 1, \"seed\": 17, \"source_count\": 3, \"source_ids\": [\"donor_cool\", \"donor_warm\", \"cold_target\"], \"source_norms\": {\"cold_target\": {\"q0\": 0.005944303046938988, \"q1\": 0.0038254682381914863}, \"donor_cool\": {\"q0\": 0.01385673709211142, \"q1\": 0.012032422596349165}, \"donor_warm\": {\"q0\": 0.013387420161062083, \"q1\": 0.011767656884500093}}, \"status\": \"recorded_scalars_consistent\", \"thresholds\": {\"q0\": 0.006592810460434841, \"q1\": 0.006592998947528598}}], \"schema\": \"fusion-shadow-clipping-diagnostic-v1\", \"scope\": \"New read-only evidence projection from the hash-verified worker result. Counts derive from recorded factors; no tensor recomputation, new rollout or efficacy inference. Historical worker results and comparisons are unchanged.\", \"status\": \"available\"}, \"schema\": \"fusion-advisor-shadow-evidence-v1\", \"status\": \"completed\", \"trial_id\": \"b4838455d2a0460d8007314be78af07a\"}",
+      "sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+      "metadata": {
+        "adapter": "shadow_execution",
+        "tool": "test_shadow",
+        "input_source_id": "E001",
+        "input_sha256": "cfbf759cdea183d9c8fb8ac8788e3204a6e3389ffd91ca0e5ee097d727c09431",
+        "scope": "new isolated development pilot; failures retained; no current policy activation"
+      }
+    },
+    {
+      "id": "E001",
+      "title": "Shadow trial 43d55b69: paired comparison",
+      "kind": "experiment",
+      "uri": "examples/evidence/shadow/43d55b69d02440b3a019cf9b64f6845a/comparison.json",
+      "content": "{\"branches\":{\"baseline\":{\"accounting\":{\"contribution_optimization\":{\"projection\":\"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\",\"record_count\":12,\"summed_by_role\":{\"deposition_sac\":{\"frozen_replay_samples\":4800,\"head_sgd_updates\":150,\"optimization_sample_uses\":9600,\"trunk_sgd_updates\":150},\"heating_td3\":{\"frozen_replay_samples\":4800,\"head_sgd_updates\":150,\"optimization_sample_uses\":9600,\"trunk_sgd_updates\":150}}},\"evaluation_episodes\":12,\"repair_optimization\":{\"projection\":\"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\",\"record_count\":3,\"summed_by_role\":{\"deposition_sac\":{\"actor_adaptation_updates\":120,\"critic_adaptation_updates\":120,\"entropy_temperature_updates\":120,\"head_sgd_updates\":75,\"replay_samples\":6240},\"heating_td3\":{\"actor_adaptation_updates\":60,\"critic_adaptation_updates\":120,\"entropy_temperature_updates\":0,\"head_sgd_updates\":75,\"replay_samples\":6240}}},\"source_target_split\":\"Training episode total combines donor and target work; no separate actual category totals were exported.\",\"training_episodes\":16,\"training_optimizer_updates\":{\"beam\":294,\"heating\":294,\"joint\":0},\"windows\":840},\"configs\":{\"clipping_initial_norm_fraction\":0.1,\"sac\":{\"actor_lr\":0.0003,\"adapt_steps\":40,\"alpha_lr\":0.0003,\"batch\":32,\"gamma\":0.9048374180359595,\"head_steps\":25,\"hidden\":64,\"initial_alpha\":0.2,\"lr\":0.0003,\"mix\":0.25,\"rep_lr\":0.001,\"rep_steps\":25,\"repair_steps\":25,\"replay_capacity\":100000,\"reward_scale\":1.0,\"target_entropy\":null,\"tau\":0.005},\"td3\":{\"actor_init_fraction\":[0.5,0.5],\"actor_lr\":0.0001,\"actor_warmup_updates\":0,\"adapt_steps\":40,\"batch\":32,\"critic_action_coordinates\":\"normalized\",\"critic_head_init\":\"zero\",\"exploration\":0.1,\"gamma\":0.9048374180359595,\"head_steps\":25,\"hidden\":64,\"lr\":0.0003,\"mix\":0.25,\"noise_clip\":0.5,\"policy_delay\":2,\"rep_lr\":0.001,\"rep_steps\":25,\"repair_steps\":25,\"replay_capacity\":100000,\"reward_scale\":1.0,\"target_noise\":0.2,\"tau\":0.005}},\"seeds\":{\"17\":{\"arms\":{\"clipped\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true},\"gate\":{\"accept\":true,\"cost_floor\":0.01,\"reason\":\"pass\",\"relative_cost_changes\":[-0.14558461859621574],\"scope\":\"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\",\"tolerance\":0.05},\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true}},\"local\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04049012025671159,\"mean_beta_mae\":0.0026292950644285014,\"mean_cost\":0.11269908564750696,\"valid_complete\":true},\"gate\":null,\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04049012025671159,\"mean_beta_mae\":0.0026292950644285014,\"mean_cost\":0.11269908564750696,\"valid_complete\":true}},\"reset_only\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03101069677084712,\"mean_beta_mae\":0.002023094538967955,\"mean_cost\":0.09642419901977173,\"valid_complete\":true},\"gate\":null,\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03101069677084712,\"mean_beta_mae\":0.002023094538967955,\"mean_cost\":0.09642419901977173,\"valid_complete\":true}},\"uniform\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true},\"gate\":{\"accept\":true,\"cost_floor\":0.01,\"reason\":\"pass\",\"relative_cost_changes\":[-0.14558461859621574],\"scope\":\"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\",\"tolerance\":0.05},\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true}}},\"competence_checkpoints\":[{\"raw_competence\":{\"clipped\":false,\"local\":false,\"reset_only\":false,\"uniform\":false},\"round\":1,\"target_training_shots_per_arm\":2}],\"conditions_match\":true,\"initial\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04404662001837146,\"mean_beta_mae\":0.002854303929320362,\"mean_cost\":0.11997210081541802,\"valid_complete\":true},\"seed\":17,\"status\":\"complete\",\"training_stable\":true}},\"status\":\"complete\"},\"candidate\":{\"accounting\":{\"contribution_optimization\":{\"projection\":\"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\",\"record_count\":12,\"summed_by_role\":{\"deposition_sac\":{\"frozen_replay_samples\":4800,\"head_sgd_updates\":150,\"optimization_sample_uses\":9600,\"trunk_sgd_updates\":150},\"heating_td3\":{\"frozen_replay_samples\":4800,\"head_sgd_updates\":150,\"optimization_sample_uses\":9600,\"trunk_sgd_updates\":150}}},\"evaluation_episodes\":12,\"repair_optimization\":{\"projection\":\"Summed across recorded sources, arms, rounds and seeds; original per-record ledger remains in the hash-bound worker result.\",\"record_count\":3,\"summed_by_role\":{\"deposition_sac\":{\"actor_adaptation_updates\":120,\"critic_adaptation_updates\":120,\"entropy_temperature_updates\":120,\"head_sgd_updates\":75,\"replay_samples\":6240},\"heating_td3\":{\"actor_adaptation_updates\":60,\"critic_adaptation_updates\":120,\"entropy_temperature_updates\":0,\"head_sgd_updates\":75,\"replay_samples\":6240}}},\"source_target_split\":\"Training episode total combines donor and target work; no separate actual category totals were exported.\",\"training_episodes\":16,\"training_optimizer_updates\":{\"beam\":294,\"heating\":294,\"joint\":0},\"windows\":840},\"configs\":{\"clipping_initial_norm_fraction\":0.001,\"sac\":{\"actor_lr\":0.0003,\"adapt_steps\":40,\"alpha_lr\":0.0003,\"batch\":32,\"gamma\":0.9048374180359595,\"head_steps\":25,\"hidden\":64,\"initial_alpha\":0.2,\"lr\":0.0003,\"mix\":0.25,\"rep_lr\":0.001,\"rep_steps\":25,\"repair_steps\":25,\"replay_capacity\":100000,\"reward_scale\":1.0,\"target_entropy\":null,\"tau\":0.005},\"td3\":{\"actor_init_fraction\":[0.5,0.5],\"actor_lr\":0.0001,\"actor_warmup_updates\":0,\"adapt_steps\":40,\"batch\":32,\"critic_action_coordinates\":\"normalized\",\"critic_head_init\":\"zero\",\"exploration\":0.1,\"gamma\":0.9048374180359595,\"head_steps\":25,\"hidden\":64,\"lr\":0.0003,\"mix\":0.25,\"noise_clip\":0.5,\"policy_delay\":2,\"rep_lr\":0.001,\"rep_steps\":25,\"repair_steps\":25,\"replay_capacity\":100000,\"reward_scale\":1.0,\"target_noise\":0.2,\"tau\":0.005}},\"seeds\":{\"17\":{\"arms\":{\"clipped\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03088303158063124,\"mean_beta_mae\":0.002020066732968027,\"mean_cost\":0.09626584305007646,\"valid_complete\":true},\"gate\":{\"accept\":true,\"cost_floor\":0.01,\"reason\":\"pass\",\"relative_cost_changes\":[-0.1457964232234878],\"scope\":\"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\",\"tolerance\":0.05},\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03088303158063124,\"mean_beta_mae\":0.002020066732968027,\"mean_cost\":0.09626584305007646,\"valid_complete\":true}},\"local\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04049012025671159,\"mean_beta_mae\":0.0026292950644285014,\"mean_cost\":0.11269908564750696,\"valid_complete\":true},\"gate\":null,\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04049012025671159,\"mean_beta_mae\":0.0026292950644285014,\"mean_cost\":0.11269908564750696,\"valid_complete\":true}},\"reset_only\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03101069677084712,\"mean_beta_mae\":0.002023094538967955,\"mean_cost\":0.09642419901977173,\"valid_complete\":true},\"gate\":null,\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03101069677084712,\"mean_beta_mae\":0.002023094538967955,\"mean_cost\":0.09642419901977173,\"valid_complete\":true}},\"uniform\":{\"deployed\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true},\"gate\":{\"accept\":true,\"cost_floor\":0.01,\"reason\":\"pass\",\"relative_cost_changes\":[-0.14558461859621574],\"scope\":\"All fixed development conditions must pass individually; no bootstrap, independence claim, confirmation data or reactor-safety guarantee.\",\"tolerance\":0.05},\"raw\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.03089530102744358,\"mean_beta_mae\":0.0020219735336203803,\"mean_cost\":0.09628972021174359,\"valid_complete\":true}}},\"competence_checkpoints\":[{\"raw_competence\":{\"clipped\":false,\"local\":false,\"reset_only\":false,\"uniform\":false},\"round\":1,\"target_training_shots_per_arm\":2}],\"conditions_match\":true,\"initial\":{\"cases\":1,\"cases_with_events\":0,\"cases_with_invalid_physics\":0,\"competent\":false,\"complete_cases\":1,\"condition_signature\":\"073f37ab38823728bbe548e1552479e003e1d253e8907505787f01b5015c6858\",\"mean_Te_profile_rmse_keV\":0.04404662001837146,\"mean_beta_mae\":0.002854303929320362,\"mean_cost\":0.11997210081541802,\"valid_complete\":true},\"seed\":17,\"status\":\"complete\",\"training_stable\":true}},\"status\":\"complete\"}},\"candidate_vs_baseline_raw_endpoint\":{\"clipped\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"deployed_comparison\":{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-1.226944681233938e-05,\"mean_beta_mae_difference\":-1.9068006523533139e-06,\"mean_cost_difference\":-2.387716166712961e-05,\"relative_cost_change\":-0.00024797207442936914},\"mean_Te_profile_rmse_keV_difference\":-1.226944681233938e-05,\"mean_beta_mae_difference\":-1.9068006523533139e-06,\"mean_cost_difference\":-2.387716166712961e-05,\"relative_cost_change\":-0.00024797207442936914,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-2.387716166712961e-05,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"local\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"deployed_comparison\":{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0},\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":0,\"median_paired_cost_difference\":0.0,\"paired_training_seeds\":1,\"tied_cost_seeds\":1},\"reset_only\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"deployed_comparison\":{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0},\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":0,\"median_paired_cost_difference\":0.0,\"paired_training_seeds\":1,\"tied_cost_seeds\":1},\"uniform\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"deployed_comparison\":{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0},\"mean_Te_profile_rmse_keV_difference\":0.0,\"mean_beta_mae_difference\":0.0,\"mean_cost_difference\":0.0,\"relative_cost_change\":0.0,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":0,\"median_paired_cost_difference\":0.0,\"paired_training_seeds\":1,\"tied_cost_seeds\":1}},\"conditions_sha256\":\"ae3c4cb98cd4a5c7d276a9d6fedb190cbc837b3c2669b1a08bd39186aaa39073\",\"execution_status\":\"completed\",\"expected_training_seeds\":[17],\"failures\":[],\"fairness\":{\"condition_hash_scope\":\"Worker-recorded conditions, not a fresh raw trajectory audit\",\"independent_replicate_unit\":\"training seed\",\"reasons\":[],\"same_recorded_conditions\":true},\"frozen_budget\":{\"calibration_cost\":\"Prior calibration excluded; calibration reference retained.\",\"configurations\":2,\"evaluation_episodes\":24,\"maximum_windows\":1680,\"target_training_shots_per_arm\":2,\"total_episodes\":56,\"training_episodes\":32},\"limitations\":[\"Development shadow experiment only; no reactor deployment or automatic policy adoption.\",\"One training seed cannot establish a federation benefit; conditions are not independent replicates.\",\"Endpoint cost, beta_N tracking MAE and Te temperature-profile RMSE measure different outcomes.\",\"Initial and one or two round checkpoints do not establish a shots-to-competence speedup.\",\"Gate-selected deployed results are diagnostic fallback outcomes; raw learning continues separately.\",\"Source training, target training, gate/evaluation work and optimizer updates must be counted separately.\"],\"next_run_proposal\":{\"automatic_apply\":false,\"automatic_launch\":false,\"budget\":{\"calibration_scope\":\"Existing frozen reference reused; prior calibration work excluded.\",\"configurations\":2,\"cpu_threads\":1,\"donor_training_episodes\":32,\"evaluation_episodes\":48,\"gate_episodes\":16,\"initial_and_fixed_evaluation_episodes\":8,\"maximum_wall_seconds\":600,\"maximum_windows\":3360,\"optimizer_scope\":\"Log contribution, head-repair, adaptation and entropy optimizer work separately; episode counts are not optimizer-work counts.\",\"report_episodes\":24,\"target_training_episodes\":32,\"total_episodes\":112,\"training_episodes\":64},\"invariants\":[\"Same source revision, calibration, candidate change/value, paired physical conditions, donor budgets, reporting matrix and local/reset/uniform/clipped controls.\",\"Same round count; distinguish raw outcomes from gate fallback and endpoint metrics from shots to competence.\",\"Create a new frozen manifest and retain this original attempt; no launch or installation is authorized by the recommendation.\"],\"reason\":\"Repeat the identical baseline/candidate hypothesis across two additional paired development seeds, preserving null and negative outcomes. Keep the baseline meanwhile; do not change a knob to manufacture a federation win.\",\"request\":{\"change\":\"clipping_initial_norm_fraction\",\"rounds\":1,\"schema\":\"fusion-shadow-config-v1\",\"seeds\":[29,43],\"value\":0.001},\"seed_selection_scope\":\"Unused by this saved trial only. Check the development/confirmation ledger before launch; this proposal does not scan other runs.\",\"status\":\"proposal_only\"},\"provenance\":{\"manifest_identity\":\"65a37588f14052a1b2a6c10b208ec92b25328cca424b0327b3d7292d8972c0e6\",\"result_sha256\":\"e8f5403bf0bee4e983ca4294cfd6ed90f55bf57fbfe6329a64f9c82f6da8258e\",\"source_zip_sha256\":\"004a63037364f8b8adc54404bf364f669e86f0396bc553d71c292b5bd399fcbe\",\"trial_id\":\"43d55b69d02440b3a019cf9b64f6845a\"},\"recommendation\":{\"automatic_apply\":false,\"automatic_launch\":false,\"code\":\"repeat_varied_paired_seeds\",\"efficacy_claim\":false,\"text\":\"The candidate has lower observed raw endpoint cost in at least one arm of this development check. Freeze it and repeat across additional paired training seeds; this is not a federation efficacy or cold-start speedup claim.\"},\"schema\":\"fusion-shadow-comparison-v1\",\"status\":\"complete\",\"within_branch_raw_federation\":{\"baseline\":{\"clipped_vs_local\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.009594819229268008,\"mean_beta_mae_difference\":-0.0006073215308081211,\"mean_cost_difference\":-0.016409365435763365,\"relative_cost_change\":-0.14560335908214497,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.016409365435763365,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"clipped_vs_reset_only\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.00011539574340354089,\"mean_beta_mae_difference\":-1.1210053475745746e-06,\"mean_cost_difference\":-0.00013447880802813783,\"relative_cost_change\":-0.0013946582849038032,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.00013447880802813783,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"uniform_vs_local\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.009594819229268008,\"mean_beta_mae_difference\":-0.0006073215308081211,\"mean_cost_difference\":-0.016409365435763365,\"relative_cost_change\":-0.14560335908214497,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.016409365435763365,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"uniform_vs_reset_only\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.00011539574340354089,\"mean_beta_mae_difference\":-1.1210053475745746e-06,\"mean_cost_difference\":-0.00013447880802813783,\"relative_cost_change\":-0.0013946582849038032,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.00013447880802813783,\"paired_training_seeds\":1,\"tied_cost_seeds\":0}},\"candidate\":{\"clipped_vs_local\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.009607088676080348,\"mean_beta_mae_difference\":-0.0006092283314604744,\"mean_cost_difference\":-0.016433242597430495,\"relative_cost_change\":-0.14581522558957885,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.016433242597430495,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"clipped_vs_reset_only\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.00012766519021588027,\"mean_beta_mae_difference\":-3.0278059999278885e-06,\"mean_cost_difference\":-0.00015835596969526744,\"relative_cost_change\":-0.0016422845230251448,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.00015835596969526744,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"uniform_vs_local\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.009594819229268008,\"mean_beta_mae_difference\":-0.0006073215308081211,\"mean_cost_difference\":-0.016409365435763365,\"relative_cost_change\":-0.14560335908214497,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.016409365435763365,\"paired_training_seeds\":1,\"tied_cost_seeds\":0},\"uniform_vs_reset_only\":{\"by_seed\":[{\"baseline_competent\":false,\"candidate_competent\":false,\"comparable\":true,\"mean_Te_profile_rmse_keV_difference\":-0.00011539574340354089,\"mean_beta_mae_difference\":-1.1210053475745746e-06,\"mean_cost_difference\":-0.00013447880802813783,\"relative_cost_change\":-0.0013946582849038032,\"seed\":17}],\"higher_cost_seeds\":0,\"lower_cost_seeds\":1,\"median_paired_cost_difference\":-0.00013447880802813783,\"paired_training_seeds\":1,\"tied_cost_seeds\":0}}},\"worker_reported_status\":\"complete\",\"worker_result_sha256\":\"8100d4d5efc63a2391635c1bfcb92bc6c75e3efbf23d789516b6fb1f3316c2ba\",\"round_aggregation_diagnostics\":{\"schema\":\"fusion-shadow-clipping-diagnostic-v1\",\"status\":\"available\",\"raw_result_sha256\":\"e8f5403bf0bee4e983ca4294cfd6ed90f55bf57fbfe6329a64f9c82f6da8258e\",\"scope\":\"New read-only evidence projection from the hash-verified worker result. Counts derive from recorded factors; no tensor recomputation, new rollout or efficacy inference. Historical worker results and comparisons are unchanged.\",\"arm_scope\":\"Only the actually selected clipped arm is shown; hypothetical clipped proposals recorded under the uniform arm are excluded.\",\"records\":[{\"configuration\":\"baseline\",\"seed\":17,\"round\":1,\"arm\":\"clipped\",\"role\":\"heating_td3\",\"raw_json_pointer\":\"/baseline/seeds/0/rounds/0/aggregation/clipped/heating_td3\",\"status\":\"recorded_scalars_consistent\",\"source_ids\":[\"donor_cool\",\"donor_warm\",\"cold_target\"],\"source_count\":3,\"thresholds\":{\"q0\":0.6617651203885833,\"q1\":0.6575189801502899},\"source_norms\":{\"donor_cool\":{\"q0\":2.5363614219228373e-05,\"q1\":3.1446774409467525e-05},\"donor_warm\":{\"q0\":3.5024709948334e-05,\"q1\":4.375503705729863e-05},\"cold_target\":{\"q0\":2.065479137657679e-05,\"q1\":2.794796036753122e-05}},\"clipping_factors\":{\"donor_cool\":{\"q0\":1.0,\"q1\":1.0},\"donor_warm\":{\"q0\":1.0,\"q1\":1.0},\"cold_target\":{\"q0\":1.0,\"q1\":1.0}},\"clipped_sources\":{\"q0\":[],\"q1\":[]},\"clipped_source_counts\":{\"q0\":0,\"q1\":0},\"proposal_hashes\":{\"uniform\":\"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\",\"clipped\":\"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\"},\"recorded_uniform_and_clipped_hashes_equal\":true},{\"configuration\":\"baseline\",\"seed\":17,\"round\":1,\"arm\":\"clipped\",\"role\":\"deposition_sac\",\"raw_json_pointer\":\"/baseline/seeds/0/rounds/0/aggregation/clipped/deposition_sac\",\"status\":\"recorded_scalars_consistent\",\"source_ids\":[\"donor_cool\",\"donor_warm\",\"cold_target\"],\"source_count\":3,\"thresholds\":{\"q0\":0.6592810460434841,\"q1\":0.6592998947528599},\"source_norms\":{\"donor_cool\":{\"q0\":0.01385673709211142,\"q1\":0.012032422596349165},\"donor_warm\":{\"q0\":0.013387420161062083,\"q1\":0.011767656884500093},\"cold_target\":{\"q0\":0.005944303046938988,\"q1\":0.0038254682381914863}},\"clipping_factors\":{\"donor_cool\":{\"q0\":1.0,\"q1\":1.0},\"donor_warm\":{\"q0\":1.0,\"q1\":1.0},\"cold_target\":{\"q0\":1.0,\"q1\":1.0}},\"clipped_sources\":{\"q0\":[],\"q1\":[]},\"clipped_source_counts\":{\"q0\":0,\"q1\":0},\"proposal_hashes\":{\"uniform\":\"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\",\"clipped\":\"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\"},\"recorded_uniform_and_clipped_hashes_equal\":true},{\"configuration\":\"candidate\",\"seed\":17,\"round\":1,\"arm\":\"clipped\",\"role\":\"heating_td3\",\"raw_json_pointer\":\"/candidate/seeds/0/rounds/0/aggregation/clipped/heating_td3\",\"status\":\"recorded_scalars_consistent\",\"source_ids\":[\"donor_cool\",\"donor_warm\",\"cold_target\"],\"source_count\":3,\"thresholds\":{\"q0\":0.006617651203885832,\"q1\":0.006575189801502899},\"source_norms\":{\"donor_cool\":{\"q0\":2.5363614219228373e-05,\"q1\":3.1446774409467525e-05},\"donor_warm\":{\"q0\":3.5024709948334e-05,\"q1\":4.375503705729863e-05},\"cold_target\":{\"q0\":2.065479137657679e-05,\"q1\":2.794796036753122e-05}},\"clipping_factors\":{\"donor_cool\":{\"q0\":1.0,\"q1\":1.0},\"donor_warm\":{\"q0\":1.0,\"q1\":1.0},\"cold_target\":{\"q0\":1.0,\"q1\":1.0}},\"clipped_sources\":{\"q0\":[],\"q1\":[]},\"clipped_source_counts\":{\"q0\":0,\"q1\":0},\"proposal_hashes\":{\"uniform\":\"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\",\"clipped\":\"0532d8041cb15d40538ad77b7aebdd59a9cea8d9d548057edc7c531597237eb0\"},\"recorded_uniform_and_clipped_hashes_equal\":true},{\"configuration\":\"candidate\",\"seed\":17,\"round\":1,\"arm\":\"clipped\",\"role\":\"deposition_sac\",\"raw_json_pointer\":\"/candidate/seeds/0/rounds/0/aggregation/clipped/deposition_sac\",\"status\":\"recorded_scalars_consistent\",\"source_ids\":[\"donor_cool\",\"donor_warm\",\"cold_target\"],\"source_count\":3,\"thresholds\":{\"q0\":0.006592810460434841,\"q1\":0.006592998947528598},\"source_norms\":{\"donor_cool\":{\"q0\":0.01385673709211142,\"q1\":0.012032422596349165},\"donor_warm\":{\"q0\":0.013387420161062083,\"q1\":0.011767656884500093},\"cold_target\":{\"q0\":0.005944303046938988,\"q1\":0.0038254682381914863}},\"clipping_factors\":{\"donor_cool\":{\"q0\":0.4757837589477034,\"q1\":0.5479361196579833},\"donor_warm\":{\"q0\":0.4924631020105224,\"q1\":0.5602643765227932},\"cold_target\":{\"q0\":1.0,\"q1\":1.0}},\"clipped_sources\":{\"q0\":[\"donor_cool\",\"donor_warm\"],\"q1\":[\"donor_cool\",\"donor_warm\"]},\"clipped_source_counts\":{\"q0\":2,\"q1\":2},\"proposal_hashes\":{\"uniform\":\"5b3ab5902a324120d33235f634480f668e51d15d88fce79ecbf65013c40d6e0a\",\"clipped\":\"e2838de8f8909fd0afd862edbe16eb96285eae7c026c5707a0aee4444a57ff6f\"},\"recorded_uniform_and_clipped_hashes_equal\":false}],\"missing_json_pointers\":[]}}",
+      "sha256": "cfbf759cdea183d9c8fb8ac8788e3204a6e3389ffd91ca0e5ee097d727c09431",
+      "metadata": {
+        "adapter": "shadow_comparison",
+        "status": "complete",
+        "execution_status": "completed",
+        "format": "json",
+        "original_sha256": "303d945b43c48a97b33f766d5f0d8e0781a82628d9b157656733fd63024c0c8b",
+        "original_size_bytes": 23262,
+        "content_chars": 26600,
+        "status_basis": "hash_bound_worker_summary_and_recomputed_comparison",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "omitted_json_pointers": [],
+        "transformation": "Deterministic comparison verified unchanged; additional bounded clipping diagnostics projected from its hash-verified worker result; JSON serialization and local-path redaction",
+        "provenance": {
+          "trial_id": "43d55b69d02440b3a019cf9b64f6845a",
+          "manifest_identity": "65a37588f14052a1b2a6c10b208ec92b25328cca424b0327b3d7292d8972c0e6",
+          "result_sha256": "e8f5403bf0bee4e983ca4294cfd6ed90f55bf57fbfe6329a64f9c82f6da8258e",
+          "source_zip_sha256": "004a63037364f8b8adc54404bf364f669e86f0396bc553d71c292b5bd399fcbe"
+        },
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption."
+      },
+      "record_id": "examples/evidence/shadow/43d55b69d02440b3a019cf9b64f6845a/comparison.json"
+    }
+  ],
+  "literature_excerpts": [
+    {
+      "source_id": "W005",
+      "title": "Convergence and Client-Level Differential Privacy",
+      "url": "https://proceedings.mlr.press/v162/zhang22b/zhang22b.pdf",
+      "sha256": "db4092d68f9c936216c60c48eff2ce27a45894162af8baa196510bd98fa12594",
+      "quote": "To guarantee the client-level differential privacy in FL algorithms, the clients’ transmitted model updates have to be clipped before adding privacy noise.\nSuch clipping operation",
+      "locator": "chars:395:574"
+    }
+  ],
+  "literature_scope": "Full copyrighted web snapshots are excluded. Quotes and offsets refer to the captured snapshot; the original publisher link is provided.",
+  "recommendation": {
+    "code": "repeat_varied_paired_seeds",
+    "text": "Repeat the frozen hypothesis across additional paired development seeds; an observed endpoint difference does not establish efficacy.",
+    "status": "proposal_only",
+    "request": {
+      "change": "clipping_initial_norm_fraction",
+      "rounds": 1,
+      "schema": "fusion-shadow-config-v1",
+      "seeds": [
+        29,
+        43
+      ],
+      "value": 0.001
+    },
+    "budget": {
+      "configurations": 2,
+      "training_episodes": 64,
+      "donor_training_episodes": 32,
+      "target_training_episodes": 32,
+      "evaluation_episodes": 48,
+      "initial_and_fixed_evaluation_episodes": 8,
+      "gate_episodes": 16,
+      "report_episodes": 24,
+      "total_episodes": 112,
+      "maximum_windows": 3360,
+      "maximum_wall_seconds": 600,
+      "cpu_threads": 1
+    },
+    "controls": [
+      "local",
+      "reset_only",
+      "uniform",
+      "clipped"
+    ],
+    "source_id": "D4a3cefb66d9bc5e4",
+    "source_sha256": "4a3cefb66d9bc5e4c25d69fce26c15563c124304065ccfa4aaec69bda9de9e68",
+    "provenance": {
+      "adapter": "shadow_execution",
+      "origin": "research_shadow_execution",
+      "scope": "new isolated development pilot; failures retained; no current policy activation",
+      "input_source_id": "E001",
+      "trial_id": "b4838455d2a0460d8007314be78af07a"
+    },
+    "automatic_launch": false,
+    "automatic_apply": false,
+    "seed_selection_scope": "Proposed additional development seeds; check the complete development/confirmation ledger before launch.",
+    "publication_basis": "validated_recorded_next_run_proposal",
+    "evidence": [
+      {
+        "source_id": "D4a3cefb66d9bc5e4",
+        "locator": "/comparison/recommendation/code",
+        "quote": "\"repeat_varied_paired_seeds\""
+      },
+      {
+        "source_id": "D4a3cefb66d9bc5e4",
+        "locator": "/comparison/next_run_proposal/request",
+        "quote": "{\"change\": \"clipping_initial_norm_fraction\", \"rounds\": 1, \"schema\": \"fusion-shadow-config-v1\", \"seeds\": [29, 43], \"value\": 0.001}"
+      },
+      {
+        "source_id": "D4a3cefb66d9bc5e4",
+        "locator": "/comparison/next_run_proposal/budget",
+        "quote": "{\"calibration_scope\": \"Existing frozen reference reused; prior calibration work excluded.\", \"configurations\": 2, \"cpu_threads\": 1, \"donor_training_episodes\": 32, \"evaluation_episodes\": 48, \"gate_episodes\": 16, \"initial_and_fixed_evaluation_episodes\": 8, \"maximum_wall_seconds\": 600, \"maximum_windows\": 3360, \"optimizer_scope\": \"Log contribution, head-repair, adaptation and entropy optimizer work separately; episode counts are not optimizer-work counts.\", \"report_episodes\": 24, \"target_training_episodes\": 32, \"total_episodes\": 112, \"training_episodes\": 64}"
+      }
+    ],
+    "source_label": "Current research-run shadow trial b4838455d2a0460d8007314be78af07a",
+    "budget_scope": "Gate, initial/fixed and report episodes are disjoint subsets of evaluation, not additional episodes. Prior calibration is excluded; optimizer updates are separate work."
+  },
+  "limitations": [
+    "Published facts are deterministic projections of captured records, not independent validation of simulator physics or experimental design.",
+    "Literature excerpts reproduce what a captured source says; they do not establish applicability to this controller or a causal mechanism.",
+    "Repeated runs of the same training seed are not independent efficacy evidence. Endpoint cost is not shots-to-competence.",
+    "A recommended next run is a proposal only. No policy change, experiment launch or confirmation-data use is authorized by this report."
+  ],
+  "audit_checks": [
+    {
+      "name": "no_runtime_error",
+      "passed": true
+    },
+    {
+      "name": "source_ids_unique",
+      "passed": true
+    },
+    {
+      "name": "all_captured_content_hashes_match",
+      "passed": true
+    },
+    {
+      "name": "at_least_one_grounded_fact",
+      "passed": true
+    },
+    {
+      "name": "all_facts_derived_from_exact_server_card",
+      "passed": true
+    },
+    {
+      "name": "fact_ids_unique",
+      "passed": true
+    },
+    {
+      "name": "all_fact_quotations_match_exact_recorded_values",
+      "passed": true
+    },
+    {
+      "name": "all_web_quotes_exact_extracted_spans",
+      "passed": true
+    },
+    {
+      "name": "web_quoted_word_budget",
+      "passed": true
+    },
+    {
+      "name": "published_answer_contains_only_server_templates",
+      "passed": true
+    },
+    {
+      "name": "report_answer_identical_to_publication",
+      "passed": true
+    },
+    {
+      "name": "no_scientific_efficacy_or_automatic_policy_authority",
+      "passed": true
+    },
+    {
+      "name": "one_current_shadow_source",
+      "passed": true
+    },
+    {
+      "name": "one_shadow_launch_recorded_in_this_research_trace",
+      "passed": true
+    },
+    {
+      "name": "current_shadow_source_recorded_as_test_shadow_output",
+      "passed": true
+    },
+    {
+      "name": "shadow_completed",
+      "passed": true
+    },
+    {
+      "name": "manifest_identity",
+      "passed": true
+    },
+    {
+      "name": "config_bytes_frozen",
+      "passed": true
+    },
+    {
+      "name": "configs_agree",
+      "passed": true
+    },
+    {
+      "name": "archive_hash_matches",
+      "passed": true
+    },
+    {
+      "name": "source_archive_file_inventory",
+      "passed": true
+    },
+    {
+      "name": "every_archive_member_matches_manifest",
+      "passed": true
+    },
+    {
+      "name": "current_repository_source_files_unchanged",
+      "passed": true
+    },
+    {
+      "name": "raw_result_hash_matches",
+      "passed": true
+    },
+    {
+      "name": "captured_comparison_identical_to_worker_analysis",
+      "passed": true
+    },
+    {
+      "name": "recommendation_uses_current_trial",
+      "passed": true
+    },
+    {
+      "name": "only_requested_clipping_configuration_differs",
+      "passed": true
+    },
+    {
+      "name": "both_rl_roles_record_optimizer_updates",
+      "passed": true
+    },
+    {
+      "name": "episode_file_count_matches_accounting",
+      "passed": true
+    },
+    {
+      "name": "episode_train_flags_match_accounting",
+      "passed": true
+    },
+    {
+      "name": "episode_traces_complete_and_match_windows",
+      "passed": true
+    },
+    {
+      "name": "all_raw_costs_exactly_match_recomputed_saved_trace_rewards",
+      "passed": true
+    },
+    {
+      "name": "recommendation_request_exact",
+      "passed": true
+    },
+    {
+      "name": "recommendation_total_correct",
+      "passed": true
+    },
+    {
+      "name": "evaluation_subsets_correct",
+      "passed": true
+    }
+  ],
+  "automatic_policy_changes_allowed": false,
+  "scientific_efficacy_established": false,
+  "usage": {
+    "model_calls": 22,
+    "tokens": {
+      "prompt_tokens": 411104,
+      "completion_tokens": 8006,
+      "total_tokens": 419110
+    },
+    "searches": 2,
+    "extractions": 3,
+    "tool_calls": 17
+  }
+}

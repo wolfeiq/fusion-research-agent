@@ -1,0 +1,735 @@
+{
+  "schema": "fusion-public-reporting-check-v1",
+  "run_id": "6792cb0daad24ac38f12c717755d320b",
+  "scope": "Audited live negative-result reporting on a saved seed17 pilot. No new physics or independent scientific confirmation. This is an explicit projection, not the full decision trace.",
+  "facts": [
+    {
+      "id": "Feb6d5146ea4623a060fe4462",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "configuration_change",
+      "text": "The recorded TD3 actor learning rate (td3_actor_lr) changes from baseline 0.0001 to candidate 5e-05.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/branches/baseline/configs/td3/actor_lr",
+          "quote": "0.0001"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/configs/td3/actor_lr",
+          "quote": "5e-05"
+        }
+      ],
+      "fact_type": "configuration_change",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "parameter": "td3_actor_lr",
+        "comparison": "baseline_to_candidate",
+        "baseline": 0.0001,
+        "candidate": 5e-05
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "Ff8fd21622fd3b3383b11fd8a",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "configuration",
+      "text": "The baseline configuration records td3_actor_lr=0.0001.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/branches/baseline/configs/td3/actor_lr",
+          "quote": "0.0001"
+        }
+      ],
+      "fact_type": "configuration",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "configuration": "baseline",
+        "parameter": "td3_actor_lr"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F7ddd08bbe22b2f27eb122b19",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "configuration",
+      "text": "The candidate configuration records td3_actor_lr=5e-05.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/branches/candidate/configs/td3/actor_lr",
+          "quote": "5e-05"
+        }
+      ],
+      "fact_type": "configuration",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "configuration": "candidate",
+        "parameter": "td3_actor_lr"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "Fc8ba65815a21505d08c03c5c",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "trial_status",
+      "text": "This shadow source records execution status completed and comparison status complete.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/execution_status",
+          "quote": "\"completed\""
+        },
+        {
+          "source_id": "E001",
+          "locator": "/status",
+          "quote": "\"complete\""
+        }
+      ],
+      "fact_type": "trial_status",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {},
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F92be3799e953a95bed5b1419",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_raw_endpoint",
+      "text": "For training seed 17, the local arm's paired raw endpoint mean-cost difference (candidate minus baseline) is 0.003477235248861177. This is an endpoint cost difference, not a shots-to-competence measurement.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/comparable",
+          "quote": "true"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/mean_cost_difference",
+          "quote": "0.003477235248861177"
+        }
+      ],
+      "fact_type": "paired_raw_endpoint",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "local",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F5227e8575fdbca003b934649",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_competence",
+      "text": "For training seed 17, the local arm's raw endpoint competence flags are baseline=false and candidate=false.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/baseline_competent",
+          "quote": "false"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/candidate_competent",
+          "quote": "false"
+        }
+      ],
+      "fact_type": "paired_competence",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "local",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "Fa1e70ddc42b65075491d5830",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_raw_endpoint",
+      "text": "For training seed 17, the reset_only arm's paired raw endpoint mean-cost difference (candidate minus baseline) is 0.009727470134592978. This is an endpoint cost difference, not a shots-to-competence measurement.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/comparable",
+          "quote": "true"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/mean_cost_difference",
+          "quote": "0.009727470134592978"
+        }
+      ],
+      "fact_type": "paired_raw_endpoint",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "reset_only",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F906e08316a8c46e36e037b3c",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_competence",
+      "text": "For training seed 17, the reset_only arm's raw endpoint competence flags are baseline=false and candidate=false.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/baseline_competent",
+          "quote": "false"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/reset_only/by_seed/0/candidate_competent",
+          "quote": "false"
+        }
+      ],
+      "fact_type": "paired_competence",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "reset_only",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F8da55232e91b07bf2a6e3c1b",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_raw_endpoint",
+      "text": "For training seed 17, the uniform arm's paired raw endpoint mean-cost difference (candidate minus baseline) is 0.009643247948930733. This is an endpoint cost difference, not a shots-to-competence measurement.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/comparable",
+          "quote": "true"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/mean_cost_difference",
+          "quote": "0.009643247948930733"
+        }
+      ],
+      "fact_type": "paired_raw_endpoint",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "uniform",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F05fe94060e34ed98eb8e3da3",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_competence",
+      "text": "For training seed 17, the uniform arm's raw endpoint competence flags are baseline=false and candidate=false.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/baseline_competent",
+          "quote": "false"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/uniform/by_seed/0/candidate_competent",
+          "quote": "false"
+        }
+      ],
+      "fact_type": "paired_competence",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "uniform",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F50516b8f1e9c62c01c014ec2",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_raw_endpoint",
+      "text": "For training seed 17, the clipped arm's paired raw endpoint mean-cost difference (candidate minus baseline) is 0.009643247948930733. This is an endpoint cost difference, not a shots-to-competence measurement.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/comparable",
+          "quote": "true"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/mean_cost_difference",
+          "quote": "0.009643247948930733"
+        }
+      ],
+      "fact_type": "paired_raw_endpoint",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "clipped",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    },
+    {
+      "id": "F5f7d2ba0f69497dc3d5c5706",
+      "source_id": "E001",
+      "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+      "kind": "paired_competence",
+      "text": "For training seed 17, the clipped arm's raw endpoint competence flags are baseline=false and candidate=false.",
+      "evidence": [
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/seed",
+          "quote": "17"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/baseline_competent",
+          "quote": "false"
+        },
+        {
+          "source_id": "E001",
+          "locator": "/candidate_vs_baseline_raw_endpoint/clipped/by_seed/0/candidate_competent",
+          "quote": "false"
+        }
+      ],
+      "fact_type": "paired_competence",
+      "provenance": {
+        "adapter": "shadow_comparison",
+        "origin": "saved_shadow_snapshot",
+        "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+        "freshness": "saved_isolated_trial_no_remote_completion_claim",
+        "trial_id": "993df979e388405297f0195bfca504d6"
+      },
+      "context": {
+        "seed": 17,
+        "arm": "clipped",
+        "outcome": "raw_endpoint"
+      },
+      "derived": false,
+      "publication_basis": "deterministic_schema_projection",
+      "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6"
+    }
+  ],
+  "existing_public_fixture": {
+    "path": "examples/evidence/shadow/993df979e388405297f0195bfca504d6/comparison.json",
+    "commit": "f0a01742169f81d0e781618df9fe253fc70ebdf7",
+    "sha256": "82d3c6018b1cfd32f401b34467c81d7d5dc539e9b8b3aec58789295c0ae26e2d"
+  },
+  "data_scope": "Every fact and recommendation citation was checked against this already-public synthetic fixture. No source snapshots, new experiment metrics, private paths or credentials are included.",
+  "literature_excerpts": [
+    {
+      "source_id": "W008",
+      "title": "Addressing Function Approximation Error in Actor-Critic Methods",
+      "url": "https://proceedings.mlr.press/v80/fujimoto18a/fujimoto18a.pdf",
+      "sha256": "36506efa1d9b1f0fdf1d60969944da5a32372c19b1227ba3e43148f0ad2f7fa3",
+      "quote": "Given the recent concerns in reproducibility (Henderson et al., 2017), we run our experiments across a large num-ber of seeds with fair evaluation metrics, perform",
+      "locator": "chars:5032:5195"
+    }
+  ],
+  "literature_scope": "Full copyrighted web snapshots are excluded. Quotes and offsets refer to the captured snapshot; the original publisher link is provided.",
+  "recommendation": {
+    "code": "keep_baseline",
+    "text": "Retain the baseline while investigating recorded trade-offs; no candidate policy is approved.",
+    "status": "proposal_only",
+    "request": {
+      "change": "td3_actor_lr",
+      "rounds": 1,
+      "schema": "fusion-shadow-config-v1",
+      "seeds": [
+        29,
+        43
+      ],
+      "value": 5e-05
+    },
+    "budget": {
+      "configurations": 2,
+      "training_episodes": 64,
+      "donor_training_episodes": 32,
+      "target_training_episodes": 32,
+      "evaluation_episodes": 48,
+      "initial_and_fixed_evaluation_episodes": 8,
+      "gate_episodes": 16,
+      "report_episodes": 24,
+      "total_episodes": 112,
+      "maximum_windows": 3360,
+      "maximum_wall_seconds": 600,
+      "cpu_threads": 1
+    },
+    "controls": [
+      "local",
+      "reset_only",
+      "uniform",
+      "clipped"
+    ],
+    "source_id": "E001",
+    "source_sha256": "5e05dbdd9a1ff71a3a4e2ed6552cc938e0918d2e24b70f2cca27590c8ff25454",
+    "provenance": {
+      "adapter": "shadow_comparison",
+      "origin": "saved_shadow_snapshot",
+      "verification_scope": "Verified source archive bytes, manifest, config and worker summary hashes; recomputed summary arithmetic. No raw trajectory audit, code execution or live policy adoption.",
+      "freshness": "saved_isolated_trial_no_remote_completion_claim",
+      "trial_id": "993df979e388405297f0195bfca504d6"
+    },
+    "automatic_launch": false,
+    "automatic_apply": false,
+    "seed_selection_scope": "Proposed additional development seeds; check the complete development/confirmation ledger before launch.",
+    "publication_basis": "validated_recorded_next_run_proposal",
+    "evidence": [
+      {
+        "source_id": "E001",
+        "locator": "/recommendation/code",
+        "quote": "\"keep_baseline\""
+      },
+      {
+        "source_id": "E001",
+        "locator": "/next_run_proposal/request",
+        "quote": "{\"change\": \"td3_actor_lr\", \"rounds\": 1, \"schema\": \"fusion-shadow-config-v1\", \"seeds\": [29, 43], \"value\": 5e-05}"
+      },
+      {
+        "source_id": "E001",
+        "locator": "/next_run_proposal/budget",
+        "quote": "{\"calibration_scope\": \"Existing frozen reference reused; prior calibration work excluded.\", \"configurations\": 2, \"cpu_threads\": 1, \"donor_training_episodes\": 32, \"evaluation_episodes\": 48, \"gate_episodes\": 16, \"initial_and_fixed_evaluation_episodes\": 8, \"maximum_wall_seconds\": 600, \"maximum_windows\": 3360, \"optimizer_scope\": \"Log contribution, head-repair, adaptation and entropy optimizer work separately; episode counts are not optimizer-work counts.\", \"report_episodes\": 24, \"target_training_episodes\": 32, \"total_episodes\": 112, \"training_episodes\": 64}"
+      }
+    ],
+    "source_label": "Saved shadow trial 993df979e388405297f0195bfca504d6",
+    "budget_scope": "Gate, initial/fixed and report episodes are disjoint subsets of evaluation, not additional episodes. Prior calibration is excluded; optimizer updates are separate work."
+  },
+  "limitations": [
+    "Published facts are deterministic projections of captured records, not independent validation of simulator physics or experimental design.",
+    "Literature excerpts reproduce what a captured source says; they do not establish applicability to this controller or a causal mechanism.",
+    "Repeated runs of the same training seed are not independent efficacy evidence. Endpoint cost is not shots-to-competence.",
+    "A recommended next run is a proposal only. No policy change, experiment launch or confirmation-data use is authorized by this report.",
+    "Literature eligibility checks a recognized publication URL and an extracted, hash-bound snapshot; it does not certify authorship, peer review, scientific correctness or applicability to this controller."
+  ],
+  "audit_checks": [
+    {
+      "name": "no_runtime_error",
+      "passed": true
+    },
+    {
+      "name": "source_ids_unique",
+      "passed": true
+    },
+    {
+      "name": "all_captured_content_hashes_match",
+      "passed": true
+    },
+    {
+      "name": "at_least_one_grounded_fact",
+      "passed": true
+    },
+    {
+      "name": "all_facts_derived_from_exact_server_card",
+      "passed": true
+    },
+    {
+      "name": "fact_ids_unique",
+      "passed": true
+    },
+    {
+      "name": "all_fact_quotations_match_exact_recorded_values",
+      "passed": true
+    },
+    {
+      "name": "all_web_quotes_exact_extracted_spans",
+      "passed": true
+    },
+    {
+      "name": "web_quoted_word_budget",
+      "passed": true
+    },
+    {
+      "name": "published_answer_contains_only_server_templates",
+      "passed": true
+    },
+    {
+      "name": "report_answer_identical_to_publication",
+      "passed": true
+    },
+    {
+      "name": "no_scientific_efficacy_or_automatic_policy_authority",
+      "passed": true
+    },
+    {
+      "name": "publication_recompiled_identically_including_primary_scope",
+      "passed": true
+    },
+    {
+      "name": "no_shadow_enabled_launched_or_captured",
+      "passed": true
+    },
+    {
+      "name": "all_facts_explicitly_saved_negative_trial",
+      "passed": true
+    },
+    {
+      "name": "exact_worse_paired_cost_local",
+      "passed": true
+    },
+    {
+      "name": "published_paired_cost_local",
+      "passed": true
+    },
+    {
+      "name": "published_false_competence_local",
+      "passed": true
+    },
+    {
+      "name": "exact_worse_paired_cost_reset_only",
+      "passed": true
+    },
+    {
+      "name": "published_paired_cost_reset_only",
+      "passed": true
+    },
+    {
+      "name": "published_false_competence_reset_only",
+      "passed": true
+    },
+    {
+      "name": "exact_worse_paired_cost_uniform",
+      "passed": true
+    },
+    {
+      "name": "published_paired_cost_uniform",
+      "passed": true
+    },
+    {
+      "name": "published_false_competence_uniform",
+      "passed": true
+    },
+    {
+      "name": "exact_worse_paired_cost_clipped",
+      "passed": true
+    },
+    {
+      "name": "published_paired_cost_clipped",
+      "passed": true
+    },
+    {
+      "name": "published_false_competence_clipped",
+      "passed": true
+    },
+    {
+      "name": "exact_actor_lr_changed_and_published",
+      "passed": true
+    },
+    {
+      "name": "keep_baseline_no_adoption",
+      "passed": true
+    },
+    {
+      "name": "proposal_request_exact_saved_record",
+      "passed": true
+    },
+    {
+      "name": "proposal_not_current_or_new",
+      "passed": true
+    },
+    {
+      "name": "all_budget_numbers_match_captured_proposal",
+      "passed": true
+    },
+    {
+      "name": "budget_accounting_complete",
+      "passed": true
+    },
+    {
+      "name": "all_four_controls_retained",
+      "passed": true
+    },
+    {
+      "name": "all_proposal_citations_exact",
+      "passed": true
+    },
+    {
+      "name": "all_excerpts_eligible_extracted_publications",
+      "passed": true
+    },
+    {
+      "name": "saved_manifest_identity",
+      "passed": true
+    },
+    {
+      "name": "saved_config_bytes_frozen",
+      "passed": true
+    },
+    {
+      "name": "saved_archive_bytes_bound",
+      "passed": true
+    },
+    {
+      "name": "all_saved_archive_sources_hash_match",
+      "passed": true
+    },
+    {
+      "name": "saved_raw_summary_hash_bound",
+      "passed": true
+    }
+  ],
+  "manual_review": {
+    "status": "passed_factual_publication_and_requested_negative_coverage",
+    "primary_paper_source_identity": "Actual Fujimoto, van Hoof and Meger TD3 paper, ICML2018 PMLR80 PDF; captured title/authors and surrounding paragraph match the paper and the selected passage concerns reproducibility, multiple seeds and fair evaluation.",
+    "quote_scope": "Exact25-word bounded passage ends mid-sentence at perform and preserves PDF hyphenation num-ber; awkward presentation but no text invention or semantic reversal. Does not establish actor-learning-rate sensitivity or applicability to TORAX.",
+    "negative_outcomes": "All four candidate-minus-baseline raw endpoint costs are worse; all four baseline/candidate competence flags false; learning-rate change1e-4to5e-5 exact and all12facts explicitly label saved trial993df979e388405297f0195bfca504d6.",
+    "recommendation": "Baseline retained, no candidate approval; recorded proposal repeats same negative candidate on additional development seeds29/43 for112episodes only as diagnostic follow-up; no launch or automatic application.",
+    "coverage": "All requested4costs,4competence pairs, exact learning-rate change and future budget are present. Three learning-rate cards are redundant; historical56episode accounting was not selected, but this was not explicitly required in the question.",
+    "interpretation_boundary": "Model hypothesis that lower actor LR would improve performance was explicitly critic_rejected and never entered factual answer. Unverified gap prose broadly says warm-up/replay/optimizer internals are unrecorded; configurations and some update counts are in fact captured, so do not promote that prose to measured fact.",
+    "scientific_limit": "Saved single-seed endpoint comparison, not new training, independent replication, shots-to-competence gain or demonstrated federation efficacy.",
+    "no_new_shadow": true,
+    "judge_accept_not_used_as_validation": true
+  },
+  "model_judge_scope": "The judge rejected the optional learning-rate-benefit hypothesis; it is excluded from factual output. Model interpretation never certifies efficacy.",
+  "automatic_policy_changes_allowed": false,
+  "scientific_efficacy_established": false,
+  "usage": {
+    "model_calls": 18,
+    "tokens": {
+      "prompt_tokens": 244098,
+      "completion_tokens": 4276,
+      "total_tokens": 248374
+    },
+    "searches": 3,
+    "extractions": 4,
+    "tool_calls": 15
+  }
+}
