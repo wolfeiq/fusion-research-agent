@@ -22,6 +22,9 @@ from .source_views import source_views
 MAX_ROUNDS = 2
 MAX_WRITER_REFLECTIONS = 1
 REVIEW_CALL_RESERVE = 7  # Up to six writer turns plus one independent judge.
+MAX_TOOL_BATCH = 8
+MAX_WRITER_CITATION_BATCH = 24
+CITATION_TOOLS = frozenset({"cite_experiment_value", "cite_web_excerpt"})
 AGENTS = (
     "planner",
     "td3_specialist",
@@ -80,11 +83,11 @@ def _strings(value, label, limit=12, length=600):
     return [_text(item, label, length) for item in value]
 
 
-def _calls(message):
+def _calls(message, *, limit=MAX_TOOL_BATCH):
     if not isinstance(message, dict):
         raise ValueError("Agent response must be an object")  # noqa: TRY004
     calls = message.get("tool_calls", [])
-    if not isinstance(calls, list) or len(calls) > 8:
+    if not isinstance(calls, list) or len(calls) > limit:
         raise ValueError("Agent response exceeds the tool batch limit")
     for call in calls:
         if not isinstance(call, dict) or not isinstance(call.get("function"), dict):
@@ -94,6 +97,19 @@ def _calls(message):
         if not isinstance(call["function"].get("arguments"), str):
             raise ValueError("Tool arguments must be JSON text")  # noqa: TRY004
     return calls
+
+
+def _batch_limit(message, role, allowed_names):
+    """Only the writer's currently available read-only citation helpers get 24."""
+    calls = message.get("tool_calls") if isinstance(message, dict) else None
+    if role == "writer" and isinstance(calls, list) and calls and all(
+        isinstance(call, dict) and isinstance(call.get("function"), dict)
+        and isinstance(call["function"].get("name"), str)
+        and call["function"].get("name") in CITATION_TOOLS & set(allowed_names)
+        for call in calls
+    ):
+        return MAX_WRITER_CITATION_BATCH
+    return MAX_TOOL_BATCH
 
 
 def _messages(role, instructions, payload, system):
@@ -204,22 +220,38 @@ def build_research_graph(engine):
 
     def accept_tool_batch(messages, message, tools, role, state):
         """Validate the complete batch before adding history or executing tools."""
+        allowed_names = [tool["function"]["name"] for tool in tools]
+        limit = _batch_limit(message, role, allowed_names)
+        remaining_tools = max(0, engine.max_calls - engine.calls)
+        terminal_reserve = 1 if engine.assessed else 2
+        affordable_citations = max(0, min(MAX_WRITER_CITATION_BATCH, remaining_tools - terminal_reserve))
         try:
-            calls = _calls(message)
+            calls = _calls(message, limit=limit)
+            if limit == MAX_WRITER_CITATION_BATCH and len(calls) > affordable_citations:
+                raise ValueError("Citation batch exceeds the available global tool budget after reserving assessment and submission")
         except (ValueError, TypeError, KeyError) as exc:
             supplied = message.get("tool_calls") if isinstance(message, dict) else None
             count = len(supplied) if isinstance(supplied, list) else None
-            allowed_names = [tool["function"]["name"] for tool in tools]
             event("agent_batch_rejected", role,
                   "The entire invalid tool batch was rejected before any tool execution",
-                  state, actual_tool_call_count=count, maximum_tool_calls=8,
+                  state, actual_tool_call_count=count, maximum_tool_calls=limit,
+                  remaining_tool_calls=remaining_tools,
+                  maximum_affordable_citation_calls=affordable_citations if role == "writer" else None,
                   validation_error=str(exc)[:600])
             # Do not append an assistant message whose tool calls cannot be
             # answered. This repair consumes the existing bounded model turn.
             messages.append({"role": "user", "content": json.dumps({
                 "error": str(exc)[:600], "actual_tool_call_count": count,
-                "maximum_tool_calls": 8, "allowed_tool_names": allowed_names,
-                "instruction": "The entire previous tool batch was rejected; none of its calls executed. Retry with at most eight valid tool calls using only the currently available tools. Do not assume any rejected call succeeded.",
+                "maximum_tool_calls": limit, "allowed_tool_names": allowed_names,
+                "remaining_tool_calls": remaining_tools,
+                "maximum_affordable_citation_calls": affordable_citations if role == "writer" else None,
+                "reserved_terminal_tool_calls": terminal_reserve if role == "writer" else None,
+                "instruction": (
+                    "The entire previous tool batch was rejected; none of its calls executed. "
+                    "Use only currently available tools and stay within the remaining global tool budget. "
+                    + ("The writer may batch at most 24 calls only when EVERY call is cite_experiment_value or cite_web_excerpt; all mixed batches remain limited to 8. " if role == "writer" else "Batch at most 8 valid tool calls. ")
+                    + "Do not assume any rejected call succeeded; leave tool calls for assessment and finish_report."
+                ),
             })})
             return None
         messages.append(message)
@@ -691,7 +723,12 @@ def build_research_graph(engine):
                 "Use field names actually present in that snapshot, never a guessed alias. Copy an "
                 "exact scalar or short JSON fragment at that pointer as the quote. "
                 "Call cite_experiment_value once per relevant measured value before citing it; "
-                "batch these calls when useful. Give path as an array of string dictionary keys "
+                "batch these calls when useful. A writer batch may contain up to 24 calls ONLY if "
+                "every call is cite_experiment_value or cite_web_excerpt; mixed batches including "
+                "assessment or finish_report remain limited to 8. The global tool budget still applies: "
+                "consult tool_budget, refreshed each turn, and stay within maximum_citation_calls_this_turn; "
+                "prioritize required citations and leave calls for assessment and submission. "
+                "Give path as an array of string dictionary keys "
                 "and integer array indices, e.g. [\"seeds\", \"17\", \"cost\"] or "
                 "[\"by_seed\", 0, \"mean_cost_difference\"]. Copy each returned source_id, locator "
                 "and quote unchanged into claim evidence. This helper resolves existing records "
@@ -726,12 +763,24 @@ def build_research_graph(engine):
         allowed = {"assess_evidence", "cite_experiment_value", "cite_web_excerpt", "finish_report"}
         writer_turns = 3 if repair else 6
         for turn in range(writer_turns):
+            remaining_tools = max(0, engine.max_calls - engine.calls)
+            terminal_reserve = 1 if engine.assessed else 2
+            payload["tool_budget"] = {
+                "maximum_total_calls": engine.max_calls, "used_calls": engine.calls,
+                "remaining_calls": remaining_tools, "reserved_terminal_calls": terminal_reserve,
+                "maximum_citation_calls_this_turn": max(0, min(MAX_WRITER_CITATION_BATCH, remaining_tools - terminal_reserve)) if turn < writer_turns - 2 else 0,
+                "maximum_mixed_batch_calls": MAX_TOOL_BATCH,
+            }
+            # Refresh the same context field each turn without burying the latest
+            # tool results or rejection feedback under another user message.
+            messages[1]["content"] = json.dumps(payload, ensure_ascii=False)
             turn_allowed = allowed
             if turn >= writer_turns - 2:
                 turn_allowed = {"assess_evidence"} if turn == writer_turns - 2 and not engine.assessed else {"finish_report"}
                 messages.append({"role": "user", "content": (
                     "Citation lookup is now closed. Use already resolved citations, omit unresolved "
                     "claims, and list their gaps explicitly. Do not invent evidence or call more lookup tools. "
+                    "The 24-call citation allowance no longer applies; submit only the requested terminal tool. "
                     + ("Call assess_evidence now, marking enough false if required support is unresolved. "
                        "Your next and final turn is reserved for finish_report."
                        if "assess_evidence" in turn_allowed else
