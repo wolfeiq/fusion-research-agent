@@ -13,12 +13,24 @@ import re
 from copy import deepcopy
 
 from .evidence import EvidenceError, resolve_pointer
+from .shadow import CHANGES
 from .shadow_analysis import ARMS, COMPARISON_SCHEMA
 
 _HASH = re.compile(r"[0-9a-f]{64}\Z")
 _ID = re.compile(r"[A-Za-z][A-Za-z0-9_-]{0,95}\Z")
 _TERMINAL = {"completed", "failed", "timed_out", "interrupted"}
 _ROLES = {"heating_td3": "heating TD3", "deposition_sac": "deposition SAC"}
+# Registered shadow knobs have explicit paths in the recorded learner configs.
+# Additional learner fields do not become publishable or adjustable implicitly.
+_CONFIG_PATHS = {
+    "td3_actor_lr": ("td3", "actor_lr"),
+    "sac_actor_lr": ("sac", "actor_lr"),
+    "sac_alpha_lr": ("sac", "alpha_lr"),
+    "td3_mix": ("td3", "mix"),
+    "sac_mix": ("sac", "mix"),
+    "clipping_initial_norm_fraction": ("clipping_initial_norm_fraction",),
+    "heating_critic_coordinates": ("td3", "critic_action_coordinates"),
+}
 
 
 def _json(value):
@@ -27,6 +39,21 @@ def _json(value):
 
 def _number(value):
     return type(value) in (int, float) and math.isfinite(value)
+
+
+def _configuration_value(config, parameter):
+    """Read only the registered path and validate its actual captured value."""
+    value = config
+    for key in _CONFIG_PATHS[parameter]:
+        if not isinstance(value, dict) or key not in value:
+            return None
+        value = value[key]
+    spec = CHANGES[parameter]
+    if spec["type"] == "number":
+        return value if _number(value) and spec["min"] <= value <= spec["max"] else None
+    if spec["type"] == "select":
+        return value if isinstance(value, str) and value in spec["options"] else None
+    return None
 
 
 def _count(value):
@@ -227,12 +254,22 @@ def _build(source, document, comparison, prefix, provenance):
     if not _complete(comparison, document, prefix):
         return facts
     branches = comparison["branches"]
-    for name in ("baseline", "candidate"):
-        fraction = branches[name].get("configs", {}).get("clipping_initial_norm_fraction")
-        if _number(fraction) and fraction > 0:
-            add("configuration", f"The {name} configuration records clipping_initial_norm_fraction={fraction!r}.",
-                [prefix + _pointer("branches", name, "configs", "clipping_initial_norm_fraction")],
-                {"configuration": name, "parameter": "clipping_initial_norm_fraction"})
+    for parameter, config_path in _CONFIG_PATHS.items():
+        values = {name: _configuration_value(branches[name].get("configs"), parameter)
+                  for name in ("baseline", "candidate")}
+        paths = {name: prefix + _pointer("branches", name, "configs", *config_path)
+                 for name in values}
+        if all(value is not None for value in values.values()) and values["baseline"] != values["candidate"]:
+            add("configuration_change",
+                f"The recorded {CHANGES[parameter]['label']} ({parameter}) changes from "
+                f"baseline {_json(values['baseline'])} to candidate {_json(values['candidate'])}.",
+                [paths["baseline"], paths["candidate"]],
+                {"parameter": parameter, "comparison": "baseline_to_candidate",
+                 "baseline": values["baseline"], "candidate": values["candidate"]})
+        for name, value in values.items():
+            if value is not None:
+                add("configuration", f"The {name} configuration records {parameter}={_json(value)}.",
+                    [paths[name]], {"configuration": name, "parameter": parameter})
     totals, accounting_pointers = {}, []
     for metric in ("training_episodes", "evaluation_episodes", "windows"):
         values = [branches[name].get("accounting", {}).get(metric) for name in ("baseline", "candidate")]

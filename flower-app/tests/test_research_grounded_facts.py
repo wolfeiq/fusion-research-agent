@@ -2,11 +2,13 @@
 import hashlib
 import json
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 
-from fusion_agent.research.evidence import resolve_pointer
+from fusion_agent.research.evidence import EvidenceCatalog, resolve_pointer
 from fusion_agent.research.grounded_facts import build_grounded_facts, source_provenance
+from fusion_agent.research.shadow import CHANGES
 from fusion_agent.research.shadow_analysis import ARMS
 
 
@@ -83,7 +85,7 @@ def test_all_cards_are_exact_source_bound_atomic_projections(source):
     cards = build_grounded_facts([source])
     assert cards and source == original
     assert {card["fact_type"] for card in cards} == {
-        "trial_status", "actual_budget", "configuration", "paired_raw_endpoint",
+        "trial_status", "actual_budget", "configuration", "configuration_change", "paired_raw_endpoint",
         "paired_competence", "gate_outcome", "clipping"}
     for card in cards:
         assert card["source_sha256"] == source["sha256"]
@@ -302,3 +304,97 @@ def test_completed_wrapper_without_comparison_cannot_become_success_evidence():
                     {"schema": "fusion-advisor-shadow-evidence-v1", "status": "completed",
                      "comparison": None, "policy_activated": False})
     assert build_grounded_facts(source) == []
+
+
+CONFIG_PATHS = {
+    "td3_actor_lr": ("td3", "actor_lr"), "sac_actor_lr": ("sac", "actor_lr"),
+    "sac_alpha_lr": ("sac", "alpha_lr"), "td3_mix": ("td3", "mix"),
+    "sac_mix": ("sac", "mix"), "clipping_initial_norm_fraction": ("clipping_initial_norm_fraction",),
+    "heating_critic_coordinates": ("td3", "critic_action_coordinates"),
+}
+
+
+def set_config(document, branch, parameter, value):
+    config = document["branches"][branch]["configs"]
+    path = CONFIG_PATHS[parameter]
+    for key in path[:-1]:
+        config = config.setdefault(key, {})
+    config[path[-1]] = value
+
+
+@pytest.mark.parametrize("parameter", CONFIG_PATHS)
+def test_registered_shadow_configuration_change_has_exact_two_sided_provenance(source, parameter):
+    spec = CHANGES[parameter]
+    mutate(source, lambda d: (set_config(d, "baseline", parameter, spec["baseline"]),
+                             set_config(d, "candidate", parameter, spec["default"])))
+    card = next(card for card in kinds(source, "configuration_change") if card["context"]["parameter"] == parameter)
+    assert card["context"] == {"parameter": parameter, "comparison": "baseline_to_candidate",
+                               "baseline": spec["baseline"], "candidate": spec["default"]}
+    assert spec["label"] in card["text"]
+    assert len(card["evidence"]) == 2
+    for branch, citation in zip(("baseline", "candidate"), card["evidence"], strict=True):
+        assert citation["locator"] == "/branches/" + branch + "/configs/" + "/".join(CONFIG_PATHS[parameter])
+        assert json.loads(citation["quote"]) == resolve_pointer(source["content"], citation["locator"])
+    # Catalogue additions require a deliberate scientific path mapping.
+    assert set(CONFIG_PATHS) == set(CHANGES)
+
+
+@pytest.mark.parametrize("parameter", [key for key in CONFIG_PATHS if CHANGES[key]["type"] == "number"])
+@pytest.mark.parametrize("bad_value", [True, False, "0.0001", None, -1, 2])
+def test_invalid_numeric_configuration_never_becomes_change_evidence(source, parameter, bad_value):
+    mutate(source, lambda d: (set_config(d, "baseline", parameter, CHANGES[parameter]["baseline"]),
+                             set_config(d, "candidate", parameter, bad_value)))
+    assert not any(card["context"]["parameter"] == parameter for card in kinds(source, "configuration_change"))
+    assert not any(card["context"] == {"configuration": "candidate", "parameter": parameter}
+                   for card in kinds(source, "configuration"))
+
+
+@pytest.mark.parametrize("bad_value", [True, False, 0, None, "Normalised", ["normalized"], {"value": "normalized"}])
+def test_unknown_or_nonstrings_critic_coordinate_enum_is_not_published(source, bad_value):
+    mutate(source, lambda d: (set_config(d, "baseline", "heating_critic_coordinates", "normalized"),
+                             set_config(d, "candidate", "heating_critic_coordinates", bad_value)))
+    assert not any(card["context"]["parameter"] == "heating_critic_coordinates" for card in kinds(source, "configuration_change"))
+    assert not any(card["context"] == {"configuration": "candidate", "parameter": "heating_critic_coordinates"}
+                   for card in kinds(source, "configuration"))
+
+
+def test_missing_or_equal_config_values_are_not_guessed_into_changes(source):
+    mutate(source, lambda d: (set_config(d, "baseline", "td3_actor_lr", .0001),
+                             d["branches"]["candidate"]["configs"].update(td3_actor_lr=.00005)))
+    assert not any(card["context"]["parameter"] == "td3_actor_lr" for card in kinds(source, "configuration_change"))
+    mutate(source, lambda d: set_config(d, "candidate", "td3_actor_lr", .0001))
+    assert not any(card["context"]["parameter"] == "td3_actor_lr" for card in kinds(source, "configuration_change"))
+    mutate(source, lambda d: d["branches"]["candidate"]["configs"]["td3"].update(actor_warmup_updates=50, actor_init_fraction=[.9, .9]))
+    assert not any("warmup" in card["text"] or "actor_init" in card["text"] for card in kinds(source, "configuration"))
+
+
+@pytest.mark.parametrize("literal", ["NaN", "Infinity", "-Infinity"])
+def test_nonfinite_registered_config_rejected_before_any_numeric_fact(source, literal):
+    mutate(source, lambda d: set_config(d, "candidate", "td3_actor_lr", .00005))
+    content = source["content"].replace('"actor_lr": 5e-05', '"actor_lr": ' + literal)
+    assert content != source["content"]
+    source["content"] = content
+    source["sha256"] = hashlib.sha256(content.encode()).hexdigest()
+    assert build_grounded_facts(source) == []
+
+
+def test_real_negative_td3_pilot_configuration_change_is_bound_to_saved_values():
+    root = Path(__file__).resolve().parents[2]
+    suffix = "shadow/993df979e388405297f0195bfca504d6/comparison.json"
+    relative = "examples/evidence/" + suffix
+    if not (root / relative).is_file():
+        # The original development workspace keeps this same published pilot
+        # under its ignored local ledger; the public clone ships the bundle.
+        relative = "flower-app/.dashboard/" + suffix
+    source = EvidenceCatalog(root).snapshot(relative)
+    source["id"] = "Enegative993"
+    cards = kinds(source, "configuration_change")
+    assert len(cards) == 1
+    card = cards[0]
+    assert card["context"] == {"parameter": "td3_actor_lr", "comparison": "baseline_to_candidate", "baseline": .0001, "candidate": .00005}
+    assert "baseline 0.0001 to candidate 5e-05" in card["text"]
+    assert card["evidence"] == [
+        {"source_id": "Enegative993", "locator": "/branches/baseline/configs/td3/actor_lr", "quote": "0.0001"},
+        {"source_id": "Enegative993", "locator": "/branches/candidate/configs/td3/actor_lr", "quote": "5e-05"}]
+    assert card["provenance"]["trial_id"] == "993df979e388405297f0195bfca504d6"
+    assert card["provenance"]["origin"] == "saved_shadow_snapshot"
