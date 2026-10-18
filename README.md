@@ -20,7 +20,7 @@ Click a thumbnail to watch on Loom.
 
 - **App:** [Open Fusion Research Agent](https://fusion.81.85.1.211.sslip.io)
 - **Username:** `fusion`
-- **Password:** Available from the project owner.
+- **Password:** M8IQCHXBP891zftxl4lKOQFCZpcddZJc (demo, dw)
 
 This is a shared demo account. Runs and reports are shared between visitors;
 please use the included datasets and keep private information out of prompts.
