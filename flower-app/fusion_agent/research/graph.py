@@ -16,6 +16,7 @@ import copy
 import json
 from typing import TypedDict
 
+from .primary_sources import terminal_primary_candidates
 from .retrieval_scope import public_literature_text
 from .source_views import source_views
 
@@ -439,6 +440,11 @@ def build_research_graph(engine):
                 "web source IDs returned by search_literature. Your findings should explain "
                 "published mechanisms and limits; the writer will connect them to local results. "
                 "Prioritize two or three directly relevant primary papers, including counterevidence. "
+                "Start with exact paper titles and primary publication venues/domains (for example "
+                "proceedings.mlr.press, arxiv.org, openreview.net or ojs.aaai.org); avoid broad topic "
+                "queries that return summary blogs. Once a relevant primary paper is discovered, "
+                "call read_page before spending remaining turns on more searches. A secondary "
+                "summary or a primary-paper search snippet cannot satisfy the primary-reference requirement. "
                 "That can be sufficient: assess relevance and submit findings rather than filling "
                 "every remaining turn with loosely related papers. Expand only for a specific gap. "
             ),
@@ -496,15 +502,27 @@ def build_research_graph(engine):
                 break
             terminal = turn == 5 or remaining_calls == REVIEW_CALL_RESERVE + 1
             turn_allowed = set() if terminal else allowed
+            terminal_primary_ids = (terminal_primary_candidates(engine.sources, role_read_ids)
+                                    if terminal and not local else [])
             if terminal:
                 messages.append({"role": "user", "content": json.dumps({
-                    "instruction": "This is your final available turn. Call submit_findings now with the evidence you personally read, and explicitly state unresolved gaps. Do not search or read more sources.",
+                    "instruction": (
+                        "This is your final available turn. No eligible primary reference has been personally read. "
+                        "You may call read_page for an eligible_primary_source_id below. Its captured text will "
+                        "be retained for direct writer inspection; no completed specialist assessment is implied. "
+                        "Alternatively submit_findings with explicit unresolved gaps. Do not search again."
+                        if terminal_primary_ids else
+                        "This is your final available turn. Call submit_findings now with the evidence you personally read, and explicitly state unresolved gaps. Do not search or read more sources."),
                     "eligible_evidence_ids": eligible_evidence_ids(role, role_read_ids),
+                    "eligible_primary_source_ids": terminal_primary_ids,
                 })})
                 # Some compatible endpoints stall on a named forced tool even
                 # when the same single-tool schema works with auto selection.
                 # Execution still permits only submit_findings on this turn.
                 tools_for_turn = [findings_tool]
+                if terminal_primary_ids:
+                    turn_allowed = {"read_page"}
+                    tools_for_turn = [tools_by_name["read_page"], findings_tool]
             else:
                 tools_for_turn = tools
             try:
@@ -540,6 +558,8 @@ def build_research_graph(engine):
                         raise ValueError("This tool is outside this researcher's role")
                     if not isinstance(args, dict):
                         raise ValueError("Tool arguments must be an object")  # noqa: TRY004
+                    if terminal and name == "read_page" and args.get("source_id") not in terminal_primary_ids:
+                        raise ValueError("Final-turn extraction requires a discovered approved primary-publication source")
                     if name == "test_shadow" and args.get("source_id") not in role_read_ids:
                         raise ValueError("The federation strategist must personally read its cited source before testing a shadow change")
                     event(

@@ -20,7 +20,7 @@ pytest_plugins = ["test_research_grounded_facts"]
 
 def web_source():
     content = "In centralized training, gradients are clipped for sample-level privacy."
-    return {"id": "W002", "kind": "web", "title": "Primary source", "uri": "https://example.org/paper",
+    return {"id": "W002", "kind": "web", "title": "Synthetic source", "uri": "https://proceedings.mlr.press/v80/fujimoto18a.html",
             "content": content, "sha256": hashlib.sha256(content.encode()).hexdigest(),
             "metadata": {"status": "extracted"}}
 
@@ -217,10 +217,17 @@ class GroundedTeam(TeamModel):
         return super().complete(messages, tools, tool_choice)
 
 
+class PrimaryRetrieval(FakeRetrieval):
+    def search(self, query):
+        result = super().search(query)
+        result["results"][0]["url"] = "https://arxiv.org/abs/1802.09477"
+        return result
+
+
 def test_real_langgraph_uses_default_grounded_writer_and_read_only_judge(source):
     source.update(title="Synthetic shadow fixture", uri="results/summary.json")
     model, events = GroundedTeam(), []
-    engine = ResearchEngine([source], model, FakeRetrieval(), events.append)
+    engine = ResearchEngine([source], model, PrimaryRetrieval(), events.append)
     report = engine.run("Inspect the recorded paired cost and a primary source.")
     assert engine.grounded_reporting is True
     assert model.selections == model.reviews == 1
@@ -231,3 +238,82 @@ def test_real_langgraph_uses_default_grounded_writer_and_read_only_judge(source)
     assert report["judge"]["authority"] == "relevance_and_hypothesis_critique_only"
     assert any(event["kind"] == "grounded_draft" for event in events)
     assert any(event["kind"] == "grounded_review" for event in events)
+
+
+def test_secondary_summary_cannot_satisfy_primary_slot_even_with_approving_judge(source):
+    engine = engine_for(source, ApprovingJudge())
+    engine.sources["W002"]["uri"] = "https://tinycto.tv/ml-atlas/literature/fujimoto-2018"
+    args = selection(source)
+    with pytest.raises(ValueError, match="approved primary-publication"):
+        _draft(engine, args)
+    args["literature"] = []
+    report = review_grounded(engine, {"draft": _draft(engine, args), "question": "Require a primary paper.", "round": 1})["report"]
+    result = finalize_grounded(engine, report)
+    assert result["judge"]["decision"] == "accept"
+    assert result["evidence_sufficient"] is False
+    assert result["orchestration"]["status"] == "insufficient_evidence"
+    assert result["grounded_publication"]["status"] == "insufficient_evidence"
+    assert "No eligible extracted primary-publication" in result["stop_reason"]
+    assert any("secondary summaries cannot" in line for line in result["limitations"])
+
+
+def test_writer_offers_only_eligible_references_and_no_empty_enum(source):
+    from fusion_agent.research.grounded_writer import write_grounded
+
+    class InspectWriter:
+        def __init__(self):
+            self.expect_primary = False
+
+        def complete(self, messages, tools, tool_choice="auto"):
+            payload = json.loads(messages[1]["content"])
+            schema = tools[0]["function"]["parameters"]["properties"]
+            assert schema["fact_ids"]["maxItems"] == 12
+            literature = schema["literature"]
+            enum = literature["items"]["properties"]["source_id"].get("enum")
+            args = selection(source)
+            if self.expect_primary:
+                assert enum == ["W002"] and len(payload["web_sources"]) == 1
+            else:
+                assert enum is None and literature["maxItems"] == 0
+                assert payload["web_sources"] == []
+                assert payload["primary_reference_gap"]
+                args["literature"] = []
+            return call("submit_evidence_report", args), {}
+
+    model = InspectWriter()
+    engine = engine_for(source, model)
+    engine.sources["W002"]["uri"] = "https://example.org/summary"
+    report = write_grounded(engine, {"question": "Primary evidence"})["draft"]
+    assert report["grounded_publication"]["status"] == "insufficient_evidence"
+    model.expect_primary = True
+    engine.sources["W002"]["uri"] = "https://arxiv.org/abs/1802.09477"
+    report = write_grounded(engine, {"question": "Primary evidence"})["draft"]
+    assert report["grounded_publication"]["status"] == "grounded"
+
+
+def test_final_literature_turn_can_extract_discovered_primary_without_extra_model_turn(source):
+    class LateReader(GroundedTeam):
+        def complete(self, messages, tools, tool_choice="auto"):
+            if messages[0]["content"].startswith("Agent role: literature_researcher\n"):
+                self.counts["literature_researcher"] += 1
+                step = self.counts["literature_researcher"]
+                if step == 1:
+                    self.parallel_barrier.wait(timeout=4)
+                if step < 6:
+                    return call("search_literature", {"query": "TD3 primary methods paper", "reason": "Find the paper."}), {}
+                assert step == 6
+                assert {tool["function"]["name"] for tool in tools} == {"read_page", "submit_findings"}
+                final = json.loads(messages[-1]["content"])
+                assert final["eligible_primary_source_ids"]
+                return call("read_page", {"source_id": final["eligible_primary_source_ids"][0], "reason": "Capture the discovered primary paper."}), {}
+            return super().complete(messages, tools, tool_choice)
+
+    source.update(title="Synthetic shadow fixture", uri="results/summary.json")
+    model, retrieval, events = LateReader(), PrimaryRetrieval(), []
+    report = ResearchEngine([source], model, retrieval, events.append).run("Inspect saved costs and a primary reference.")
+    assert model.counts["literature_researcher"] == 6
+    assert len([entry for entry in retrieval.calls if entry[0] == "extract"]) == 1
+    assert report["grounded_publication"]["literature_excerpts"]
+    literature_complete = [event for event in events if event["kind"] == "agent_complete" and event.get("agent") == "literature_researcher"]
+    assert "unresolved gaps" in literature_complete[-1]["message"]
+    assert literature_complete[-1]["evidence_ids"]
