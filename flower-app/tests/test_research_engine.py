@@ -227,7 +227,7 @@ def accepting_review(rubric=GOOD_RUBRIC):
     return response
 
 
-def test_judge_receives_sources_used_only_by_next_run_proposals():
+def test_proposal_only_source_identity_does_not_expose_uncited_content_to_claim_judge():
     engine, model, _, _ = make_engine([accepting_review()])
     prepare(engine)
     extra = local_source("E002")
@@ -241,7 +241,8 @@ def test_judge_receives_sources_used_only_by_next_run_proposals():
     payload = json.loads(model.requests[0][0][1]["content"])
     assert {item["id"] for item in payload["sources"]} == {"E001", "W002", "E002"}
     assert len(payload["sources"]) == 3
-    assert next(item for item in payload["sources"] if item["id"] == "E002")["content"] == extra["content"]
+    assert all("content" not in item for item in payload["sources"])
+    assert "source_training_episodes" not in json.dumps(payload)
     assert all(e["source_id"] != "E002" for c in payload["claims"] for e in c["evidence"])
 
 

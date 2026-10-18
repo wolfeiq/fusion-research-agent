@@ -855,26 +855,11 @@ class ResearchEngine:
         return report
 
     def review(self, report, question):
-        from .source_views import source_views
+        from .review_evidence import review_payload
 
         self.event("review", "A separate Nebius context is challenging claim support")
         claims = report["claims"]
-        references = {e["source_id"] for c in claims for e in c["evidence"]}
-        references.update(
-            source_id
-            for proposal in report["next_runs"]
-            for source_id in proposal["evidence_ids"]
-        )
-        evidence = [s for s in self.sources.values() if s["id"] in references]
-        quote_map = {}
-        for claim in claims:
-            for citation in claim["evidence"]:
-                quote_map.setdefault(citation["source_id"], []).append(citation["quote"])
-        evidence_views = source_views(
-            evidence,
-            quotes_by_source=quote_map,
-            reference_texts=[str(value) for proposal in report["next_runs"] for value in proposal.values()],
-        )
+        payload = review_payload(report, list(self.sources.values()), question)
         messages = [
             {
                 "role": "system",
@@ -886,6 +871,12 @@ class ResearchEngine:
                 "A source substring match is not proof of the claim. Hypotheses remain tentative. "
                 "Every substantive clause must be supported by the claim's own cited exact JSON "
                 "locators or quoted web excerpts, interpreted in their surrounding context. "
+                "Each claim has its own evidence packets: cited_json_value is the exact recorded "
+                "value at that pointer, and web excerpts identify the quote offsets within bounded "
+                "context. There is no whole-source fallback. Source registry identities, another "
+                "claim's packet, the question and next-run proposal prose cannot support this claim. "
+                "If a needed value is missing from the claim's own packet, mark the uncovered "
+                "claim uncertain/unsupported and request a narrower claim or additional citation. "
                 "Facts elsewhere in a source cannot rescue missing citation coverage: require "
                 "additional citations or a narrower claim, and return uncertain/unsupported with "
                 "a revision request if any substantive clause lacks that support. In particular, "
@@ -910,12 +901,7 @@ class ResearchEngine:
             {
                 "role": "user",
                 "content": json.dumps(
-                    {
-                        "question": question,
-                        "claims": claims,
-                        "next_runs": report["next_runs"],
-                        "sources": evidence_views,
-                    },
+                    payload,
                     ensure_ascii=False,
                 ),
             },
@@ -1064,13 +1050,15 @@ class ResearchEngine:
         report["limitations"].append(
             "Model review is fallible; inspect the cited records and papers."
         )
-        if any(isinstance(source.get("content"), dict)
-               and source["content"].get("representation") == "partial_verbatim_excerpts"
-               for source in evidence_views):
+        if any(packet.get("excerpts") for claim in payload["claims"] for packet in claim["evidence"]):
             report["limitations"].append(
                 "Long web sources were reviewed through bounded verbatim excerpts around cited quotations; "
                 "omitted text may contain further qualifications. Full captured snapshots are retained."
             )
+        report["limitations"].append(
+            "Claim review used only each claim's cited JSON values and bounded quotation context; "
+            "uncited local records and proposal-only source contents were not supplied as evidence."
+        )
         self.event(
             "review_complete",
             "Claim checks completed; unsupported conclusions are excluded",

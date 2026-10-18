@@ -97,7 +97,7 @@ def test_review_receives_quote_centered_views_but_keeps_canonical_citation_sourc
                               "evidence": [{"source_id": "W001", "quote": quote, "locator": ""}]}],
                               "next_runs": [], "limitations": [], "stop_reason": "Fixture inspection."}, [source])
     result = engine.review(report, "What does this primary source support?")
-    projected = reviewer.payload["sources"][0]["content"]
+    projected = reviewer.payload["claims"][0]["evidence"][0]
     assert any(quote in excerpt["text"] for excerpt in projected["excerpts"])
     assert engine.sources["W001"] == source and isinstance(source["content"], str)
     assert result["claims"][0]["verification"]["status"] == "traceable"

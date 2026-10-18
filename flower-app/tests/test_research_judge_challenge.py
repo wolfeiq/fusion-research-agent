@@ -85,7 +85,8 @@ def test_correctly_rejecting_judge_passes_one_call_and_checks_unchanged_source()
     assert result["usage"] == {"total_tokens": 42}
     payload = json.loads(model.calls[0][1]["content"])
     assert "expected" not in payload  # The model does not get the answer key.
-    assert payload["sources"][0]["content"] == source()["content"]
+    assert "content" not in payload["sources"][0]
+    assert payload["claims"][0]["evidence"][0]["cited_json_value"] == 0.03
 
 
 def test_acceptance_guard_cannot_mask_a_model_that_accepts_false_claims():
