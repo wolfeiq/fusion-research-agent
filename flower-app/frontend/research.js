@@ -5,12 +5,12 @@
   const byId = (id) => document.getElementById(`research-${id}`);
   if (!byId('form')) return;
   const examples = {
-    coldstart: 'Does our saved evidence support federation helping a cold-start tokamak? Use inspect_federation on the selected federation dossier source IDs to inspect recorded coordinator rounds and TD3/SAC outcomes. Compare the evidence with primary literature; where supported, use compare_clipping and draft_policy_trial to propose a small controlled experiment. Keep saved-data calculations separate from new training results.',
-    aggregation: 'Which aggregation policy should we test next? Use inspect_federation on the selected federation dossier source IDs and recorded rounds, then compare_clipping to compare bounded alternatives using that same source-bound telemetry. Distinguish real observed outcomes from counterfactual clipping calculations. Use draft_policy_trial for a proposal with paired local, reset-only, uniform and clipped controls, a fixed budget and a stopping rule. Do not launch or alter a run.',
-    td3: 'Why did TD3 heating drift, and could it explain apparent negative transfer? Use inspect_federation on the selected federation dossier source IDs to examine heating-role round telemetry; compare it with the selected heating and repair diagnostics and primary literature. Use compare_clipping only where the saved source supports the calculation, then draft_policy_trial for a small test separating local instability from aggregation effects. A proposal is not new training evidence.',
-    sac: 'How well does the SAC deposition agent cooperate with TD3 heating, and where might federation interfere? Use inspect_federation on selected federation dossier source IDs and recorded rounds, separating SAC beam-role evidence from TD3 heating evidence. Inspect shared power-budget and combined-controller results, compare primary literature, and use compare_clipping and draft_policy_trial only where those saved sources support the proposal. Report missing evidence; do not claim online optimization or launch training.',
-    transfer: 'Why could critic federation hurt TD3 and SAC control in our TORAX experiments? Examine the recorded failures, find relevant primary research, and propose a controlled test that distinguishes negative transfer from unstable local learning.',
-    architecture: 'Audit our federated TD3 heating and SAC deposition architecture against primary research. Which parts are implemented, which are supported by experiments, and what evidence is missing before a larger federation run?'
+    coldstart: 'Do these saved TORAX experiments support federation helping a cold-start reactor? Read the selected experiment evidence first. Compare local, reset-only, uniform and clipped outcomes, separate raw learners from gate fallbacks, and distinguish endpoint cost from shots-to-competence. Cite exact saved values and extracted primary sources. Inspect a federation dossier only if one is selected, and propose a small fair next experiment. Do not change existing runs.',
+    aggregation: 'Which aggregation policy should we test next? Read the selected experiment evidence first and check whether clipping actually changed the recorded updates and outcomes. Cite exact values, critic roles, paired controls and limitations. Use inspect_federation, compare_clipping and draft_policy_trial only if a selected federation dossier supports those tools; a saved shadow comparison is not a dossier. Compare primary literature and propose a bounded next run with a budget and stopping rule. Do not launch or alter a run.',
+    td3: 'What does the selected experiment evidence show about TD3 heating stability, and could local learning explain apparent federation benefit or harm? Read the recorded learning-rate comparisons, repair controls and heating diagnostics that are actually available. Cite exact values and extracted primary literature. Inspect a federation dossier only if one is selected. Separate measured outcomes from explanations that need another experiment; propose a small fair test without changing existing runs.',
+    sac: 'How well does SAC deposition control cooperate with TD3 heating, and where might federation interfere? Read the selected experiment evidence first, keeping the SAC and TD3 roles and their critic branches separate. Cite exact recorded clipping, shared power-budget and combined-controller findings where available, alongside extracted primary literature. Inspect a federation dossier only if one is selected. Report missing evidence and propose a controlled next test without claiming online optimization or launching training.',
+    transfer: 'Why could critic federation hurt TD3 and SAC control in our TORAX experiments? Read the selected experiment evidence, cite exact recorded outcomes and failures, and compare extracted primary research. Distinguish negative transfer from unstable local learning, keeping raw and gated results separate. Inspect a federation dossier only if one is selected, and propose a small controlled next experiment.',
+    architecture: 'Audit our federated TD3 heating and SAC deposition architecture against the selected experiment evidence and extracted primary research. Cite exact sources for what is implemented and measured; identify missing evidence before a larger run. Distinguish in-process shadow aggregation from actual Flower transport. Inspect a federation dossier only if one is selected.'
   };
   let snapshot = null;
   let timer = null;
@@ -86,12 +86,13 @@
         usable.find((record) => record.kind === 'protocol' && /coldstart_coupled_federation/i.test(record.id))
       ].filter(Boolean);
       const federationDefaults = ['federation:local-smoke', 'federation:kaggle-359552340'].map((id) => usable.find((record) => record.id === id)).filter(Boolean);
+      const publishedDefaults = usable.filter((record) => record.kind === 'experiment' && /^examples\/evidence\/shadow\/[a-f0-9]{32}\/comparison\.json$/.test(String(record.id))).slice(0, 2);
       const repair = usable.find((record) => /(?:^|\/)repair_comparison\.json$/i.test(record.id));
-      const chosen = federationDefaults.length
+      const chosen = publishedDefaults.length ? publishedDefaults : federationDefaults.length
         ? [...federationDefaults, ...(repair ? [repair] : []), ...previousDefaults].slice(0, 3)
         : previousDefaults;
       selected = new Set(chosen.map((record) => String(record.id)));
-      for (const record of [...usable].sort((a, b) => Number(b.kind === 'experiment') - Number(a.kind === 'experiment'))) {
+      for (const record of publishedDefaults.length ? [] : [...usable].sort((a, b) => Number(b.kind === 'experiment') - Number(a.kind === 'experiment'))) {
         if (selected.size >= 3) break;
         selected.add(String(record.id));
       }
@@ -105,6 +106,7 @@
       const description = node('span');
       description.append(node('strong', '', record.title || record.id), node('small', '', `${label(record.kind)} · ${label(record.status)}`));
       if (record.metadata?.adapter === 'federation_dossier' || String(record.id).startsWith('federation:')) description.append(node('span', 'research-telemetry-badge', 'Saved coordinator telemetry'));
+      if (record.metadata?.adapter === 'shadow_comparison' || record.adapter === 'shadow_comparison') description.append(node('span', 'research-telemetry-badge', 'Recorded TORAX shadow pilot'));
       if (record.path) description.append(node('small', '', record.path));
       if (record.error) description.append(node('small', '', record.error));
       row.append(checkbox, description); return row;

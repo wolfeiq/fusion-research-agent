@@ -30,7 +30,7 @@ const html = fs.readFileSync(path.join(root, 'frontend/index.html'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'frontend/research.js'), 'utf8');
 const flush = () => new Promise(setImmediate);
 
-async function harness({available = true, initialRun, researchConfigured = false} = {}) {
+async function harness({available = true, initialRun, researchConfigured = false, researchCatalog} = {}) {
   const elements = {};
   for (const match of html.matchAll(/<([a-z]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)) {
     assert(!elements[match[3]], `Duplicate id: ${match[3]}`);
@@ -53,7 +53,7 @@ async function harness({available = true, initialRun, researchConfigured = false
     ], limits: {max_seeds: 3, max_rounds: 2, max_seconds: 600}},
     run: initialRun || {id: null, status: 'idle', events: [], comparison: null},
   };
-  const research = {active: false, configured: {nebius: researchConfigured, tavily: researchConfigured}, catalog: [{id: 'saved-study', title: 'Study', kind: 'experiment', status: 'complete'}], run: {}};
+  const research = {active: false, configured: {nebius: researchConfigured, tavily: researchConfigured}, catalog: researchCatalog || [{id: 'saved-study', title: 'Study', kind: 'experiment', status: 'complete'}], run: {}};
   const context = {
     URL, URLSearchParams, Set, JSON,
     setTimeout: (fn, delay) => { const timer = {fn, delay, active: true}; timers.push(timer); return timer; },
@@ -81,8 +81,44 @@ async function harness({available = true, initialRun, researchConfigured = false
   await flush();
   const get = (name) => elements[`research-shadow-${name}`];
   const fire = async (name, event = 'click') => { get(name).listeners[event]({preventDefault() {}}); await flush(); };
-  return {get, fire, calls, timers, elements, setState: (value) => { shadow = value; }, state: () => shadow};
+  return {get, fire, calls, timers, elements, examples, setState: (value) => { shadow = value; }, state: () => shadow};
 }
+
+test('fresh clone selects both published pilots without assuming a federation dossier', async () => {
+  const pilots = ['993df979e388405297f0195bfca504d6', '43d55b69d02440b3a019cf9b64f6845a'].map((id) => ({
+    id: `examples/evidence/shadow/${id}/comparison.json`, kind: 'experiment', status: 'complete', adapter: 'shadow_comparison',
+  }));
+  const h = await harness({researchCatalog: [
+    {id: 'docs/coldstart_coupled_federation.md', kind: 'protocol', status: 'protocol'},
+    {id: 'federation:local-smoke', kind: 'experiment', status: 'complete'},
+    ...pilots,
+  ]});
+  const controls = h.elements['research-catalog'].querySelectorAll('input');
+  assert.deepEqual(controls.filter((input) => input.checked).map((input) => input.value), pilots.map((row) => row.id));
+  assert.equal(controls.find((input) => input.value === 'federation:local-smoke').disabled, false);
+  assert.equal(h.elements['research-selection-count'].textContent, '2/8 selected');
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
+test('original federation dossier defaults remain available without published pilots', async () => {
+  const ids = ['federation:local-smoke', 'federation:kaggle-359552340', 'results/td3_heating_stability/repair_comparison.json'];
+  const h = await harness({researchCatalog: ids.map((id) => ({id, kind: 'experiment', status: 'complete'}))});
+  assert.deepEqual(h.elements['research-catalog'].querySelectorAll('input').filter((input) => input.checked).map((input) => input.value), ids);
+});
+
+test('question presets operate on selected experiments and make dossier inspection conditional', async () => {
+  const h = await harness();
+  const initial = /<textarea id="research-question"[^>]*>([^<]+)<\/textarea>/.exec(html)[1];
+  for (const button of h.examples) {
+    button.listeners.click();
+    const question = h.elements['research-question'].value;
+    assert.match(question, /selected experiment evidence/);
+    assert.match(question, /[Cc]ite exact/);
+    assert.match(question, /only if.*selected/);
+    if (button.dataset.researchExample === 'coldstart') assert.equal(question, initial);
+  }
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
 
 test('startup only reads state; shadow does not require model credentials', async () => {
   const h = await harness();

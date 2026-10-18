@@ -10,19 +10,18 @@
 <body class="application">
 <header class="app-header"><a class="app-brand" href="#investigate">Fusion Investigator <small>RESEARCH APP</small></a>
 <nav aria-label="App sections"><a href="#research">Research</a><a href="#investigate">Investigate</a><a href="#thermal">Facility evidence</a><a href="#physics">Physics tools</a><a href="#assembly">3D assembly</a><a href="#report">Report</a></nav>
-<a class="presentation-link" href="http://127.0.0.1:8788/" target="_blank" rel="noopener">Open presentation ↗</a></header>
-<main class="app-main"><div class="app-intro"><div class="kicker">TORAX RESEARCH WORKSPACE · FLOWER AGENTAPP</div><h1>Fusion Investigator</h1><p>Investigate thermal response, request facility evidence and inspect an agent's report.</p><p class="muted">TORAX powers the project's control experiments. The interactive thermal tools below use a reduced 1-D model; their outputs identify the source.</p></div>
+<main class="app-main"><div class="app-intro"><div class="kicker">TORAX RESEARCH WORKSPACE · FLOWER AGENTAPP</div><h1>Fusion Investigator</h1><p>Ask a research question, inspect saved TORAX experiments and compare the evidence with literature. Facility investigation tools remain available below.</p><p class="muted">TORAX powers the project's control experiments. The interactive thermal tools below use a reduced 1-D model; their outputs identify the source.</p></div>
 <section class="app-section research-workspace" id="research" aria-labelledby="research-heading">
   <div class="section-content">
     <div class="kicker">NEBIUS TOKEN FACTORY × TAVILY · RESEARCH LAYER</div>
-    <div class="heading-row"><h2 id="research-heading">Federation &amp; RL advisor.</h2><span class="pill">Saved rounds → reviewed proposals</span></div>
-    <p class="research-lede">Inspect the real saved Flower coordinator rounds alongside TD3 heating and SAC deposition diagnostics. Four LangGraph specialists compare the evidence and literature in parallel; a writer and skeptical judge turn their findings into a sourced answer and a proposed next experiment.</p>
+    <div class="heading-row"><h2 id="research-heading">Federation &amp; RL advisor.</h2><span class="pill">Saved experiments → reviewed proposals</span></div>
+    <p class="research-lede">Read recorded TORAX experiments for TD3 heating, SAC deposition and aggregation. Four LangGraph specialists compare the selected evidence with literature; a writer and skeptical judge produce a cited answer and a proposed next experiment. Saved Flower coordinator dossiers can also be inspected when available and selected.</p>
     <div class="research-layout">
       <article class="panel research-brief">
         <div class="panel-title"><h3>What should we investigate?</h3><span id="research-mode" class="pill">Ready</span></div>
         <form id="research-form">
           <label for="research-question">RESEARCH QUESTION</label>
-          <textarea id="research-question" maxlength="4000" required>Does our saved evidence support federation helping a cold-start tokamak? Use inspect_federation on the selected federation dossier source IDs to inspect recorded coordinator rounds and TD3/SAC outcomes. Compare the evidence with primary literature; where supported, use compare_clipping and draft_policy_trial to propose a small controlled experiment. Keep saved-data calculations separate from new training results.</textarea>
+          <textarea id="research-question" maxlength="4000" required>Do these saved TORAX experiments support federation helping a cold-start reactor? Read the selected experiment evidence first. Compare local, reset-only, uniform and clipped outcomes, separate raw learners from gate fallbacks, and distinguish endpoint cost from shots-to-competence. Cite exact saved values and extracted primary sources. Inspect a federation dossier only if one is selected, and propose a small fair next experiment. Do not change existing runs.</textarea>
           <div class="research-examples" aria-label="Example questions">
             <button type="button" data-research-example="coldstart">Cold-start evidence</button>
             <button type="button" data-research-example="aggregation">Aggregation policy</button>
@@ -36,7 +35,7 @@
           <p id="research-provider" class="research-provider">Credentials stay on the server.</p>
           <div class="research-actions"><button id="research-live" class="primary" type="submit" disabled>Analyze with Nebius + Tavily ↗</button><button id="research-offline" class="research-secondary" type="button" disabled>Inspect local evidence</button></div>
           <p class="research-caption">Live uses model and search credits. Local inspection is deterministic: no LLM, web search or training. Research produces proposals unless the optional shadow pilot below is enabled.</p>
-          <p class="research-tool-note"><strong>Evidence tools:</strong> <code>inspect_federation</code>, <code>compare_clipping</code> and <code>draft_policy_trial</code> operate on selected saved records. Nebius agents decide when to use them; the local calculations do not optimize an online controller.</p>
+          <p class="research-tool-note"><strong>Evidence tools:</strong> Agents read selected experiments and obtain exact citations for saved values and extracted web pages. <code>inspect_federation</code>, <code>compare_clipping</code> and <code>draft_policy_trial</code> require a selected federation dossier; recorded shadow comparisons are read as experiment evidence. These tools do not optimize an online controller.</p>
           <label class="research-shadow-opt-in" for="research-allow-shadow"><input id="research-allow-shadow" type="checkbox"><span><strong>Let the federation strategist run one bounded shadow pilot</strong><small>Live research only. The strategist may use <code>test_shadow</code> to test one change with fresh seed 17, one round and a 600-second local limit, then review the measured results. Total research limit: 18 minutes. This does not activate a controller. Off by default.</small></span></label>
         </form>
         <div id="research-error" class="error" role="alert" hidden></div>
