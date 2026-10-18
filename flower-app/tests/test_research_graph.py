@@ -1021,6 +1021,10 @@ def test_role_prompts_resolve_global_search_scope_and_discourage_duplicate_reads
     literature_prompt = model.histories["literature_researcher"][0][0]["content"]
     assert "You are a LOCAL evidence specialist" not in literature_prompt
     assert "Your exact permitted tool names are: read_page, search_literature, submit_findings." in literature_prompt
+    writer_prompt = model.histories["writer"][0][0]["content"]
+    assert "smallest complete" in writer_prompt and "2000 characters" in writer_prompt
+    assert "never reconstruct a subset" in writer_prompt
+    assert "once per relevant measured value" not in writer_prompt
     # Concision is a prompt preference, not a new schema limit that could
     # discard important measurements or force another corrective model call.
     findings = _findings({"summary": "Measured details. " * 100, "evidence_ids": ["E001"], "gaps": []},

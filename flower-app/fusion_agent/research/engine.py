@@ -13,6 +13,7 @@ from .policy import CHANGES, compare_clipping, dossier, draft_policy_trial
 from .providers import ProviderError, public_url
 from .verification import (
     MAX_EVIDENCE_PER_CLAIM,
+    decode_report_arguments,
     normalize_report_transport,
     render_answer,
     validate_report,
@@ -82,8 +83,11 @@ numerical aggregation, not Flower network transport or full fleet retraining.
 The gate selection is diagnostic, not a separately trained deployment branch.
 Never hide a failed trial, treat one seed as efficacy evidence, or activate a policy.
 
-Each factual claim needs exact evidence. For experiment JSON use its exact RFC6901
-pointer and a short exact quote of the pointed value. For literature extract the
+Each factual claim needs exact evidence. For experiment JSON prefer the smallest
+complete recorded object containing the claimed subject and values when its exact
+quotation fits 2000 characters; use additional scalar citations for settings absent
+from that object. Copy the helper's exact object, never reconstruct a subset or
+invent a pointer. Larger objects require a deeper path. For literature extract the
 page first, cite its registered source ID and a verbatim supporting excerpt.
 The writer can call cite_experiment_value with a source ID and a path array of
 string keys and integer array indices to obtain an exact pointer and quotation.
@@ -252,7 +256,9 @@ TOOLS = [
         "Return an exact RFC6901 pointer and JSON quotation from an already-read "
         "experiment snapshot. Pass dictionary keys as strings (including numeric keys) "
         "and array indices as integers. Copy the returned citation unchanged; claim "
-        "support still requires review. Large values require a deeper path.",
+        "support still requires review. Prefer the smallest complete recorded object "
+        "containing the claimed subject and values within 2000 characters; cite absent "
+        "settings separately. Never reconstruct a subset. Large values require a deeper path.",
         {
             "source_id": REPORT_ID_SCHEMA,
             "path": {"type": "array", "minItems": 1, "maxItems": 32, "items": {
@@ -372,10 +378,6 @@ def text(value, label="text", limit=1600):
     return value.strip()
 
 
-def _reject_report_constant(_value):
-    raise ValueError("Report JSON must not contain non-finite numbers")
-
-
 class ResearchEngine:
     def __init__(
         self,
@@ -484,33 +486,7 @@ class ResearchEngine:
                 raise ValueError("Plan and assess evidence before submitting")
             if not self.read_ids:
                 raise ValueError("Read selected experiment evidence before submitting")
-            transport_normalized = False
-            if set(args) == set(REPORT_SCHEMA["properties"]):
-                draft = args
-            elif set(args) == {"report"}:
-                draft = args["report"]
-                if isinstance(draft, str):
-                    # Some providers encode an object-valued tool argument once
-                    # more despite its schema. Decode exactly one bounded layer;
-                    # all schema, provenance and semantic checks remain required.
-                    draft = json.loads(
-                        text(draft, "report JSON", 50_000),
-                        parse_constant=_reject_report_constant,
-                    )
-                    transport_normalized = True
-            elif set(args) == {"report_json"}:
-                # Backward compatibility for saved tool transcripts only; new
-                # model requests advertise the direct report fields above.
-                draft = json.loads(text(args["report_json"], "report JSON", 50_000))
-            else:
-                raise ValueError(
-                    "finish_report requires exactly one report object "
-                    "or the complete flat report fields"
-                )
-            if not isinstance(draft, dict):
-                raise ValueError("report must decode to exactly one object")
-            if len(json.dumps(draft, ensure_ascii=False, allow_nan=False)) > 50_000:
-                raise ValueError("report exceeds the 50000-character limit")
+            draft, transport_normalized = decode_report_arguments(args)
             draft, prose_normalizations = normalize_report_transport(draft)
             if len(json.dumps(draft, ensure_ascii=False, allow_nan=False)) > 50_000:
                 raise ValueError("report exceeds the 50000-character limit after transport normalization")

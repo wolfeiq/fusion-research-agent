@@ -85,12 +85,22 @@ def test_proposal_prose_normalization_rejects_invalid_types_and_bounds(value):
 @pytest.mark.parametrize("value", [
     None, True, 17, {}, "", " \n\t ", "x" * 1501, "before\x00after",
     "[]", '["a limitation"]', '{"text":"a limitation"}',
+    '["A failed trial."], "A second limitation."]', '["unterminated', '{"text": "unfinished',
 ])
 def test_report_prose_normalization_rejects_ambiguous_invalid_and_oversized_values(value):
     draft = report()
     draft["limitations"] = value
     with pytest.raises(ValueError):
         engine().execute("finish_report", draft)
+
+
+def test_malformed_container_prose_is_rejected_actionably_without_modification():
+    draft = report()
+    draft["limitations"] = '["The pilot failed."], "No paired endpoint was measured."]'
+    original = deepcopy(draft)
+    with pytest.raises(ValueError, match="native JSON array of prose strings"):
+        normalize_report_transport(draft)
+    assert draft == original
 
 
 def test_exact_text_limits_are_accepted_without_truncation():

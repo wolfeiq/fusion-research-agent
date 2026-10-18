@@ -18,6 +18,7 @@ MAX_CLAIMS = 12
 MAX_EVIDENCE_PER_CLAIM = 16
 MAX_PROPOSALS = 4
 MAX_WEB_QUOTE_WORDS = 25
+REPORT_FIELDS = frozenset({"answer", "claims", "next_runs", "limitations", "stop_reason"})
 _ID = re.compile(r"[A-Za-z][A-Za-z0-9_-]{0,95}\Z")
 _COMMAND = re.compile(
     r"```|(?:^|\n)\s*(?:[$>]\s*)?(?:"
@@ -78,6 +79,33 @@ def _verbatim_prose(value: Any, name: str, limit: int) -> str:
     return value
 
 
+def decode_report_arguments(args: dict) -> tuple[dict, bool]:
+    """Decode only existing report envelopes, once, under their original bound."""
+    if not isinstance(args, dict):
+        raise ValueError("Tool arguments must be an object")  # noqa: TRY004 - public schema API
+    normalized = False
+    if set(args) == REPORT_FIELDS:
+        draft = args
+    elif set(args) == {"report"}:
+        draft = args["report"]
+        normalized = isinstance(draft, str)
+    elif set(args) == {"report_json"}:
+        draft = args["report_json"]
+        if not isinstance(draft, str):
+            raise ValueError("report JSON must contain 1–50000 characters")
+    else:
+        raise ValueError("finish_report requires exactly one report object or the complete flat report fields")
+    if isinstance(draft, str):
+        if not draft.strip() or len(draft) > 50_000:
+            raise ValueError("report JSON must contain 1–50000 characters")
+        draft = json.loads(draft.strip(), parse_constant=_reject_json_constant)
+    if not isinstance(draft, dict):
+        raise ValueError("report must decode to exactly one object")  # noqa: TRY004 - public schema API
+    if len(json.dumps(draft, ensure_ascii=False, allow_nan=False)) > 50_000:
+        raise ValueError("report exceeds the 50000-character limit")
+    return draft, normalized
+
+
 def normalize_report_transport(report: dict) -> tuple[dict, list[dict]]:
     """Adapt only the two known limitations prose shapes, never scientific fields.
 
@@ -91,6 +119,11 @@ def normalize_report_transport(report: dict) -> tuple[dict, list[dict]]:
     limitations = report.get("limitations")
     if isinstance(limitations, str):
         _verbatim_prose(limitations, "limitations", 1500)
+        if limitations.lstrip().startswith(("[", "{")):
+            raise ValueError(
+                "limitations looks like a serialized container, including malformed JSON; "
+                "return a native JSON array of prose strings, not bracketed JSON text"
+            )
         # An encoded container is not a single paragraph. Do not reinterpret
         # nested JSON serialization as prose or decode it into more arguments.
         try:

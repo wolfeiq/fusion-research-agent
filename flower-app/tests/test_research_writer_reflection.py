@@ -250,3 +250,48 @@ def test_protected_merge_rejects_duplicate_ids_and_does_not_invent_protected_cla
     oversized["claims"][0]["text"] = "x" * 50_000
     with pytest.raises(ValueError, match="50000-character"):
         _preserve_protected_claims(oversized, protected)
+
+
+@pytest.mark.parametrize("envelope", ["flat", "object", "encoded", "legacy"])
+def test_reflection_accepts_existing_report_transports_and_keeps_normalization_audit(monkeypatch, envelope):
+    engine, model, _, events = setup_engine()
+    install_reflection_model(monkeypatch, engine, model)
+    original = model.complete
+
+    def wrap_report(messages, tools, tool_choice="auto"):
+        response, usage = original(messages, tools, tool_choice)
+        call = response["tool_calls"][0]["function"]
+        if json.loads(messages[1]["content"]).get("phase") == "writer_reflection" and call["name"] == "finish_report":
+            draft = json.loads(call["arguments"])
+            if envelope == "object":
+                args = {"report": draft}
+            elif envelope == "encoded":
+                args = {"report": json.dumps(draft)}
+            elif envelope == "legacy":
+                args = {"report_json": json.dumps(draft)}
+            else:
+                args = draft
+            call["arguments"] = json.dumps(args)
+        return response, usage
+
+    monkeypatch.setattr(model, "complete", wrap_report)
+    result = engine.run("Accept existing transports while preserving checked claims and rechecking the whole report.")
+    assert result["orchestration"]["status"] == "accepted"
+    assert model.counts["judge"] == 2
+    normalized = [event for event in events if event.get("transport") == "json_string_in_report"]
+    assert len(normalized) == int(envelope == "encoded")
+    if normalized:
+        assert normalized[0]["decoded_layers"] == 1
+
+
+@pytest.mark.parametrize("args", [
+    {"report": report(), "extra": True}, {"report": report(), "report_json": json.dumps(report())},
+    {"report": json.dumps(report()) + " trailing"}, {"report": json.dumps(json.dumps(report()))},
+    {"report": {**report(), "unknown": "field"}},
+    {"report": {**report(), "claims": json.dumps(report()["claims"])}},
+    {"report": '{"answer": NaN}'}, {"report_json": json.dumps(report()) + " {}"},
+    {"report": json.dumps({"answer": "x" * 50_001})},
+])
+def test_reflection_transport_never_accepts_unknown_fields_nested_arrays_or_malformed_json(args):
+    with pytest.raises(ValueError):
+        _preserve_protected_claims(args, {})

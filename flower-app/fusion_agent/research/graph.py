@@ -130,13 +130,12 @@ def _protected_claims(report):
 
 def _preserve_protected_claims(args, protected):
     """Merge server-owned claims; validate all new/changed science downstream."""
-    from .verification import MAX_CLAIMS
+    from .verification import MAX_CLAIMS, REPORT_FIELDS, decode_report_arguments
 
-    if not isinstance(args, dict) or set(args) != {"answer", "claims", "next_runs", "limitations", "stop_reason"}:
-        raise ValueError("Reflection finish_report requires exactly the five native flat report fields")
-    if len(json.dumps(args, ensure_ascii=False, allow_nan=False)) > 50_000:
-        raise ValueError("report exceeds the 50000-character limit")
-    claims = args["claims"]
+    draft, normalized = decode_report_arguments(args)
+    if set(draft) != REPORT_FIELDS:
+        raise ValueError("Reflection report requires exactly the five report fields")
+    claims = draft["claims"]
     if not isinstance(claims, list) or len(claims) > MAX_CLAIMS:
         raise ValueError(f"Reflection claims must be a native array of at most {MAX_CLAIMS} items")
     seen, merged, replaced = set(), [], []
@@ -155,9 +154,18 @@ def _preserve_protected_claims(args, protected):
             merged.append(copy.deepcopy(claim))
     restored = [identifier for identifier in protected if identifier not in seen]
     merged.extend(copy.deepcopy(protected[identifier]) for identifier in restored)
-    return {**args, "claims": merged}, {"protected_claim_ids": list(protected),
-                                         "replaced_submitted_claim_ids": replaced,
-                                         "restored_omitted_claim_ids": restored}
+    merged_draft = {**draft, "claims": merged}
+    # Preserve the existing envelope so engine validation retains its usual
+    # explicit transport-normalization event for a once-encoded report string.
+    if set(args) == {"report"}:
+        merged_args = {"report": json.dumps(merged_draft, ensure_ascii=False, allow_nan=False) if normalized else merged_draft}
+    elif set(args) == {"report_json"}:
+        merged_args = {"report_json": json.dumps(merged_draft, ensure_ascii=False, allow_nan=False)}
+    else:
+        merged_args = merged_draft
+    return merged_args, {"protected_claim_ids": list(protected),
+                         "replaced_submitted_claim_ids": replaced,
+                         "restored_omitted_claim_ids": restored}
 
 
 def _messages(role, instructions, payload, system):
@@ -781,9 +789,12 @@ def build_research_graph(engine):
                 "Experiment citation pointers are relative to the parsed JSON inside source.content: "
                 "do not prepend /content, the source ID, a filename or an archival raw-result pointer. "
                 "Use field names actually present in that snapshot, never a guessed alias. Copy an "
-                "exact scalar or short JSON fragment at that pointer as the quote. "
-                "Call cite_experiment_value once per relevant measured value before citing it; "
-                "batch these calls when useful. A writer batch may contain up to 24 calls ONLY if "
+                "exact returned JSON value at that pointer as the quote. Prefer the smallest complete "
+                "recorded object containing the claimed subject and values when its quotation fits "
+                "2000 characters. One such citation can cover several clauses; use scalar citations "
+                "for additional settings absent from that object. Call cite_experiment_value for the "
+                "chosen object, then copy its exact returned quotation; never reconstruct a subset. "
+                "Batch lookups when useful. A writer batch may contain up to 24 calls ONLY if "
                 "every call is cite_experiment_value or cite_web_excerpt; mixed batches including "
                 "assessment or finish_report remain limited to 8. The global tool budget still applies: "
                 "consult tool_budget, refreshed each turn, and stay within maximum_citation_calls_this_turn; "
@@ -793,8 +804,8 @@ def build_research_graph(engine):
                 "[\"by_seed\", 0, \"mean_cost_difference\"]. Copy each returned source_id, locator "
                 "and quote unchanged into claim evidence. This helper resolves existing records "
                 "only; it does not establish causality or truth. If a value is too large, follow "
-                "its citation_path_hint to select a smaller child value. Prefer compact scalar "
-                "or short-object quotations. For a web source call cite_web_excerpt with one "
+                "its citation_path_hint to select a smaller complete child object or scalar. "
+                "For a web source call cite_web_excerpt with one "
                 "short exact anchor phrase and max_words <=25, then copy source_id, locator "
                 "and quote unchanged. If repeated anchors return candidates, choose one using "
                 "its context and copy only its citation object unchanged. Use one short contiguous quote per web source; never join "
