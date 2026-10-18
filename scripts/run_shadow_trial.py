@@ -17,7 +17,7 @@ import platform
 import threading
 import time
 from dataclasses import asdict, replace
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 ARMS = ("local", "reset_only", "uniform", "clipped")
@@ -92,6 +92,17 @@ def specification(config):
 def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"),
                                      allow_nan=False).encode("utf-8")).hexdigest()
+
+
+def runtime_metadata():
+    """Record numerical dependencies; Flower transport is not used by this pilot."""
+    packages = {name: version(name) for name in ("torch", "torax", "jax", "numpy")}
+    try:
+        packages["flwr"] = version("flwr")
+    except PackageNotFoundError:
+        packages["flwr"] = None
+    return {"python": platform.python_version(), "platform": platform.platform(),
+            "packages": packages, "flower_transport_used": False}
 
 
 def _write(path, value):
@@ -202,8 +213,7 @@ def run(config, reference_path, output, *, max_seconds=600):
         from scripts.stabilize_td3_heating import pair_state_digest
 
         torch.set_num_threads(1)
-        result["runtime"] = {"python": platform.python_version(), "platform": platform.platform(),
-                             "packages": {name: version(name) for name in ("torch", "torax", "jax", "numpy", "flwr")}}
+        result["runtime"] = runtime_metadata()
         environment, bounds = _make_environments(reference)
         (output / "episodes").mkdir()
         (output / "aggregation").mkdir()

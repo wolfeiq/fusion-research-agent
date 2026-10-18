@@ -37,6 +37,7 @@ dashboard before restarting it with the environment file:
 ```sh
 cd flower-app
 uv run --env-file .env.research --no-sync python scripts/verify_research_providers.py
+uv run --env-file .env.research --no-sync python scripts/verify_research_judge.py
 uv run --env-file .env.research --no-sync python dashboard.py
 ```
 
@@ -57,8 +58,14 @@ To enable fresh numerical trials, run these commands from the repository root:
 ```sh
 uv venv --python 3.12 .venv
 uv pip install --python .venv torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
-uv pip install --python .venv --constraint constraints-rl-cpu.txt -e ".[rl,fed,dev]"
+uv pip install --python .venv --constraint constraints-rl-cpu.txt -e ".[rl,dev]"
 ```
+
+Do not install the legacy `fed` extra for shadow trials: Flower 1.22 requires
+`click<8.2`, while the current TORAX/eqdsk dependency requires `click>=8.3.2`.
+The shadow worker uses the numerical aggregation implementation and does not
+require Flower network transport. Its runtime metadata records Flower as absent.
+The legacy transport adapter is retained as reference code, outside this validated setup.
 
 The constraints record the package versions of the CPU reference runtime; they
 are not a complete transitive lock or a guarantee of identical cross-platform

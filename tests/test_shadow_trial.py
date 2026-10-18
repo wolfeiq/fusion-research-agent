@@ -4,6 +4,7 @@ import json
 import subprocess
 import sys
 from dataclasses import asdict
+from importlib.metadata import PackageNotFoundError
 from types import SimpleNamespace
 
 import numpy as np
@@ -18,6 +19,29 @@ CONFIG = {"schema": "fusion-shadow-config-v1", "change": "td3_actor_lr", "value"
 def test_validation_is_pure_and_imports_no_ml_runtime():
     script = "from scripts.run_shadow_trial import validate_config; import sys; assert 'torch' not in sys.modules; assert 'jax' not in sys.modules; assert 'torax' not in sys.modules"
     subprocess.run([sys.executable, "-c", script], check=True, timeout=10)
+
+
+@pytest.mark.parametrize("flower_version", [None, "1.22.0"])
+def test_runtime_metadata_records_optional_unused_flower(monkeypatch, flower_version):
+    def versions(name):
+        if name == "flwr" and flower_version is None:
+            raise PackageNotFoundError(name)
+        return flower_version if name == "flwr" else "test-required-version"
+
+    monkeypatch.setattr(worker, "version", versions)
+    metadata = worker.runtime_metadata()
+    assert metadata["packages"]["flwr"] == flower_version
+    assert metadata["packages"]["torax"] == "test-required-version"
+    assert metadata["flower_transport_used"] is False
+
+
+def test_runtime_metadata_does_not_hide_missing_numerical_dependency(monkeypatch):
+    def versions(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr(worker, "version", versions)
+    with pytest.raises(PackageNotFoundError):
+        worker.runtime_metadata()
 
 
 @pytest.mark.parametrize("patch", [
@@ -113,14 +137,22 @@ def synthetic_setup(tmp_path, monkeypatch):
 
 @pytest.fixture(scope="module")
 def completed_pilot(tmp_path_factory):
-    """Real optimizers and aggregation, injected synthetic physics, two rounds."""
+    """Real optimizers/aggregation, synthetic physics, two rounds, no Flower metadata."""
     directory = tmp_path_factory.mktemp("shadow-pilot")
     reference = {"beta_N": .4, "profile_rho": [.1, .9], "target_Te_keV": [3.9, 3.1],
                  "joint_action": [0., 0., 0., 1.], "device": "synthetic_test_only"}
     reference_path = directory / "reference.json"
     reference_path.write_text(json.dumps(reference))
+    installed_version = worker.version
+
+    def without_flower(name):
+        if name == "flwr":
+            raise PackageNotFoundError(name)
+        return installed_version(name)
+
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(worker, "_make_environments", lambda _: (SyntheticPhysicalEnv, [1., 1.]))
+        patch.setattr(worker, "version", without_flower)
         result = worker.run({**CONFIG, "rounds": 2}, reference_path, directory / "output")
     return result, directory / "output"
 
@@ -128,6 +160,8 @@ def completed_pilot(tmp_path_factory):
 def test_pilot_really_updates_both_agents_and_accounts_for_work(completed_pilot):
     result, output = completed_pilot
     assert result["status"] == "complete" and not result["failures"]
+    assert result["runtime"]["packages"]["flwr"] is None
+    assert result["runtime"]["flower_transport_used"] is False
     assert result["conditions_sha256"] == worker._digest(result["conditions"])
     for variant in ("baseline", "candidate"):
         item = result[variant]
