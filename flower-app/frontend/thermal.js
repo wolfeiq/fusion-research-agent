@@ -2,7 +2,7 @@
 let rehearsal = {events:[]}, hostedThermal = {events:[]}, importedThermal = {events:[]};
 let thermalCursor = 0, thermalTimer = null, hostedSignature = '';
 const facilityNames = {'facility-a':'Facility A','facility-b':'Facility B','facility-c':'Facility C'};
-const profileColors = {'facility-a':'#FF5A36','facility-b':'#E9E7E1','facility-c':'#6E86FF'};
+const profileColors = {'facility-a':'var(--accent)','facility-b':'var(--text)','facility-c':'var(--faint)'};
 function selectFacility(site) {
   if (!facilityNames[site]) return;
   $('release-site').value = site;
@@ -101,12 +101,12 @@ function renderThermal(){
     card.querySelector('.facility-budget').textContent = `${spent} / 5 policy units · ${released.length} release events`;
     card.querySelector('.facility-provenance').textContent = released.at(-1)?.provenance || 'No provenance released yet';
   });
-  let svg='<path d="M40 12V200H548" fill="none" stroke="#2F333A"/>';
-  for(let i=0;i<=4;i++){const y=200-i*45;svg+=`<line x1="40" x2="548" y1="${y}" y2="${y}" stroke="#23262B" stroke-dasharray="3 5"/><text x="30" y="${y+3}" fill="#5C6068" font-size="10" text-anchor="end">${(i/4).toFixed(2)}</text>`;}
-  for(const p of profiles){if(!Array.isArray(p.values))continue;const points=p.values.map((v,i)=>{const r=Array.isArray(p.radii)?Number(p.radii[i]):i/(p.values.length-1);return `${40+Math.max(0,Math.min(1,r))*508},${200-Math.max(0,Math.min(1,Number(v)))*180}`;}).join(' ');svg+=`<polyline points="${esc(points)}" fill="none" stroke="${profileColors[p.site]}" stroke-width="3" ${p.site==='facility-b'?'stroke-dasharray="7 4"':''}/>`;}
-  svg+='<text x="40" y="221" fill="#5C6068" font-size="10">0</text><text x="525" y="221" fill="#5C6068" font-size="10">1.0 ρ</text>';
+  let svg='<path d="M40 12V200H548" fill="none" stroke="var(--border-2)"/>';
+  for(let i=0;i<=4;i++){const y=200-i*45;svg+=`<line x1="40" x2="548" y1="${y}" y2="${y}" stroke="var(--border)" stroke-dasharray="3 5"/><text x="30" y="${y+3}" fill="var(--muted)" font-size="10" text-anchor="end">${(i/4).toFixed(2)}</text>`;}
+  for(const p of profiles){if(!Array.isArray(p.values))continue;const points=p.values.map((v,i)=>{const r=Array.isArray(p.radii)?Number(p.radii[i]):i/(p.values.length-1);return `${40+Math.max(0,Math.min(1,r))*508},${200-Math.max(0,Math.min(1,Number(v)))*180}`;}).join(' ');svg+=`<polyline points="${esc(points)}" fill="none" stroke="${profileColors[p.site]}" stroke-width="3" ${p.site==='facility-b'?'stroke-dasharray="7 4"':p.site==='facility-c'?'stroke-dasharray="2 4"':''}/>`;}
+  svg+='<text x="40" y="221" fill="var(--muted)" font-size="10">0</text><text x="525" y="221" fill="var(--muted)" font-size="10">1.0 ρ</text>';
   $('thermal-chart').innerHTML=svg;
-  $('thermal-legend').textContent=profiles.length?profiles.map(p=>`${facilityNames[p.site]} · ${p.site==='facility-a'?'coral':p.site==='facility-b'?'white dashed':'blue'}`).join(' / '):'No profile has been released.';
+  $('thermal-legend').textContent=profiles.length?profiles.map(p=>`${facilityNames[p.site]} · ${p.site==='facility-a'?'red solid':p.site==='facility-b'?'ink dashed':'warm gray dotted'}`).join(' / '):'No profile has been released.';
   $('thermal-trail').innerHTML=events.map((e,i)=>`<li class="${e.status==='released'?'released':'denied'}"><span class="trace-index">${String(i+1).padStart(2,'0')}</span><div><strong>${esc(facilityNames[e.site]||'Gateway')} · ${esc(e.evidence||'unsupported request')}</strong><small>${esc(e.status||'error')}${e.cached?' · cached, no additional debit':''}${e.reason?' · '+esc(e.reason):''}${e.cost&&!e.cached?' · '+esc(e.cost)+' units':''}</small>${e.evidence_id?'<small>Evidence '+esc(e.evidence_id)+'</small>':''}</div></li>`).join('')||'<li class="muted">No recorded events. Run the local demonstration or choose a hosted report.</li>';
   $('thermal-conclusion').textContent=$('sharing-next-step').textContent;
   if(thermalCursor>=record.events.length)stopTrail();
@@ -123,12 +123,12 @@ function renderEvidenceStory(events, source) {
   const afterBand = hasAudit ? audit.finding.corrected_transport : null;
   const bands = {'above-reference':{y:46,label:'Above reference'},'near-reference':{y:111,label:'Near reference'},'below-reference':{y:176,label:'Below reference'}};
   const first = bands[beforeBand], last = bands[afterBand];
-  let chart = Object.values(bands).map(b => `<line x1="157" x2="535" y1="${b.y}" y2="${b.y}" stroke="#2f333a" stroke-dasharray="3 5"/><text x="143" y="${b.y+5}" text-anchor="end" fill="#a9adb5" font-size="14">${b.label}</text>`).join('');
-  if (first && last) chart += `<path d="M230 ${first.y} L445 ${last.y}" stroke="#adb3be" stroke-width="2" fill="none"/>`;
-  for (const [x, band, color] of [[230,first,'#ff5a36'],[445,last,'#75d7bb']]) {
-    chart += band ? `<circle cx="${x}" cy="${band.y}" r="8" fill="${color}"/>` : `<text x="${x}" y="116" text-anchor="middle" fill="#a9adb5" font-size="12">Not released</text>`;
+  let chart = Object.values(bands).map(b => `<line x1="157" x2="535" y1="${b.y}" y2="${b.y}" stroke="var(--border)" stroke-dasharray="3 5"/><text x="143" y="${b.y+5}" text-anchor="end" fill="var(--muted)" font-size="14">${b.label}</text>`).join('');
+  if (first && last) chart += `<path d="M230 ${first.y} L445 ${last.y}" stroke="var(--faint)" stroke-width="2" fill="none"/>`;
+  for (const [x, band, color] of [[230,first,'var(--accent)'],[445,last,'var(--text)']]) {
+    chart += band ? `<circle cx="${x}" cy="${band.y}" r="8" fill="${color}"/>` : `<text x="${x}" y="116" text-anchor="middle" fill="var(--muted)" font-size="12">Not released</text>`;
   }
-  chart += '<text x="230" y="220" text-anchor="middle" fill="#e9e7e1" font-size="14">Before audit</text><text x="445" y="220" text-anchor="middle" fill="#e9e7e1" font-size="14">After audit</text>';
+  chart += '<text x="230" y="220" text-anchor="middle" fill="var(--text)" font-size="14">Before audit</text><text x="445" y="220" text-anchor="middle" fill="var(--text)" font-size="14">After audit</text>';
   $('audit-comparison-chart').innerHTML = chart;
   $('audit-comparison-chart').setAttribute('aria-label', `B heat-spreading estimate: before audit ${first?.label || 'not released'}; after audit ${last?.label || 'not released'}. Qualitative categories.`);
   $('sharing-source').textContent = source === 'hosted' ? 'Hosted agent evidence' : source === 'imported' ? 'Imported evidence' : 'Local rehearsal · no LLM';

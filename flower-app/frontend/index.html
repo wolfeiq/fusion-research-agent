@@ -2,20 +2,26 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fusion Investigator | Research app</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/research.css">
 <script src="/research.js" defer></script>
 <script src="/app.js" defer></script><script src="/thermal.js" defer></script><script src="/physics.js" defer></script></head>
 <body class="application">
-<header class="app-header"><a class="app-brand" href="#investigate">Fusion Investigator <small>RESEARCH APP</small></a>
+<header class="app-header"><a class="app-brand" href="#research">Fusion Investigator <small>RESEARCH WORKSPACE</small></a>
 <nav aria-label="App sections"><a href="#research">Research</a><a href="#investigate">Investigate</a><a href="#thermal">Facility evidence</a><a href="#physics">Physics tools</a><a href="#assembly">3D assembly</a><a href="#report">Report</a></nav>
-<a class="presentation-link" href="http://127.0.0.1:8788/" target="_blank" rel="noopener">Open presentation ↗</a></header>
-<main class="app-main"><div class="app-intro"><div class="kicker">TORAX RESEARCH WORKSPACE · FLOWER AGENTAPP</div><h1>Fusion Investigator</h1><p>Ask a research question, inspect saved TORAX experiments and compare the evidence with literature. Facility investigation tools remain available below.</p><p class="muted">TORAX powers the project's control experiments. The interactive thermal tools below use a reduced 1-D model; their outputs identify the source.</p></div>
+<a class="presentation-link" href="#research-shadow">Live TORAX · Beta ↗</a></header>
+<main class="app-main"><div class="app-intro">
+  <div class="intro-meta"><span>TORAX / FLOWER / LANGGRAPH</span><span>EXPERIMENTS → EVIDENCE → NEXT QUESTIONS</span></div>
+  <h1><span>Fusion</span><span>Investigator</span></h1>
+  <div class="intro-bottom"><p class="intro-statement">Better questions.<br>Traceable answers.</p><p>Investigate federated reinforcement learning with recorded TORAX simulations, live literature and an inspectable agent workflow.</p><a class="intro-action" href="#research">Start with the evidence <span>↓</span></a></div>
+  <div class="intro-index" aria-label="Research workflow"><div><span>01 / EXPERIMENTS</span><strong>Recorded TORAX data</strong><small>TD3 heating · SAC deposition · federation</small></div><div><span>02 / RESEARCH</span><strong>Nebius × Tavily</strong><small>Specialists, a writer and a skeptical judge</small></div><div><span>03 / REVIEW</span><strong>Sources you can inspect</strong><small>Measurements, exact excerpts and next-run proposals</small></div></div>
+  <p class="intro-scope">Simulation research, not reactor operation. The thermal tools below use a reduced 1-D model; each output identifies its source.</p>
+</div>
 <section class="app-section research-workspace" id="research" aria-labelledby="research-heading">
   <div class="section-content">
-    <div class="kicker">NEBIUS TOKEN FACTORY × TAVILY · RESEARCH LAYER</div>
-    <div class="heading-row"><h2 id="research-heading">Federation &amp; RL advisor.</h2><span class="pill">Saved experiments → reviewed proposals</span></div>
+    <div class="kicker">01 / RESEARCH · NEBIUS TOKEN FACTORY × TAVILY</div>
+    <div class="heading-row"><h2 id="research-heading">Ask. Investigate. Review.</h2><span class="pill">Saved experiments → reviewed proposals</span></div>
     <p class="research-lede">Read recorded TORAX experiments for TD3 heating, SAC deposition and aggregation. Four LangGraph specialists compare the selected evidence with literature; a writer and skeptical judge produce a cited answer and a proposed next experiment. Saved Flower coordinator dossiers can also be inspected when available and selected.</p>
     <div class="research-layout">
       <article class="panel research-brief">
