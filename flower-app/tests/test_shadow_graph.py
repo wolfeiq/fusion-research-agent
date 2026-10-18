@@ -281,6 +281,48 @@ def test_shadow_decision_reserves_writer_and_judge_calls():
     assert any(event["kind"] == "shadow_decision_skipped" for event in events)
 
 
+def test_shadow_decision_rejects_whole_oversized_batch_before_execution_and_recovers(monkeypatch):
+    engine, model, events, executions = setup()
+    original_complete, original_execute = model.complete, engine.execute
+    injected = False
+    checked_repair = False
+    rejected_executions = []
+
+    def complete(messages, tools, tool_choice="auto"):
+        nonlocal injected, checked_repair
+        payload = json.loads(messages[1]["content"])
+        if payload.get("phase") == "post_research_shadow_decision":
+            if not injected:
+                injected = True
+                return {"role": "assistant", "content": "", "tool_calls": [
+                    {"id": f"rejected_shadow_{index}", "type": "function", "function": {
+                        "name": "read_experiment", "arguments": json.dumps({
+                            "source_id": "E001", "reason": "REJECTED_SHADOW_BATCH",
+                        }),
+                    }} for index in range(9)
+                ]}, {"total_tokens": 1}
+            if not checked_repair:
+                checked_repair = True
+                assert json.loads(messages[-1]["content"])["actual_tool_call_count"] == 9
+                assert "rejected_shadow_" not in json.dumps(messages)
+                assert not rejected_executions
+        return original_complete(messages, tools, tool_choice)
+
+    def execute(name, args):
+        if args.get("reason") == "REJECTED_SHADOW_BATCH":
+            rejected_executions.append(name)
+        return original_execute(name, args)
+
+    monkeypatch.setattr(model, "complete", complete)
+    monkeypatch.setattr(engine, "execute", execute)
+    result = engine.run("Retain the isolated pilot and recover the review after an invalid tool batch.")
+    assert injected and checked_repair and not rejected_executions
+    assert executions == [("td3_actor_lr", .00005)]
+    assert result["orchestration"]["status"] == "accepted"
+    assert model.counts["judge"] == 1
+    assert any(event["kind"] == "agent_batch_rejected" and event["agent"] == "federation_strategist" for event in events)
+
+
 def test_revision_retains_measured_shadow_evidence_without_a_second_decision():
     engine, model, events, executions = setup(decisions=("revise", "accept"))
     # The successful path needs 29 calls, plus four reserved writer correction

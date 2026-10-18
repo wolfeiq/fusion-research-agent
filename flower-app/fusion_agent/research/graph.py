@@ -199,6 +199,29 @@ def build_research_graph(engine):
     def event(stage, role, message, state, **details):
         engine.event(stage, message, agent=role, round=state.get("round", 0), **details)
 
+    def accept_tool_batch(messages, message, tools, role, state):
+        """Validate the complete batch before adding history or executing tools."""
+        try:
+            calls = _calls(message)
+        except (ValueError, TypeError, KeyError) as exc:
+            supplied = message.get("tool_calls") if isinstance(message, dict) else None
+            count = len(supplied) if isinstance(supplied, list) else None
+            allowed_names = [tool["function"]["name"] for tool in tools]
+            event("agent_batch_rejected", role,
+                  "The entire invalid tool batch was rejected before any tool execution",
+                  state, actual_tool_call_count=count, maximum_tool_calls=8,
+                  validation_error=str(exc)[:600])
+            # Do not append an assistant message whose tool calls cannot be
+            # answered. This repair consumes the existing bounded model turn.
+            messages.append({"role": "user", "content": json.dumps({
+                "error": str(exc)[:600], "actual_tool_call_count": count,
+                "maximum_tool_calls": 8, "allowed_tool_names": allowed_names,
+                "instruction": "The entire previous tool batch was rejected; none of its calls executed. Retry with at most eight valid tool calls using only the currently available tools. Do not assume any rejected call succeeded.",
+            })})
+            return None
+        messages.append(message)
+        return calls
+
     def planner(state):
         round_number = state.get("round", 0) + 1
         state = {**state, "round": round_number}
@@ -230,8 +253,9 @@ def build_research_graph(engine):
         )
         for _ in range(3):
             message = engine.request(messages, [plan_tool])
-            messages.append(message)
-            calls = _calls(message)
+            calls = accept_tool_batch(messages, message, [plan_tool], "planner", state)
+            if calls is None:
+                continue
             if not calls:
                 messages.append(
                     {
@@ -396,8 +420,9 @@ def build_research_graph(engine):
                 message = engine.request(messages, tools_for_turn, reserve_calls=REVIEW_CALL_RESERVE)
             except ModelCallBudgetReserved:
                 break
-            messages.append(message)
-            calls = _calls(message)
+            calls = accept_tool_batch(messages, message, tools_for_turn, role, state)
+            if calls is None:
+                continue
             if not calls:
                 messages.append(
                     {
@@ -557,8 +582,9 @@ def build_research_graph(engine):
                 message = engine.request(messages, tools, reserve_calls=REVIEW_CALL_RESERVE)
             except ModelCallBudgetReserved:
                 break
-            messages.append(message)
-            calls = _calls(message)
+            calls = accept_tool_batch(messages, message, tools, role, state)
+            if calls is None:
+                continue
             if not calls:
                 messages.append({"role": "user", "content": "Use the bounded tools or submit_findings explaining why no test is warranted."})
             for call in calls:
@@ -686,8 +712,9 @@ def build_research_graph(engine):
                       turn=turn + 1, allowed_tools=sorted(turn_allowed))
             tools = [tools_by_name[name] for name in sorted(turn_allowed)]
             message = engine.request(messages, tools)
-            messages.append(message)
-            calls = _calls(message)
+            calls = accept_tool_batch(messages, message, tools, "writer", state)
+            if calls is None:
+                continue
             if not calls:
                 messages.append(
                     {

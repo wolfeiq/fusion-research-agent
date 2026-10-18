@@ -948,6 +948,62 @@ def test_role_forbidden_tool_never_reaches_engine_execution():
     }
 
 
+@pytest.mark.parametrize("role", ["planner", "td3_specialist", "writer"])
+def test_oversized_batch_executes_nothing_and_recovers_within_existing_turns(monkeypatch, role):
+    engine, model, _, events = setup_engine()
+    original_complete, original_execute = model.complete, engine.execute
+    injected = False
+    checked_repair = False
+    rejected_executions = []
+    marker = "REJECTED_BATCH_SENTINEL"
+
+    def complete(messages, tools, tool_choice="auto"):
+        nonlocal injected, checked_repair
+        current = messages[0]["content"].split("\n", 1)[0].removeprefix("Agent role: ")
+        if current == role and not injected:
+            injected = True
+            if role == "planner":
+                name, args = "plan_research", {
+                    "questions": ["What is measured?"], "td3_goal": "Inspect heating.",
+                    "sac_goal": "Inspect deposition.", "federation_goal": "Inspect aggregation.",
+                    "literature_goal": "Find public evaluation guidance.", "reason": marker,
+                }
+            elif role == "writer":
+                name, args = "assess_evidence", {"enough": True, "gaps": [], "reason": marker}
+            else:
+                name, args = "read_experiment", {"source_id": "E001", "reason": marker}
+            assert name in {tool["function"]["name"] for tool in tools}
+            return {"role": "assistant", "content": "", "tool_calls": [
+                {"id": f"rejected_batch_{i}", "type": "function", "function": {
+                    "name": name, "arguments": json.dumps(args),
+                }} for i in range(9)
+            ]}, {"total_tokens": 1}
+        if current == role and not checked_repair:
+            checked_repair = True
+            feedback = json.loads(messages[-1]["content"])
+            assert messages[-1]["role"] == "user"
+            assert feedback["actual_tool_call_count"] == 9 and feedback["maximum_tool_calls"] == 8
+            assert "rejected_batch_" not in json.dumps(messages)
+            assert not rejected_executions
+        return original_complete(messages, tools, tool_choice)
+
+    def execute(name, args):
+        if args.get("reason") == marker:
+            rejected_executions.append(name)
+        return original_execute(name, args)
+
+    monkeypatch.setattr(model, "complete", complete)
+    monkeypatch.setattr(engine, "execute", execute)
+    result = engine.run("Recover from a rejected batch without assuming any call ran.")
+    assert injected and checked_repair and not rejected_executions
+    assert result["orchestration"]["status"] == "accepted"
+    assert model.counts["judge"] == 1
+    rejection = next(event for event in events if event["kind"] == "agent_batch_rejected")
+    assert rejection["actual_tool_call_count"] == 9 and rejection["maximum_tool_calls"] == 8
+    assert rejection["agent"] == role
+    assert engine.max_turns == 28 and engine.max_calls == 48
+
+
 def test_role_prompts_resolve_global_search_scope_and_discourage_duplicate_reads():
     engine, model, _, _ = setup_engine()
     engine.run("Assess local evidence and relevant primary literature.")
