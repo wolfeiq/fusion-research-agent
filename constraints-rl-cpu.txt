@@ -1,0 +1,13 @@
+# Observed CPU reference runtime; direct constraints, not a transitive lock.
+# Install Torch from its CPU index first. +cpu satisfies the public version pin.
+torax==1.4.3
+torch==2.14.1
+jax==0.11.1
+jaxlib==0.11.1
+numpy==2.5.3
+scipy==1.18.1
+flwr==1.22.0
+gymnasium==1.3.0
+matplotlib==3.11.2
+pytest==9.1.1
+ruff==0.16.7

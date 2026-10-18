@@ -1,0 +1,5 @@
+# Optional reference starter only. The app uses its uv.lock + research extra.
+deepagents
+langchain-nebius
+langchain-tavily
+tavily-python

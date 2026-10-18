@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fusion-investigator"
+version = "0.3.0"
+description = "Investigate synthetic tokamak thermal anomalies with Flower agents, facility stewards and controlled evidence sharing."
+license = { file = "LICENSE.md" }
+requires-python = ">=3.11,<4"
+dependencies = ["flwr>=1.37.0,<1.38", "openai>=2.16,<3", "numpy>=2,<3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+research = ["langgraph>=1.0,<2"]
+
+[project.scripts]
+fusion-investigator = "fusion_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["fusion_agent"]
+
+[tool.flwr.app]
+publisher = "marykor"
+display-name = "Fusion Investigator"
+fab-format-version = 1
+flwr-version-target = "1.37.0"
+fab-include = ["fusion_agent/**/*.py", "fusion_agent/thermal/_devices.json", "README.md", "MERGE.md", "LICENSE.md", "THERMAL_LICENSE.md"]
+
+[tool.flwr.app.components]
+agentapp = "fusion_agent.agent_app:app"
+
+[tool.flwr.app.config.agent]
+model = "openai/gpt-5.6-sol"
+input = "Investigate weak thermal response at facility-a. Ask facility stewards for context, balance and source evidence as needed. Compare facility-b and facility-c, reject unsuitable analogies, and recommend the next independent measurement at A."
+max-tool-turns = 8
+max-tool-calls = 16
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"

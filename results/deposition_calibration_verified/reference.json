@@ -1,0 +1,35 @@
+{
+  "target_Te_keV": [
+    4.079647018545497,
+    4.036683589789482,
+    3.943355500105994,
+    3.771721452136805,
+    3.5406606386983173,
+    3.3092445819430574,
+    3.104994021174349,
+    2.4628411916358885
+  ],
+  "beta_N": 0.4384193858557768,
+  "profile_rho": [
+    0.08,
+    0.2,
+    0.32,
+    0.44000000000000006,
+    0.56,
+    0.68,
+    0.8,
+    0.92
+  ],
+  "joint_action": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "config_sha256": "a8e99f8393f34236193567d53a45de37ba1603621475250cca4d53f0bcaeebcb",
+  "calibration_windows": 30,
+  "calibration_simulated_seconds": 15.0,
+  "device": "sparc_like",
+  "sampled_violations": [],
+  "scope": "observed fixed-command endpoint; not whole-trajectory feasibility"
+}

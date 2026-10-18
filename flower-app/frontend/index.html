@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fusion Investigator | Research app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/research.css">
+<script src="/research.js" defer></script>
+<script src="/app.js" defer></script><script src="/thermal.js" defer></script><script src="/physics.js" defer></script></head>
+<body class="application">
+<header class="app-header"><a class="app-brand" href="#investigate">Fusion Investigator <small>RESEARCH APP</small></a>
+<nav aria-label="App sections"><a href="#research">Research</a><a href="#investigate">Investigate</a><a href="#thermal">Facility evidence</a><a href="#physics">Physics tools</a><a href="#assembly">3D assembly</a><a href="#report">Report</a></nav>
+<a class="presentation-link" href="http://127.0.0.1:8788/" target="_blank" rel="noopener">Open presentation ↗</a></header>
+<main class="app-main"><div class="app-intro"><div class="kicker">TORAX RESEARCH WORKSPACE · FLOWER AGENTAPP</div><h1>Fusion Investigator</h1><p>Investigate thermal response, request facility evidence and inspect an agent's report.</p><p class="muted">TORAX powers the project's control experiments. The interactive thermal tools below use a reduced 1-D model; their outputs identify the source.</p></div>
+<section class="app-section research-workspace" id="research" aria-labelledby="research-heading">
+  <div class="section-content">
+    <div class="kicker">NEBIUS TOKEN FACTORY × TAVILY · RESEARCH LAYER</div>
+    <div class="heading-row"><h2 id="research-heading">Federation &amp; RL advisor.</h2><span class="pill">Saved rounds → reviewed proposals</span></div>
+    <p class="research-lede">Inspect the real saved Flower coordinator rounds alongside TD3 heating and SAC deposition diagnostics. Four LangGraph specialists compare the evidence and literature in parallel; a writer and skeptical judge turn their findings into a sourced answer and a proposed next experiment.</p>
+    <div class="research-layout">
+      <article class="panel research-brief">
+        <div class="panel-title"><h3>What should we investigate?</h3><span id="research-mode" class="pill">Ready</span></div>
+        <form id="research-form">
+          <label for="research-question">RESEARCH QUESTION</label>
+          <textarea id="research-question" maxlength="4000" required>Does our saved evidence support federation helping a cold-start tokamak? Use inspect_federation on the selected federation dossier source IDs to inspect recorded coordinator rounds and TD3/SAC outcomes. Compare the evidence with primary literature; where supported, use compare_clipping and draft_policy_trial to propose a small controlled experiment. Keep saved-data calculations separate from new training results.</textarea>
+          <div class="research-examples" aria-label="Example questions">
+            <button type="button" data-research-example="coldstart">Cold-start evidence</button>
+            <button type="button" data-research-example="aggregation">Aggregation policy</button>
+            <button type="button" data-research-example="td3">TD3 drift</button>
+            <button type="button" data-research-example="sac">SAC cooperation</button>
+            <button type="button" data-research-example="transfer">Why can transfer hurt?</button>
+            <button type="button" data-research-example="architecture">Audit the architecture</button>
+          </div>
+          <fieldset class="research-records"><legend>SAVED PROJECT EVIDENCE <span id="research-selection-count">0 selected</span></legend><p class="muted">Select 1–8 records, including an experiment summary. Selected records are shared with the reasoning model during a live run.</p><div id="research-catalog"><p class="muted">Loading available records…</p></div></fieldset>
+          <div class="research-credentials" aria-label="Provider configuration"><span id="research-nebius">Token Factory · checking</span><span id="research-tavily">Tavily · checking</span></div>
+          <p id="research-provider" class="research-provider">Credentials stay on the server.</p>
+          <div class="research-actions"><button id="research-live" class="primary" type="submit" disabled>Analyze with Nebius + Tavily ↗</button><button id="research-offline" class="research-secondary" type="button" disabled>Inspect local evidence</button></div>
+          <p class="research-caption">Live uses model and search credits. Local inspection is deterministic: no LLM, web search or training. Research produces proposals unless the optional shadow pilot below is enabled.</p>
+          <p class="research-tool-note"><strong>Evidence tools:</strong> <code>inspect_federation</code>, <code>compare_clipping</code> and <code>draft_policy_trial</code> operate on selected saved records. Nebius agents decide when to use them; the local calculations do not optimize an online controller.</p>
+          <label class="research-shadow-opt-in" for="research-allow-shadow"><input id="research-allow-shadow" type="checkbox"><span><strong>Let the federation strategist run one bounded shadow pilot</strong><small>Live research only. The strategist may use <code>test_shadow</code> to test one change with fresh seed 17, one round and a 600-second local limit, then review the measured results. Total research limit: 18 minutes. This does not activate a controller. Off by default.</small></span></label>
+        </form>
+        <div id="research-error" class="error" role="alert" hidden></div>
+      </article>
+      <aside class="panel research-trace-panel" aria-labelledby="research-trace-heading">
+        <div class="panel-title"><h3 id="research-trace-heading">Decision trace</h3><span id="research-status" class="pill" role="status">Loading</span></div>
+        <div id="research-agent-map" class="research-agent-map" aria-label="Live LangGraph workflow: planner, four parallel specialists for TD3, SAC, federation and literature, writer, then judge with revision feedback">
+          <div id="research-role-planner" class="research-role research-role-planner"><span>01</span>Planner<small>No recorded events</small></div>
+          <div class="research-parallel-label">↓ FOUR PARALLEL SPECIALISTS ↓</div>
+          <div id="research-role-td3_specialist" class="research-role"><span>02</span>TD3 specialist<small>No recorded events</small></div>
+          <div id="research-role-sac_specialist" class="research-role"><span>03</span>SAC specialist<small>No recorded events</small></div>
+          <div id="research-role-federation_strategist" class="research-role"><span>04</span>Federation strategist<small>No recorded events</small></div>
+          <div id="research-role-literature_researcher" class="research-role"><span>05</span>Literature researcher<small>No recorded events</small></div>
+          <div class="research-parallel-label">↓ COMBINE EVIDENCE &amp; CHALLENGE ↓</div>
+          <div id="research-role-writer" class="research-role"><span>06</span>Writer<small>No recorded events</small></div>
+          <div id="research-role-judge" class="research-role"><span>07</span>Judge<small>No recorded events</small></div>
+          <p class="research-revision-link">Judge → accept, revise, or report insufficient evidence</p>
+        </div>
+        <p id="research-workflow-note" class="research-caption">Live workflow shown above. Roles light up only when their events are recorded.</p>
+        <p id="research-run-meta" class="research-caption">No research run yet.</p>
+        <div id="research-trace" class="research-trace" role="log" aria-label="Research decisions"><div class="research-empty"><span>01 → 07</span><p>The actual decisions, evidence gaps and stopping reason will appear here.</p></div></div>
+        <div class="research-trace-footer"><button id="research-refresh" class="text-button" type="button">Refresh saved state</button><a id="research-export" class="quiet-link" hidden>Download evidence bundle ↓</a></div>
+      </aside>
+    </div>
+    <div id="research-results" hidden>
+      <div class="research-result-heading"><div><div class="kicker">THE ANSWER, WITH ITS RECEIPTS</div><h3>Research findings</h3></div><span id="research-result-mode" class="pill"></span></div>
+      <p id="research-run-question" class="research-run-question"></p>
+      <div id="research-answer" class="panel research-answer"></div>
+      <div id="research-judgment" class="panel research-judgment"></div>
+      <div class="research-subheading"><h3>Claim-by-claim evidence</h3><p>Open a citation to inspect the saved source, exact excerpt and content fingerprint. Traceability and the judge’s support assessment are separate checks; confidence is not a statistical probability.</p></div>
+      <div id="research-claims" class="research-claims"></div>
+      <details class="panel research-source-list"><summary>All collected sources <span id="research-source-count"></span></summary><div id="research-sources"></div></details>
+      <div class="research-subheading"><h3>Proposed next experiments</h3><span class="pill">Proposals only · not launched</span></div><div id="research-proposals" class="research-proposals"></div>
+      <div class="panel research-limits"><h3>Limits &amp; stopping reason</h3><ul id="research-limitations"></ul><p id="research-stop-reason"></p></div>
+    </div>
+    <section id="research-shadow" class="research-shadow" aria-labelledby="research-shadow-heading">
+      <div class="heading-row"><div><div class="kicker">ISOLATED LOCAL EXPERIMENT · ACTUAL TORAX</div><h3 id="research-shadow-heading">Test a change in a shadow trial.</h3></div><span id="research-shadow-status" class="pill" role="status">Checking local runtime</span></div>
+      <p class="research-lede">Compare a baseline with one bounded candidate change using paired seeds. Freeze the source and configuration first, inspect the exact pilot budget, then run that frozen trial in its own directory.</p>
+      <div class="research-shadow-layout">
+        <article class="panel">
+          <form id="research-shadow-form">
+            <div class="panel-title"><h3>1. Configure &amp; freeze</h3><span class="pill">No model keys needed</span></div>
+            <div class="research-shadow-fields">
+              <div class="research-shadow-wide"><label for="research-shadow-change">CANDIDATE CHANGE</label><select id="research-shadow-change" disabled><option value="td3_actor_lr">TD3 actor learning rate</option></select></div>
+              <div class="research-shadow-wide"><label for="research-shadow-value">CANDIDATE VALUE</label><input id="research-shadow-value" type="number" step="any" min="0.000001" max="0.01" value="0.00005" required><select id="research-shadow-value-option" aria-label="Candidate value" hidden disabled></select><p id="research-shadow-baseline" class="research-caption">Planned baseline: normalized TD3 critic inputs. The selected field’s baseline value will be shown here.</p></div>
+              <div><label for="research-shadow-seeds">PAIRED TRAINING SEEDS</label><input id="research-shadow-seeds" type="text" value="17" maxlength="50" required inputmode="numeric" aria-describedby="research-shadow-budget-hint"></div>
+              <div><label for="research-shadow-rounds">ROUNDS PER ARM</label><select id="research-shadow-rounds"><option value="1">1 round</option><option value="2">2 rounds</option></select></div>
+            </div>
+            <p id="research-shadow-budget-hint" class="research-caption">Default paired pilot: 56 TORAX episodes (32 training + 24 evaluation). Choose 1–3 distinct seeds from 0–1,000,000 and 1–2 rounds. Separate seeds with commas. Torch/BLAS thread limit: 1; JAX may use additional threads. Shared CPU, 600-second limit.</p>
+            <p id="research-shadow-runtime" class="research-provider">Checking the laptop’s TORAX runtime…</p>
+            <button id="research-shadow-prepare" class="primary" type="submit" disabled>Freeze trial configuration →</button>
+          </form>
+        </article>
+        <article class="panel research-shadow-frozen">
+          <div class="panel-title"><h3>2. Inspect &amp; run</h3><span id="research-shadow-id" class="research-caption">No frozen trial</span></div>
+          <div class="research-shadow-stages" aria-label="Shadow trial stages"><span id="research-shadow-stage-frozen">Frozen</span><span id="research-shadow-stage-running">Running</span><span id="research-shadow-stage-completed">Results</span></div>
+          <p id="research-shadow-state-note" class="research-caption">Preparing a trial records its inputs and budget. It does not run physics.</p>
+          <div id="research-shadow-progress" class="research-shadow-progress" hidden><p id="research-shadow-progress-label" class="research-caption" role="status"></p><progress id="research-shadow-progress-bar" max="1" value="0" aria-label="Completed shadow trial episodes"></progress></div>
+          <div id="research-shadow-config" class="research-shadow-summary"><p class="muted">The frozen baseline and candidate will appear here.</p></div>
+          <div id="research-shadow-budget" class="research-shadow-summary"></div>
+          <details id="research-shadow-provenance" hidden><summary>Frozen source &amp; manifest</summary><pre id="research-shadow-manifest"></pre></details>
+          <div class="research-actions"><button id="research-shadow-start" type="button" class="primary" disabled>Run frozen trial ↗</button><button id="research-shadow-refresh" class="text-button" type="button">Refresh trial state</button><a id="research-shadow-export" class="quiet-link" hidden>Download trial record ↓</a></div>
+          <p class="research-caption">Fresh learners and separate trial files; CPU resources remain shared. Target controls are local, reset-only, uniform and clipped. This pilot uses in-process numerical aggregation and does not exercise Flower network transport. Existing runs and saved controllers are not modified.</p>
+        </article>
+      </div>
+      <div id="research-shadow-error" class="error" role="alert" hidden></div>
+      <div id="research-shadow-events" class="research-shadow-events" role="log" aria-label="Shadow trial events"></div>
+      <div id="research-shadow-results" class="panel" hidden>
+        <div class="panel-title"><h3>Baseline versus candidate</h3><span class="pill">Preliminary development evidence</span></div>
+        <div id="research-shadow-comparison" class="research-shadow-comparison"></div>
+        <div id="research-shadow-recommendation" class="research-shadow-recommendation"></div>
+        <p class="research-caption">A small paired pilot can expose failures or motivate a larger test. It does not establish general federation benefit, reactor safety, or deployment readiness. Failed and unfinished arms remain part of the result.</p>
+      </div>
+    </section>
+  </div>
+  <dialog id="research-source-dialog" class="research-source-dialog" aria-labelledby="research-source-title">
+    <div class="research-source-header"><div><div class="kicker">IMMUTABLE SOURCE SNAPSHOT</div><h3 id="research-source-title">Evidence source</h3></div><button id="research-source-close" class="research-secondary" type="button">Close ×</button></div>
+    <div id="research-source-body"></div>
+  </dialog>
+</section>
+<section class="app-section" id="investigate">
+  <div class="section-content">
+    <div class="kicker">HOSTED INVESTIGATION</div>
+    <h2>Run an investigation</h2>
+    <div class="work-grid">
+      <article class="panel investigation"><div class="panel-title"><h3>Investigation brief</h3><span class="pill">Flower hosted</span></div><p class="muted">An investigator asks facility stewards for evidence; each site gateway controls disclosure.</p><form id="run-form"><label for="prompt">INVESTIGATION BRIEF</label><textarea id="prompt" maxlength="12000" required>Investigate weak thermal response at facility-a. Ask stewards for context, balance and source evidence as needed. Compare facility-b and facility-c, reject unsuitable analogies, and recommend the next independent measurement at A.</textarea><div class="form-bottom"><span>Runs in <span id="run-federation">your default federation</span><br><small>Uses your Flower account and model quota</small></span><button class="primary" id="run-button" type="submit">Run investigation <span>↗</span></button></div></form><div id="run-error" class="error" role="alert" hidden></div></article>
+      <article class="panel run-card"><div class="panel-title"><h3>Latest agent run</h3><span id="run-status" class="pill">Loading</span></div><div class="run-metric"><span id="tool-count">—</span><span>tool calls<br><small>Site discovery → diagnosis → validation</small></span></div><div class="run-detail"><span>Runtime</span><strong>Flower AgentApp</strong></div><div class="run-detail"><span>Model</span><strong>GPT-5.6 Sol</strong></div><div class="run-detail"><span>Run ID</span><a id="run-id" target="_blank" rel="noopener">—</a></div><div class="run-footer"><span class="status-dot"></span><span id="run-caption" role="status">Reading saved run…</span></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="app-section" id="thermal">
+  <div class="section-content">
+    <div class="kicker">FACILITY EVIDENCE</div>
+    <div class="heading-row"><h2>Facility evidence</h2><span class="pill" id="thermal-mode">Local rehearsal · no LLM</span></div>
+    <div class="panel thermal-controls">
+      <div><label for="thermal-source">EVIDENCE SOURCE</label><select id="thermal-source"><option value="local">Local rehearsal · no LLM</option><option value="hosted">Latest hosted agent run</option><option value="imported">Imported THERMAL report</option></select></div>
+      <button class="primary" id="thermal-demo">Run local demonstration</button>
+      <div><label for="thermal-file">IMPORT A RECORDED REPORT</label><input type="file" id="thermal-file" accept="application/json"></div>
+      <div id="thermal-error" class="error" role="alert" hidden></div>
+    </div>
+    <div class="facility-picker-heading"><h3>Choose a device</h3><p class="muted">Click a tokamak to select its facility. Drag to inspect the geometry.</p></div>
+    <div id="thermal-cards" class="site-grid thermal-cards" role="group" aria-label="Choose a facility device"></div>
+    <p id="facility-selection" class="facility-selection" role="status"></p>
+    <a class="evidence-story-link" href="#sharing-story">See how B’s shared audit helps A →</a>
+    <p class="small muted">Illustrative geometry of synthetic facilities · selection also updates the thermal response tools · 3D views require WebGL.</p>
+    <div class="panel release-panel"><form id="release-form"><div><label for="release-site">FACILITY</label><select id="release-site"><option value="facility-a">A · requesting facility</option><option value="facility-b">B · partner facility</option><option value="facility-c">C · partner facility</option></select></div><div><label for="release-kind">EVIDENCE PRODUCT</label><select id="release-kind"><option value="context">Context · 1 unit</option><option value="balance">Balance · 2 units</option><option value="source_check">Source audit · 2 units</option><option value="raw_logs">Raw logs · prohibited</option></select></div><button type="submit" class="secondary" id="release-button">Request local release →</button></form><p class="small muted">context → balance → source audit · 5 policy units per facility and case · cached requests cost no additional units</p><p id="thermal-conclusion" class="thermal-conclusion" role="status">Release evidence to inspect what each facility permits.</p></div>
+  </div>
+</section>
+
+<section class="app-section" id="evidence-trail">
+  <div class="section-content">
+    <div class="kicker">RELEASE HISTORY</div>
+    <h2>Released evidence and decisions</h2>
+    <article class="panel sharing-story" id="sharing-story">
+      <div class="panel-title"><h3>How B’s shared evidence helps A</h3><span class="pill" id="sharing-source">Recorded evidence</span></div>
+      <p class="sharing-intro">B checks its own heating. The investigator shares the lesson with A.</p>
+      <div class="sharing-grid">
+        <div class="sharing-comparison"><h4>What changed at B?</h4><p class="muted">How quickly heat seems to escape · reference = B’s expected level in this model</p><svg id="audit-comparison-chart" viewBox="0 0 560 245" role="img" aria-label="Waiting for B’s released evidence"></svg><p id="sharing-audit" class="sharing-audit"></p><p class="small muted">Released categories, not exact measurements. The temperature profile itself is unchanged.</p></div>
+        <div class="sharing-next"><div class="sharing-transfer">APPROVED FINDING FROM B → INVESTIGATOR → A</div><h4>What should A do next?</h4><p id="sharing-next-step" role="status"></p><p id="sharing-a-status" class="muted"></p><p id="sharing-c-status" class="muted"></p></div>
+      </div>
+      <details class="sharing-details"><summary>Evidence behind this graphic</summary><div id="sharing-evidence-ids"></div></details>
+      <p class="footnote">This visual follows the selected evidence source and the replay position. The default facilities are synthetic; the demo illustrates sharing a useful clue, without measuring an advantage over a central agent.</p>
+    </article>
+    <div class="thermal-grid">
+      <article class="panel"><div class="panel-title"><h3>Released radial profiles</h3><span class="pill">Coarsened summaries</span></div><p class="muted small">Normalised temperature versus normalised minor radius. Spatial profiles, not time traces.</p><svg id="thermal-chart" viewBox="0 0 560 230" role="img" aria-label="Released radial temperature profiles"></svg><p id="thermal-legend" class="small muted">No profile has been released.</p><p class="footnote">A partner's audit can suggest a measurement. It cannot establish the cause at another facility.</p></article>
+      <article class="panel"><div class="panel-title"><h3>Evidence trail</h3><span id="thermal-progress" class="pill">0 / 0</span></div><div class="trail-controls"><button id="thermal-play" class="text-button">Play trail</button><button id="thermal-next" class="text-button">Next event</button><button id="thermal-rewind" class="text-button">Rewind view</button></div><ol id="thermal-trail"></ol></article>
+    </div>
+  </div>
+</section>
+
+<section class="app-section" id="physics">
+  <div class="section-content">
+    <div class="kicker">THERMAL MODEL</div>
+    <div class="heading-row"><h2>Thermal response tools</h2><span class="pill">Reduced 1-D model · in-browser · not TORAX</span></div>
+    <div class="physics-grid">
+      <div class="controls">
+        <p class="muted">The same steady-state transport solve the facilities run behind their gateways — ported line for line to the browser.</p>
+        <label for="physics-site">FACILITY</label>
+        <select id="physics-site"><option value="A">A · diiid_like · 2.0 T</option><option value="B">B · sparc_like · 12.2 T</option><option value="C">C · tcv_like · 1.44 T</option></select>
+        <div class="range-label"><label for="physics-power">DELIVERED HEATING</label><output id="physics-power-value" for="physics-power">1.00×</output></div>
+        <input id="physics-power" type="range" min="-3" max="0.18" step="0.01" value="0">
+        <div class="range-ticks"><span>0.1%</span><span>P_aux 1.00×</span><span>1.5×</span></div>
+        <div class="range-label"><label for="physics-assumed">ASSUMED / DELIVERED SOURCE</label><output id="physics-assumed-value" for="physics-assumed">×1.60</output></div>
+        <input id="physics-assumed" type="range" min="1" max="2" step="0.01" value="1.6">
+        <div class="range-ticks"><span>×1.00 audited</span><span>×1.60 commanded</span><span>×2.00</span></div>
+        <p class="small muted">Stiff transport pins the gradient: the profile barely moves while χ moves a lot — which is exactly why the source assumption matters.</p>
+      </div>
+      <div class="chart-area">
+        <div class="chart-header"><span>Solved T<sub>e</sub>(r) <small>steady-state power balance · bisection per cell</small></span><div class="legend"><span class="candidate-key"></span>This solve<span class="baseline-key"></span>Nominal</div></div>
+        <svg id="physics-chart" viewBox="0 0 560 230" role="img" aria-label="Solved radial temperature profile"></svg>
+        <div class="physics-readouts">
+          <div><strong id="physics-taxis">—</strong><small>CORE T_e</small></div>
+          <div><strong id="physics-chi">—</strong><small>TRUE χ (median)</small></div>
+          <div><strong id="physics-apparent">—</strong><small>APPARENT χ</small></div>
+        </div>
+        <div id="physics-verdict" class="physics-verdict" role="status">Adjust the sliders to reproduce the investigation.</div>
+        <div id="physics-device" class="physics-device"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="app-section" id="assembly">
+  <div class="section-content">
+    <div class="kicker">REACTOR GEOMETRY</div>
+    <div class="heading-row"><h2>3D reactor assembly</h2><button id="twin-load" class="text-button">Load 3D reactor assembly →</button></div>
+    <iframe id="twin-frame" class="twin-full" title="Interactive 3D tokamak assembly" hidden loading="lazy"></iframe>
+    <p class="twin-note">WebGL assembly of the facility selected in the thermal tools — plasma core, vacuum vessel cutaway, TF coils, central solenoid. Generated from the same registry parameters as the transport solve.</p>
+  </div>
+</section>
+
+<section class="app-section" id="sandbox">
+  <div class="section-content">
+    <div class="kicker">TOY VALIDATION</div>
+    <div class="heading-row"><h2>Candidate validation</h2><span class="muted small">demo-a/b/c are independent of the THERMAL facilities</span></div>
+    <div id="site-cards" class="site-grid"><p>Loading toy evidence…</p></div>
+    <div class="panel validation"><div class="validation-grid"><div class="controls"><p class="muted">Run the actual toy validation tool against baseline across three parameter perturbations.</p><label for="site-select">REQUESTING SITE</label><select id="site-select"><option value="demo-a">Demo A · requesting facility</option><option value="demo-b">Demo B · partner facility</option><option value="demo-c">Demo C · partner facility</option></select><div class="range-label"><label for="power">HEATING POWER SCALE</label><output id="power-value" for="power">1.43×</output></div><input id="power" type="range" min="0.5" max="1.5" step="0.01" value="1.43"><div class="range-ticks"><span>0.50×</span><span>Baseline 1.00×</span><span>1.50×</span></div><button id="validate-button" class="secondary">Validate candidate →</button><p class="small muted">6 toy rollouts · 60 steps each · 0 physical shots</p><div id="validation-error" class="error" role="alert" hidden></div></div><div class="chart-area"><div class="chart-header"><span>Mean tracking error <small>↓ lower is better</small></span><div class="legend"><span class="baseline-key"></span>Baseline<span class="candidate-key"></span>Candidate</div></div><svg id="chart" viewBox="0 0 570 215" role="img" aria-label="Tracking error by model uncertainty scenario"></svg><div class="chart-labels"><span>Lower effectiveness</span><span>Fitted model</span><span>Higher effectiveness</span></div><div id="verdict" class="verdict" role="status">Computing validation…</div></div></div><p class="footnote">Model sensitivity only. A passing candidate does not authorize deployment or prove physical transfer.</p></div>
+  </div>
+</section>
+
+<section class="app-section" id="report">
+  <div class="section-content">
+    <div class="kicker">INVESTIGATION REPORT</div>
+    <div class="heading-row"><h2>Agent report</h2><div class="report-actions"><button id="copy-report" class="text-button">Copy report</button><a class="quiet-link" id="flower-link" target="_blank" rel="noopener" href="https://flower.ai">Open in Flower ↗</a></div></div>
+    <div class="report-meta"><span class="status-dot"></span> Actual hosted agent output <span>·</span> kept separate from the interactive rehearsals</div>
+    <div class="report-scroll">
+      <div id="report-text" class="report-text">Loading the completed investigation…</div>
+      <details><summary>Tool evidence <span id="audit-count"></span></summary><div id="audit"></div></details>
+      <details><summary>Runtime logs</summary><pre id="logs"></pre></details>
+    </div>
+  </div>
+</section>
+</main><footer class="app-footer">Fusion research app · advisory workflow · simulation provenance shown per tool</footer></body></html>
