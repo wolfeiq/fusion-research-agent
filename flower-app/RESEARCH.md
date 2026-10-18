@@ -559,8 +559,9 @@ remain in the record; they are not replaced by the accepted draft.
 
 ## Verification and CLI
 
-The completed implementation passed 667 app tests (one skipped), 33 worker
-tests and 28 browser-logic tests. Ruff passed. Worker tests use explicit synthetic
+An earlier implementation checkpoint passed 667 app tests (one skipped), 33 worker
+tests and 28 browser-logic tests. Current public-repository counts and live attempts
+are recorded in [the verification log](../docs/verification_log.md). Ruff passed. Worker tests use explicit synthetic
 physics fixtures with the real learners; the separately documented 56-episode
 pilot used live TORAX. The rendered app was checked in the browser. All 57
 original source/calibration hashes still matched after that pilot. An additional
@@ -598,8 +599,9 @@ Suggested two-minute demo: ask the cold-start question; show the four parallel
 specialists; inspect the recorded clipping calculation; open a local JSON citation
 and a paper citation; show the judge's verdict and any revision; inspect a typed
 next-trial proposal with its implementation and budget limits. Record one uninterrupted live
-run once credentials work. Public GitHub submission and demo recording are
-separate release steps, not performed by this feature.
+run after independent content verification. The code is published in the public
+`wolfeiq/fusion-research-agent` repository; recording and submitting the two-minute
+demo remain separate release steps.
 
 ## Further integration — not implemented
 

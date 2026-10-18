@@ -44,15 +44,15 @@ uv run --env-file .env.research --no-sync python dashboard.py
 Ask: **Does the saved evidence justify claiming federation helps a cold-start
 reactor, and which small experiment should we run next?** Select the real example
 evidence and live mode. The trace records plans, search/extraction calls, findings,
-citations and judgment. The judge can request a second research round or return
-insufficient evidence. Exact quotations are checked against extracted pages;
+citations and judgment. The judge can trigger one bounded writer repair using captured evidence, request
+a second research round within the call budget, or return insufficient evidence. Exact quotations are checked against extracted pages;
 experiment claims point into hash-verified JSON. Traceability alone is not proof
 of semantic truth: inspect the judge's report and click the cited sources.
 
 ## Enable actual TORAX shadow trials
 
-The app and RL worker deliberately use different virtual environments because
-their Flower versions differ. The research UI can run without the RL environment.
+The app and RL worker use separate virtual environments to isolate web-agent
+dependencies from the TORAX numerical runtime. The research UI can run without the RL environment.
 To enable fresh numerical trials, run these commands from the repository root:
 
 ```sh
@@ -93,7 +93,8 @@ flowchart LR
   PLAN --> TEAM[TD3 / SAC / federation / literature specialists]
   TEAM --> WRITE[Writer + citation verifier]
   WRITE --> JUDGE[Separate model judge]
-  JUDGE -->|Evidence gaps: one revision| PLAN
+  JUDGE -->|Citation gaps: one bounded repair| WRITE
+  JUDGE -->|New evidence needed, budget permitting| PLAN
   JUDGE --> REPORT[Cited findings + next-run proposal]
   TEAM -->|Optional bounded test| WORKER[Separate CPU TORAX worker]
   WORKER -->|Measured comparison + hashes| APP
@@ -121,7 +122,7 @@ uv run --no-sync python -m pytest tests -q
 Frontend tests use Node's built-in test runner; there is no npm install/build:
 
 ```sh
-node --test tests/test_shadow_frontend.cjs
+node --test --test-isolation=none tests/test_shadow_frontend.cjs
 ```
 
 With the root RL environment installed, from the root:
@@ -134,3 +135,9 @@ Unit fixtures may use a synthetic plant; they are labelled and never substituted
 for the live TORAX command. A successful unit suite is not a live-provider result.
 The four 3D device views require WebGL and externally hosted pinned Three.js
 scripts; ordinary controls remain available if those views cannot load.
+
+The clean Windows CPU environment passed **936 app tests**, **33 frontend tests**
+and **252 root RL tests**. Two app tests and one optional legacy-transport test
+were skipped; two existing Typer/Click deprecation warnings remain. See the
+[verification log](docs/verification_log.md) and [known limits](docs/known_issues.md)
+for live attempts, failures and the independent content audit.
