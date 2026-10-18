@@ -56,6 +56,12 @@
         </div>
         <p id="research-workflow-note" class="research-caption">Live workflow shown above. Roles light up only when their events are recorded.</p>
         <p id="research-run-meta" class="research-caption">No research run yet.</p>
+        <section id="research-run-context" class="research-run-context" aria-labelledby="research-run-context-heading" hidden>
+          <h4 id="research-run-context-heading">Displayed run request</h4>
+          <p id="research-saved-question" class="research-run-question"></p>
+          <p id="research-saved-shadow-permission" class="research-caption"></p>
+          <p class="research-caption">The question and permission above belong to this saved run. The form is a separate draft for your next request.</p>
+        </section>
         <div id="research-trace" class="research-trace" role="log" aria-label="Research decisions"><div class="research-empty"><span>01 → 07</span><p>The actual decisions, evidence gaps and stopping reason will appear here.</p></div></div>
         <div class="research-trace-footer"><button id="research-refresh" class="text-button" type="button">Refresh saved state</button><a id="research-export" class="quiet-link" hidden>Download evidence bundle ↓</a></div>
       </aside>

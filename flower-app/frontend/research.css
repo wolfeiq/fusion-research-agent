@@ -24,6 +24,10 @@
 .research-credentials .configured{color:var(--ok);border-color:#304a35}
 .research-credentials .missing{color:var(--warn);border-color:#4d3a25}
 .research-provider{font:10px var(--mono);color:var(--muted);overflow-wrap:anywhere;margin:9px 0 16px}
+.research-run-context{border:1px solid var(--research-line);padding:14px;margin:12px 0;background:var(--bg)}
+.research-run-context h4{font:11px var(--mono);color:var(--research-blue);margin:0 0 8px}
+.research-run-context .research-run-question{font:12px/1.6 var(--sans);white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 10px}
+.research-run-context .research-caption:last-child{margin-bottom:0}
 .research-actions{display:flex;flex-wrap:wrap;gap:10px}
 .research-workspace .primary{background:var(--research-blue);color:#101426}
 .research-workspace .primary:hover{background:#b7c0ff}

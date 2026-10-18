@@ -30,7 +30,7 @@ const html = fs.readFileSync(path.join(root, 'frontend/index.html'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'frontend/research.js'), 'utf8');
 const flush = () => new Promise(setImmediate);
 
-async function harness({available = true, initialRun, researchConfigured = false, researchCatalog} = {}) {
+async function harness({available = true, initialRun, initialResearchRun, researchConfigured = false, researchCatalog} = {}) {
   const elements = {};
   for (const match of html.matchAll(/<([a-z]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)) {
     assert(!elements[match[3]], `Duplicate id: ${match[3]}`);
@@ -53,7 +53,7 @@ async function harness({available = true, initialRun, researchConfigured = false
     ], limits: {max_seeds: 3, max_rounds: 2, max_seconds: 600}},
     run: initialRun || {id: null, status: 'idle', events: [], comparison: null},
   };
-  const research = {active: false, configured: {nebius: researchConfigured, tavily: researchConfigured}, catalog: researchCatalog || [{id: 'saved-study', title: 'Study', kind: 'experiment', status: 'complete'}], run: {}};
+  let research = {active: false, configured: {nebius: researchConfigured, tavily: researchConfigured}, catalog: researchCatalog || [{id: 'saved-study', title: 'Study', kind: 'experiment', status: 'complete'}], run: initialResearchRun || {}};
   const context = {
     URL, URLSearchParams, Set, JSON,
     setTimeout: (fn, delay) => { const timer = {fn, delay, active: true}; timers.push(timer); return timer; },
@@ -81,8 +81,44 @@ async function harness({available = true, initialRun, researchConfigured = false
   await flush();
   const get = (name) => elements[`research-shadow-${name}`];
   const fire = async (name, event = 'click') => { get(name).listeners[event]({preventDefault() {}}); await flush(); };
-  return {get, fire, calls, timers, elements, examples, setState: (value) => { shadow = value; }, state: () => shadow};
+  return {get, fire, calls, timers, elements, examples, setState: (value) => { shadow = value; }, state: () => shadow,
+    setResearchState: (value) => { research = {...research, ...value}; }};
 }
+
+test('saved API run request is visible before a report and refresh preserves pending form edits', async () => {
+  const h = await harness({initialResearchRun: {id: 'api-started', mode: 'live', status: 'running',
+    question: 'Recorded question <script>literal text</script>', allow_shadow: true, events: []}});
+  assert.equal(h.elements['research-run-context'].hidden, false);
+  assert.equal(h.elements['research-saved-question'].textContent, 'Recorded question <script>literal text</script>');
+  assert.match(h.elements['research-saved-shadow-permission'].textContent, /enabled for this run/);
+  assert.match(h.elements['research-saved-shadow-permission'].textContent, /does not mean a pilot ran/);
+  assert.equal(h.elements['research-results'].hidden, true);
+  h.elements['research-question'].value = 'My next draft question';
+  h.elements['research-allow-shadow'].checked = true;
+  h.setResearchState({run: {id: 'other-saved-run', mode: 'live', status: 'failed',
+    question: 'A different saved request', allow_shadow: false, events: []}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.match(h.elements['research-run-meta'].textContent, /other-saved-run/);
+  assert.equal(h.elements['research-saved-question'].textContent, 'A different saved request');
+  assert.match(h.elements['research-saved-shadow-permission'].textContent, /disabled for this run/);
+  assert.equal(h.elements['research-question'].value, 'My next draft question');
+  assert.equal(h.elements['research-allow-shadow'].checked, true);
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
+test('saved permission distinguishes missing metadata from explicit refusal and offline inspection', async () => {
+  const h = await harness({initialResearchRun: {id: 'legacy', mode: 'live', status: 'completed', events: []}});
+  assert.equal(h.elements['research-saved-question'].textContent, 'Question not recorded for this saved run.');
+  assert.match(h.elements['research-saved-shadow-permission'].textContent, /not recorded/);
+  h.setResearchState({run: {id: 'offline', mode: 'offline', allow_shadow: false, events: []}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.match(h.elements['research-saved-shadow-permission'].textContent, /unavailable in local inspection/);
+  h.setResearchState({run: {}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.equal(h.elements['research-run-context'].hidden, true);
+  assert.equal(h.elements['research-saved-question'].textContent, '');
+  assert.equal(h.elements['research-saved-shadow-permission'].textContent, '');
+});
 
 test('fresh clone selects both published pilots without assuming a federation dossier', async () => {
   const pilots = ['993df979e388405297f0195bfca504d6', '43d55b69d02440b3a019cf9b64f6845a'].map((id) => ({

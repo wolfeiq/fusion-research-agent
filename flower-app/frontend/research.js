@@ -270,6 +270,15 @@
     byId('status').textContent = label(run.status || 'ready');
     byId('mode').textContent = data.active ? 'Research running' : 'Ready';
     byId('run-meta').textContent = run.id ? `${run.mode === 'live' ? 'Live research' : 'Local inspection'} · Run ${run.id}` : 'No research run yet.';
+    byId('run-context').hidden = !run.id;
+    byId('saved-question').textContent = run.id ? run.question || 'Question not recorded for this saved run.' : '';
+    byId('saved-shadow-permission').textContent = !run.id ? '' : run.mode === 'offline'
+      ? 'Shadow permission: unavailable in local inspection; no training runs.'
+      : run.allow_shadow === true
+        ? 'Shadow permission: enabled for this run, for at most one bounded pilot. Permission does not mean a pilot ran.'
+        : run.allow_shadow === false
+          ? 'Shadow permission: disabled for this run; no pilot authorized.'
+          : 'Shadow permission: not recorded for this saved run.';
     byId('export').hidden = !run.id;
     if (run.id) byId('export').href = endpoint('export', {run_id: run.id});
     renderTrace(array(run.events), run); renderReport(run); controls();
