@@ -5,24 +5,23 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/research.css">
-<script src="/research.js" defer></script>
-<script src="/app.js" defer></script><script src="/thermal.js" defer></script><script src="/physics.js" defer></script></head>
+<script src="/research.js" defer></script></head>
 <body class="application">
 <header class="app-header"><a class="app-brand" href="#research">Fusion Investigator <small>RESEARCH WORKSPACE</small></a>
-<nav aria-label="App sections"><a href="#research">Research</a><a href="#investigate">Investigate</a><a href="#thermal">Facility evidence</a><a href="#physics">Physics tools</a><a href="#assembly">3D assembly</a><a href="#report">Report</a></nav>
+<nav aria-label="App sections"><a href="#research">Research</a><a href="#research-records">Saved datasets</a><a href="#research-results">Findings</a></nav>
 <a class="presentation-link" href="#research-shadow">Live TORAX · Beta ↗</a></header>
 <main class="app-main"><div class="app-intro">
-  <div class="intro-meta"><span>TORAX / FLOWER / LANGGRAPH</span><span>EXPERIMENTS → EVIDENCE → NEXT QUESTIONS</span></div>
+  <div class="intro-meta"><span>TORAX / NEBIUS / TAVILY / LANGGRAPH</span><span>EXPERIMENTS → EVIDENCE → NEXT QUESTIONS</span></div>
   <h1><span>Fusion</span><span>Investigator</span></h1>
   <div class="intro-bottom"><p class="intro-statement">Better questions.<br>Traceable answers.</p><p>Investigate federated reinforcement learning with recorded TORAX simulations, live literature and an inspectable agent workflow.</p><a class="intro-action" href="#research">Start with the evidence <span>↓</span></a></div>
   <div class="intro-index" aria-label="Research workflow"><div><span>01 / EXPERIMENTS</span><strong>Recorded TORAX data</strong><small>TD3 heating · SAC deposition · federation</small></div><div><span>02 / RESEARCH</span><strong>Nebius × Tavily</strong><small>Specialists, a writer and a skeptical judge</small></div><div><span>03 / REVIEW</span><strong>Sources you can inspect</strong><small>Measurements, exact excerpts and next-run proposals</small></div></div>
-  <p class="intro-scope">Simulation research, not reactor operation. The thermal tools below use a reduced 1-D model; each output identifies its source.</p>
+  <p class="intro-scope">Simulation research, not reactor operation. Saved experiments are the default; generating new TORAX data requires a separate, explicit beta opt-in.</p>
 </div>
 <section class="app-section research-workspace" id="research" aria-labelledby="research-heading">
   <div class="section-content">
     <div class="kicker">01 / RESEARCH · NEBIUS TOKEN FACTORY × TAVILY</div>
     <div class="heading-row"><h2 id="research-heading">Ask. Investigate. Review.</h2><span class="pill">Saved experiments → reviewed proposals</span></div>
-    <p class="research-lede">Read recorded TORAX experiments for TD3 heating, SAC deposition and aggregation. Four LangGraph specialists compare the selected evidence with literature; a writer and skeptical judge produce a cited answer and a proposed next experiment. Saved Flower coordinator dossiers can also be inspected when available and selected.</p>
+    <p class="research-lede">Read recorded TORAX experiments for TD3 heating, SAC deposition and aggregation. Four LangGraph specialists compare the selected evidence with literature; a writer and skeptical judge produce a cited answer and a proposed next experiment.</p>
     <div class="research-layout">
       <article class="panel research-brief">
         <div class="panel-title"><h3>What should we investigate?</h3><span id="research-mode" class="pill">Ready</span></div>
@@ -37,15 +36,15 @@
             <button type="button" data-research-example="transfer">Why can transfer hurt?</button>
             <button type="button" data-research-example="architecture">Audit the architecture</button>
           </div>
-          <fieldset class="research-records"><legend>SAVED TORAX DATASETS <span id="research-selection-count">0 selected</span></legend><p class="research-default-note"><strong>Default: analyze saved simulation data.</strong> These are recorded TORAX experiments, not measurements from operating reactors. Select 1–8 records, including an experiment summary. The agent reads the selected data and searches the literature; it does not start training.</p><div id="research-catalog"><p class="muted">Loading available records…</p></div></fieldset>
+          <fieldset id="research-records" class="research-records"><legend>SAVED TORAX DATASETS <span id="research-selection-count">0 selected</span></legend><p class="research-default-note"><strong>Default: analyze saved simulation data.</strong> These are recorded TORAX experiments, not measurements from operating reactors. Select 1–8 records, including an experiment summary. The agent reads the selected data and searches the literature; it does not start training.</p><div id="research-catalog"><p class="muted">Loading available records…</p></div></fieldset>
           <div class="research-credentials" aria-label="Provider configuration"><span id="research-nebius">Token Factory · checking</span><span id="research-tavily">Tavily · checking</span></div>
           <p id="research-provider" class="research-provider">Credentials stay on the server.</p>
           <div class="research-actions"><button id="research-live" class="primary" type="submit" disabled>Analyze with Nebius + Tavily ↗</button><button id="research-offline" class="research-secondary" type="button" disabled>Inspect local evidence</button></div>
           <p class="research-caption">Research uses model and search credits to analyze saved data. Local inspection is deterministic: no LLM, web search or training. Generating new TORAX data is a separate, optional beta feature.</p>
-          <p class="research-tool-note"><strong>Evidence tools:</strong> Agents read selected experiments and obtain exact citations for saved values and extracted web pages. <code>inspect_federation</code>, <code>compare_clipping</code> and <code>draft_policy_trial</code> require a selected federation dossier; recorded shadow comparisons are read as experiment evidence. These tools do not optimize an online controller.</p>
+          <p class="research-tool-note"><strong>Follow the evidence:</strong> Inspect the selected experiments, recorded values and exact literature excerpts. The agent can recommend a bounded next run; its report does not change an online controller.</p>
           <label class="research-shadow-opt-in" for="research-allow-shadow"><input id="research-allow-shadow" type="checkbox"><span><strong>Live TORAX generation <span class="research-beta">Experimental / Beta — may fail</span></strong><small>Off by default. Explicitly allow the strategist to request one isolated pilot with a chosen development seed, one round and a 600-second simulation limit. It may decline to run. Total research limit: 18 minutes. Physics, learning or reporting may fail; failures and partial outputs are retained. Existing experiments and controllers are not changed.</small></span></label>
         </form>
-        <div id="research-error" class="error" role="alert" hidden></div>
+        <section id="research-error" class="research-recovery" role="alert" aria-labelledby="research-error-heading" hidden><h4 id="research-error-heading">Research needs attention</h4><p id="research-error-message"></p><p class="research-caption">The last available evidence and trace remain visible below, labeled with their run. Check saved state first if a request was interrupted. Retrying saved-data research uses model/search credits and always leaves live TORAX generation off.</p><div class="research-actions"><button id="research-error-refresh" class="research-secondary" type="button">Check saved state</button><button id="research-retry" class="research-secondary" type="button">Retry saved-data research</button><button id="research-error-offline" class="research-secondary" type="button">Inspect local evidence</button></div></section>
       </article>
       <aside class="panel research-trace-panel" aria-labelledby="research-trace-heading">
         <div class="panel-title"><h3 id="research-trace-heading">Decision trace</h3><span id="research-status" class="pill" role="status">Loading</span></div>
@@ -69,11 +68,12 @@
           <p id="research-saved-shadow-permission" class="research-caption"></p>
           <p class="research-caption">The question and permission above belong to this saved run. The form is a separate draft for your next request.</p>
         </section>
-        <div id="research-trace" class="research-trace" role="log" aria-label="Research decisions"><div class="research-empty"><span>01 → 07</span><p>The actual decisions, evidence gaps and stopping reason will appear here.</p></div></div>
+        <p id="research-trace-context" class="research-caption"></p><div id="research-trace" class="research-trace" role="log" aria-label="Research decisions"><div class="research-empty"><span>01 → 07</span><p>The actual decisions, evidence gaps and stopping reason will appear here.</p></div></div>
         <div class="research-trace-footer"><button id="research-refresh" class="text-button" type="button">Refresh saved state</button><a id="research-export" class="quiet-link" hidden>Download evidence bundle ↓</a></div>
       </aside>
     </div>
     <div id="research-results" hidden>
+      <p id="research-retained-evidence" class="research-retained-evidence" hidden></p>
       <div class="research-result-heading"><div><div class="kicker">RECORDED EVIDENCE &amp; OPEN QUESTIONS</div><h3>Research findings</h3></div><span id="research-result-mode" class="pill"></span></div>
       <p id="research-run-question" class="research-run-question"></p>
       <div id="research-answer" class="panel research-answer"></div>
@@ -113,7 +113,7 @@
           <div id="research-shadow-budget" class="research-shadow-summary"></div>
           <details id="research-shadow-provenance" hidden><summary>Frozen source &amp; manifest</summary><pre id="research-shadow-manifest"></pre></details>
           <div class="research-actions"><button id="research-shadow-start" type="button" class="primary" disabled>Generate TORAX data (Beta) ↗</button><button id="research-shadow-refresh" class="text-button" type="button">Refresh trial state</button><a id="research-shadow-export" class="quiet-link" hidden>Download trial record ↓</a></div>
-          <p class="research-caption">Fresh learners and separate trial files; CPU resources remain shared. Target controls are local, reset-only, uniform and clipped. This pilot uses in-process numerical aggregation and does not exercise Flower network transport. Existing runs and saved controllers are not modified.</p>
+          <p class="research-caption">Fresh learners and separate trial files; CPU resources remain shared. Target controls are local, reset-only, uniform and clipped. This pilot uses in-process numerical aggregation; networked federation is not exercised. Existing runs and saved controllers are not modified.</p>
         </article>
       </div>
       <div id="research-shadow-error" class="error" role="alert" hidden></div>
@@ -131,6 +131,8 @@
     <div id="research-source-body"></div>
   </dialog>
 </section>
+<!-- Compatibility markup is inert; legacy scripts are not loaded by this research app. -->
+<div id="legacy-workspace" hidden inert aria-hidden="true">
 <section class="app-section" id="investigate">
   <div class="section-content">
     <div class="kicker">HOSTED INVESTIGATION</div>
@@ -244,4 +246,5 @@
     </div>
   </div>
 </section>
-</main><footer class="app-footer">Fusion research app · advisory workflow · simulation provenance shown per tool</footer></body></html>
+</div>
+</main><footer class="app-footer"><span>Fusion Investigator · Nebius Token Factory × Tavily</span><span>Saved TORAX evidence · proposed experiments · human review</span></footer></body></html>

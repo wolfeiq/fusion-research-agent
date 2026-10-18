@@ -42,7 +42,7 @@ async function harness({available = true, initialRun, initialResearchRun, resear
     const button = new Element('button'); button.dataset.researchExample = match[1]; return button;
   });
   elements['research-shadow-rounds'].value = '1';
-  const calls = [], timers = [];
+  const calls = [], timers = [], pendingResponses = [];
   let generation = 0;
   let shadow = {
     active: false,
@@ -55,12 +55,19 @@ async function harness({available = true, initialRun, initialResearchRun, resear
   };
   let research = {active: false, configured: {nebius: researchConfigured, tavily: researchConfigured}, catalog: researchCatalog || [{id: 'saved-study', title: 'Study', kind: 'experiment', status: 'complete'}], run: initialResearchRun || {}};
   const context = {
-    URL, URLSearchParams, Set, JSON,
+    URL, URLSearchParams, Set, JSON, AbortController,
     setTimeout: (fn, delay) => { const timer = {fn, delay, active: true}; timers.push(timer); return timer; },
     clearTimeout: (timer) => { if (timer) timer.active = false; },
     document: {getElementById: (id) => elements[id], createElement: (tag) => new Element(tag), querySelectorAll: () => examples},
     fetch: async (url, options = {}) => {
       calls.push({url, options});
+      const override = pendingResponses.findIndex((item) => item.url === url && item.method === (options.method || 'GET'));
+      if (override >= 0) {
+        const selected = pendingResponses.splice(override, 1)[0];
+        if (selected.response instanceof Error) throw selected.response;
+        if (typeof selected.response === 'function') return selected.response(options);
+        return selected.response;
+      }
       if (url === '/api/research') return {ok: true, json: async () => research};
       if (url.startsWith('/api/research/source?')) {
         const source = researchSources[new URL(url, 'http://localhost').searchParams.get('source_id')];
@@ -86,7 +93,8 @@ async function harness({available = true, initialRun, initialResearchRun, resear
   const get = (name) => elements[`research-shadow-${name}`];
   const fire = async (name, event = 'click') => { get(name).listeners[event]({preventDefault() {}}); await flush(); };
   return {get, fire, calls, timers, elements, examples, setState: (value) => { shadow = value; }, state: () => shadow,
-    setResearchState: (value) => { research = {...research, ...value}; }};
+    setResearchState: (value) => { research = {...research, ...value}; },
+    respondOnce: (url, method, response) => pendingResponses.push({url, method, response})};
 }
 
 test('saved API run request is visible before a report and refresh preserves pending form edits', async () => {
@@ -140,7 +148,7 @@ test('fresh clone selects both published pilots without assuming a federation do
   assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
 });
 
-test('the three saved TORAX scenarios are default selections with readable scope, regardless of outcomes', async () => {
+test('one focused TD3 audit is selected by default and all three saved scenarios stay visible', async () => {
   const ids = ['dc0df0a81413479e979a18895e1fe2fe', 'fbb83d8ee93a424497aeacc0a2633dc3', '12eddcebd2c548d889b41d3f2adace91'];
   const records = ids.map((id, index) => ({
     id: `examples/evidence/shadow/${id}/comparison.json`, title: 'Opaque original title',
@@ -151,23 +159,24 @@ test('the three saved TORAX scenarios are default selections with readable scope
     ...records.slice().reverse()
   ]});
   const checked = h.elements['research-catalog'].querySelectorAll('input').filter((input) => input.checked);
-  assert.deepEqual(checked.map((input) => input.value), records.map((row) => row.id));
+  assert.deepEqual(checked.map((input) => input.value), [records[2].id]);
   assert.deepEqual(h.elements['research-catalog'].querySelectorAll('strong').slice(0, 3).map((item) => item.textContent), [
+    'TD3 critic action coordinates: normalized → physical',
     'SAC learning rate: 0.0003 → 0.0001',
-    'SAC critic federation: mixing 0.25 → 0.10',
-    'TD3 critic action coordinates: normalized → physical'
+    'SAC critic federation: mixing 0.25 → 0.10'
   ]);
   const scope = h.elements['research-catalog'].querySelectorAll('small').filter((item) => /Saved SPARC-like TORAX simulation/.test(item.textContent));
   assert.equal(scope.length, 3);
   assert(scope.every((item) => /paired seed 29 · 1 round · 56 episodes · development, not confirmation/.test(item.textContent)));
-  assert.equal(h.elements['research-selection-count'].textContent, '3/8 selected');
+  assert.equal(h.elements['research-selection-count'].textContent, '1/8 selected');
+  assert.match(descendantText(h.elements['research-catalog']), /Recommended first audit.*not a promised federation win/);
   assert.equal(h.elements['research-allow-shadow'].checked, false);
   assert.equal(h.elements['research-live'].textContent, 'Analyze saved data + literature ↗');
   assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
   h.elements['research-question'].value = 'Analyze these saved TORAX datasets';
   h.elements['research-form'].listeners.submit({preventDefault() {}}); await flush();
   const request = h.calls.find((call) => call.options.method === 'POST');
-  assert.deepEqual(JSON.parse(request.options.body).record_ids, records.map((row) => row.id));
+  assert.deepEqual(JSON.parse(request.options.body).record_ids, [records[2].id]);
   assert.equal(JSON.parse(request.options.body).allow_shadow, false);
 });
 
@@ -331,7 +340,7 @@ test('failed and timed-out trials cannot be silently relaunched', async () => {
     h.setState({...h.state(), active: false, run: {...h.state().run, status, error: 'Recorded failure'}});
     await h.fire('refresh'); await h.fire('start');
     assert.equal(h.get('start').disabled, true);
-    assert.equal(h.get('error').textContent, 'Recorded failure');
+    assert.match(h.get('error').textContent, /beta trial did not complete/);
   }
   assert.equal(h.calls.filter((call) => call.url.endsWith('/start')).length, 0);
 });
@@ -644,4 +653,139 @@ test('hypotheses with unknown sources are visibly excluded from recorded finding
   assert.match(descendantText(h.elements['research-model-claims']), /Excluded: invalid source references/);
   assert.doesNotMatch(descendantText(h.elements['research-claims']), /Invalid speculative statement/);
   assert.equal(h.elements['research-model-draft'].open, false);
+});
+
+test('the visible app loads only the new research workspace and keeps legacy surfaces inert', () => {
+  assert.deepEqual([...html.matchAll(/<script src="([^"]+)"/g)].map((item) => item[1]), ['/research.js']);
+  assert.match(html, /id="legacy-workspace" hidden inert aria-hidden="true"/);
+  const visible = html.slice(0, html.indexOf('<div id="legacy-workspace"'));
+  assert.doesNotMatch(visible, /href="#(?:investigate|thermal|physics|assembly|report)"/);
+  assert.doesNotMatch(visible, /TORAX \/ FLOWER|Flower hosted|SuperGrid/);
+  assert.match(visible, /TORAX \/ NEBIUS \/ TAVILY \/ LANGGRAPH/);
+});
+
+test('a failed new run retains the previous report and trace with explicit separate run labels', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {
+    id: 'previous-good', mode: 'live', status: 'completed', question: 'Previous question',
+    events: [{agent: 'planner', kind: 'plan', message: 'Prior recorded decision'}],
+    report: {grounded_publication: publicationFixture()}
+  }});
+  h.setResearchState({run: {id: 'new-failed', mode: 'live', status: 'failed', events: [], error: 'RAW SECRET PROVIDER TRACE'}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.equal(h.elements['research-results'].hidden, false);
+  assert.match(h.elements['research-answer'].textContent, /Recorded seed 17 endpoint/);
+  assert.match(h.elements['research-retained-evidence'].textContent, /Previous saved report · run previous-good.*current run new-failed/);
+  assert.equal(h.elements['research-retained-evidence'].hidden, false);
+  assert.match(h.elements['research-trace-context'].textContent, /Previous trace · run previous-good.*current run new-failed/);
+  assert.match(descendantText(h.elements['research-trace']), /Prior recorded decision/);
+  assert.doesNotMatch(descendantText(h.elements['research-error']), /RAW SECRET/);
+  assert.match(h.elements['research-error-message'].textContent, /stopped before completing/);
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.equal(h.elements['research-retained-evidence'].hidden, false);
+  const citation = h.elements['research-claims'].querySelectorAll('button')[0];
+  citation.listeners.click(); await flush();
+  assert(h.calls.some((call) => call.url.includes('run_id=previous-good')));
+});
+
+test('explicit recovery checks saved state then retries without authorizing physics', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {id: 'failed1', mode: 'live', status: 'failed', events: [], error: 'No provider response'}});
+  h.elements['research-question'].value = 'Read the saved experiment';
+  h.elements['research-allow-shadow'].checked = true;
+  const before = h.calls.length;
+  h.elements['research-retry'].listeners.click(); await flush();
+  const retryCalls = h.calls.slice(before);
+  assert.equal(retryCalls[0].url, '/api/research');
+  assert.equal(retryCalls[0].options.method, undefined);
+  const posts = retryCalls.filter((call) => call.options.method === 'POST');
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].url, '/api/research');
+  assert.equal(JSON.parse(posts[0].options.body).allow_shadow, false);
+  assert.equal(h.elements['research-allow-shadow'].checked, false);
+  assert.equal(h.calls.filter((call) => call.url === '/api/shadow/start').length, 0);
+});
+
+test('recovery never duplicates an accepted request discovered after a lost POST response', async () => {
+  const h = await harness({researchConfigured: true});
+  h.elements['research-question'].value = 'Read saved evidence';
+  h.respondOnce('/api/research', 'POST', () => {
+    h.setResearchState({active: true, run: {id: 'accepted-on-server', mode: 'live', status: 'running', events: []}});
+    throw new Error('PRIVATE TRANSPORT TOKEN');
+  });
+  h.elements['research-form'].listeners.submit({preventDefault() {}}); await flush();
+  assert.match(h.elements['research-error-message'].textContent, /saved server state.*no duplicate request/);
+  assert.match(h.elements['research-run-meta'].textContent, /accepted-on-server/);
+  assert.equal(h.elements['research-retry'].disabled, true);
+  h.elements['research-retry'].listeners.click(); await flush();
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 1);
+  assert.doesNotMatch(h.elements['research-error-message'].textContent, /PRIVATE/);
+});
+
+test('a timed-out read restores controls and preserves visible evidence without exposing exception text', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {id: 'known', mode: 'live', status: 'insufficient_evidence', report: {grounded_publication: publicationFixture()}, events: [{kind: 'read', message: 'Saved trace'}]}});
+  h.respondOnce('/api/research', 'GET', (options) => new Promise((_resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('INTERNAL SECRET')))));
+  h.elements['research-refresh'].listeners.click(); await flush();
+  const deadline = h.timers.find((timer) => timer.active && timer.delay === 20000);
+  assert(deadline); deadline.fn(); await flush();
+  assert.match(h.elements['research-error-message'].textContent, /within 20 seconds/);
+  assert.equal(h.elements['research-refresh'].disabled, false);
+  assert.equal(h.elements['research-live'].disabled, false);
+  assert.equal(h.elements['research-results'].hidden, false);
+  assert.match(descendantText(h.elements['research-trace']), /Saved trace/);
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
+test('backend errors are safe public categories and local recovery remains available without model calls', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {id: 'failed', mode: 'live', status: 'failed', events: [], error: 'Secret exception'}});
+  h.elements['research-question'].value = 'Read saved data';
+  h.respondOnce('/api/research', 'POST', {ok: false, status: 429, json: async () => ({error: 'API key = DO_NOT_DISPLAY'})});
+  h.elements['research-form'].listeners.submit({preventDefault() {}}); await flush();
+  assert.match(h.elements['research-error-message'].textContent, /provider limit.*HTTP 429/);
+  assert.doesNotMatch(h.elements['research-error-message'].textContent, /DO_NOT_DISPLAY/);
+  h.elements['research-allow-shadow'].checked = true;
+  h.elements['research-error-offline'].listeners.click(); await flush();
+  const body = JSON.parse(h.calls.filter((call) => call.options.method === 'POST').at(-1).options.body);
+  assert.equal(body.mode, 'offline'); assert.equal(body.allow_shadow, false);
+});
+
+test('manual recovery rechecks active runs and never retries a successfully completed run', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {id: 'old-failure', status: 'failed', error: 'Failure'}});
+  h.setResearchState({active: true, run: {id: 'already-running', mode: 'live', status: 'running', events: []}});
+  h.elements['research-retry'].listeners.click(); await flush();
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+  assert.equal(h.elements['research-retry'].disabled, true);
+  h.setResearchState({active: false, run: {id: 'already-running', mode: 'live', status: 'completed', report: {grounded_publication: publicationFixture()}}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  h.elements['research-retry'].listeners.click(); await flush();
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
+test('a lost beta start response reconciles state without repeating simulation start', async () => {
+  const h = await harness(); await h.fire('form', 'submit');
+  h.respondOnce('/api/shadow/start', 'POST', () => {
+    h.setState({...h.state(), active: true, run: {...h.state().run, status: 'running'}});
+    throw new Error('PRIVATE WORKER CONNECTION');
+  });
+  await h.fire('start');
+  assert.equal(h.get('start').disabled, true);
+  assert.match(h.get('error').textContent, /no simulation was restarted automatically/);
+  assert.doesNotMatch(h.get('error').textContent, /PRIVATE/);
+  assert.equal(h.calls.filter((call) => call.url === '/api/shadow/start').length, 1);
+});
+
+test('terminal persistence failure gives safe storage recovery guidance and keeps current export available', async () => {
+  const h = await harness({researchConfigured: true, initialResearchRun: {
+    id: 'not-saved-yet', mode: 'live', status: 'failed', error: 'PRIVATE DISK TRACE',
+    persistence_failure: {terminal_state_persistence_confirmed: false, error: 'PRIVATE FILE PATH'},
+    events: [{kind: 'persistence_failure', message: 'Terminal save was not confirmed'}],
+    report: {grounded_publication: publicationFixture()}
+  }});
+  const message = h.elements['research-error-message'].textContent;
+  assert.match(message, /could not be saved to disk/);
+  assert.match(message, /Download the current run.*before restarting the server or starting another run/);
+  assert.match(message, /available storage and write permissions/);
+  assert.doesNotMatch(message, /PRIVATE/);
+  assert.equal(h.elements['research-export'].hidden, false);
+  assert.equal(h.elements['research-export'].href, '/api/research/export?run_id=not-saved-yet');
+  assert.equal(h.elements['research-results'].hidden, false);
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
 });

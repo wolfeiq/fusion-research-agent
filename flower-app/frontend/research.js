@@ -1,6 +1,6 @@
 'use strict';
 
-// Separate research state from the Flower run. Never execute report HTML or URLs.
+// Research is self-contained. Never execute report HTML or source URLs.
 (() => {
   const byId = (id) => document.getElementById(`research-${id}`);
   if (!byId('form')) return;
@@ -16,15 +16,20 @@
   let timer = null;
   let requesting = false;
   let submitting = false;
+  let recovering = false;
+  let lastError = '';
+  let retainedReport = null;
+  let retainedTrace = null;
   let selected = new Set();
   let catalogSeen = false;
   let catalogSignature = '';
   // Fixed, documented development scenarios; ordering never depends on outcome.
   const savedDatasets = new Map([
+    ['12eddcebd2c548d889b41d3f2adace91', 'TD3 critic action coordinates: normalized → physical'],
     ['dc0df0a81413479e979a18895e1fe2fe', 'SAC learning rate: 0.0003 → 0.0001'],
-    ['fbb83d8ee93a424497aeacc0a2633dc3', 'SAC critic federation: mixing 0.25 → 0.10'],
-    ['12eddcebd2c548d889b41d3f2adace91', 'TD3 critic action coordinates: normalized → physical']
+    ['fbb83d8ee93a424497aeacc0a2633dc3', 'SAC critic federation: mixing 0.25 → 0.10']
   ].map(([id, title]) => [`examples/evidence/shadow/${id}/comparison.json`, title]));
+  const recommendedDataset = 'examples/evidence/shadow/12eddcebd2c548d889b41d3f2adace91/comparison.json';
   let traceSignature = '';
   let reportSignature = '';
   let sourceRequest = 0;
@@ -51,21 +56,47 @@
   }
   function endpoint(path, values) { return `/api/research/${path}?${new URLSearchParams(values)}`; }
   async function request(path, body) {
-    const response = await fetch(path, body === undefined ? {cache: 'no-store'} : {
-      method: 'POST', headers: {'Content-Type': 'application/json', 'X-Fusion-UI': '1'}, body: JSON.stringify(body)
-    });
-    let data;
-    try { data = await response.json(); } catch { throw new Error(`Research service returned an unreadable response (${response.status}).`); }
-    if (!response.ok) throw new Error(data.error || `Research request failed (${response.status}).`);
-    return data;
+    const controller = new AbortController();
+    const deadline = setTimeout(() => controller.abort(), 20000);
+    try {
+      let response;
+      try {
+        response = await fetch(path, body === undefined ? {cache: 'no-store', signal: controller.signal} : {
+          method: 'POST', headers: {'Content-Type': 'application/json', 'X-Fusion-UI': '1'}, body: JSON.stringify(body), signal: controller.signal
+        });
+      } catch {
+        const error = new Error(controller.signal.aborted ? 'The server did not respond within 20 seconds. Check saved state before retrying.' : 'The connection was interrupted. Check saved state before retrying.');
+        error.uncertainWrite = body !== undefined; throw error;
+      }
+      let data;
+      try { data = await response.json(); } catch {
+        const error = new Error('The server response could not be read. Check saved state before retrying.');
+        error.uncertainWrite = body !== undefined; throw error;
+      }
+      if (!response.ok) {
+        // Backend exceptions may contain provider details. Display only safe,
+        // actionable status categories rather than interpolating response.error.
+        const reason = response.status === 401 || response.status === 403 ? 'Access was not accepted. Check your sign-in and refresh the page.'
+          : response.status === 409 ? 'Another request is already active. Check saved state.'
+          : response.status === 429 ? 'The service is busy or a provider limit was reached. Check saved state before retrying later.'
+          : response.status >= 500 ? 'The server could not complete the request. Check saved state before retrying.'
+          : 'The request was not accepted. Review the selected data and inputs, then try again.';
+        const error = new Error(`${reason} (HTTP ${response.status})`);
+        error.uncertainWrite = body !== undefined && response.status >= 500; throw error;
+      }
+      return data;
+    } finally { clearTimeout(deadline); }
   }
-  function showError(message) { byId('error').textContent = message || ''; byId('error').hidden = !message; }
+  function showError(message) {
+    lastError = message || ''; byId('error-message').textContent = lastError; byId('error').hidden = !lastError;
+    controls();
+  }
   function selectionChanged() {
     byId('selection-count').textContent = `${selected.size}/8 selected${selected.size > 8 ? ' · select at most 8' : selected.size && !validSelection() ? ' · include an experiment' : ''}`;
     controls();
   }
   function controls() {
-    const active = Boolean(snapshot?.active || submitting);
+    const active = Boolean(snapshot?.active || submitting || recovering);
     const configured = snapshot?.configured || {};
     byId('live').disabled = active || requesting || !validSelection() || !configured.nebius || !configured.tavily;
     byId('offline').disabled = active || requesting || !validSelection();
@@ -75,6 +106,9 @@
     byId('live').title = !configured.nebius || !configured.tavily ? 'Configure NEBIUS_API_KEY and TAVILY_API_KEY on the server to run live research.' : '';
     byId('question').disabled = active;
     byId('allow-shadow').disabled = active;
+    byId('error-refresh').disabled = requesting || recovering;
+    byId('retry').disabled = !lastError || active || requesting || !validSelection() || !configured.nebius || !configured.tavily || ['completed', 'inspection_complete'].includes(snapshot?.run?.status);
+    byId('error-offline').disabled = !lastError || active || requesting || !validSelection();
     byId('catalog').querySelectorAll('input').forEach((input) => { input.disabled = active || input.dataset.invalid === 'true' || (!input.checked && selected.size >= 8); });
     document.querySelectorAll('[data-research-example]').forEach((button) => { button.disabled = active; });
   }
@@ -94,7 +128,8 @@
       ].filter(Boolean);
       const federationDefaults = ['federation:local-smoke', 'federation:kaggle-359552340'].map((id) => usable.find((record) => record.id === id)).filter(Boolean);
       const featuredDefaults = [...savedDatasets.keys()].map((id) => usable.find((record) => record.id === id && record.kind === 'experiment')).filter(Boolean);
-      const publishedDefaults = featuredDefaults.length ? featuredDefaults
+      const focusedDefault = featuredDefaults.find((record) => record.id === recommendedDataset);
+      const publishedDefaults = focusedDefault ? [focusedDefault] : featuredDefaults.length ? featuredDefaults.slice(0, 1)
         : usable.filter((record) => record.kind === 'experiment' && /^examples\/evidence\/shadow\/[a-f0-9]{32}\/comparison\.json$/.test(String(record.id))).slice(0, 2);
       const repair = usable.find((record) => /(?:^|\/)repair_comparison\.json$/i.test(record.id));
       const chosen = publishedDefaults.length ? publishedDefaults : federationDefaults.length
@@ -117,10 +152,11 @@
       const description = node('span');
       description.append(node('strong', '', savedDatasets.get(record.id) || record.title || record.id), node('small', '', `${label(record.kind)} · ${label(record.status)}`));
       if (savedDatasets.has(record.id)) description.append(node('small', '', 'Saved SPARC-like TORAX simulation · paired seed 29 · 1 round · 56 episodes · development, not confirmation.'));
+      if (record.id === recommendedDataset) description.append(node('span', 'research-telemetry-badge', 'Recommended first audit · focused comparison, not a promised federation win'));
       if (record.metadata?.adapter === 'federation_dossier' || String(record.id).startsWith('federation:')) description.append(node('span', 'research-telemetry-badge', 'Saved coordinator telemetry'));
       if (record.metadata?.adapter === 'shadow_comparison' || record.adapter === 'shadow_comparison') description.append(node('span', 'research-telemetry-badge', 'Recorded TORAX shadow pilot'));
       if (record.path) description.append(node('small', '', record.path));
-      if (record.error) description.append(node('small', '', record.error));
+      if (record.error) description.append(node('small', '', 'This record has a recorded loading or validation issue. Review its availability before selecting it.'));
       row.append(checkbox, description); return row;
     });
     byId('catalog').replaceChildren(...(items.length ? items : [node('p', 'muted', 'No saved records are available. Add an approved experiment summary before starting research.')]));
@@ -273,6 +309,12 @@
     return card;
   }
   function renderReport(run) {
+    if (run.report) retainedReport = run;
+    const showingPrevious = !run.report && Boolean(run.id && retainedReport?.report && retainedReport.id !== run.id);
+    byId('retained-evidence').hidden = !showingPrevious;
+    byId('retained-evidence').textContent = showingPrevious
+      ? `Previous saved report · run ${retainedReport.id}. The current run ${run.id} has no report yet. These findings do not belong to the current run.` : '';
+    if (showingPrevious) run = retainedReport;
     const signature = JSON.stringify({id: run.id, mode: run.mode, question: run.question, report: run.report, sources: run.sources});
     if (signature === reportSignature) return;
     reportSignature = signature;
@@ -345,8 +387,19 @@
           : 'Shadow permission: not recorded for this saved run.';
     byId('export').hidden = !run.id;
     if (run.id) byId('export').href = endpoint('export', {run_id: run.id});
-    renderTrace(array(run.events), run); renderReport(run); controls();
-    showError(run.error || data.error || data.catalog_error || '');
+    if (array(run.events).length) retainedTrace = run;
+    const previousTrace = !array(run.events).length && ['failed', 'interrupted'].includes(run.status) && retainedTrace?.id && retainedTrace.id !== run.id;
+    const traceRun = previousTrace ? retainedTrace : run;
+    byId('trace-context').textContent = previousTrace
+      ? `Previous trace · run ${traceRun.id}. The current run ${run.id} stopped without recording trace events.`
+      : run.id ? `Trace for run ${run.id}${array(run.events).length ? '' : ' · no events recorded yet'}.` : '';
+    renderTrace(array(traceRun.events), traceRun); renderReport(run); controls();
+    showError(run.persistence_failure?.terminal_state_persistence_confirmed === false
+      ? 'The latest run could not be saved to disk. Download the current run using “Download evidence bundle” before restarting the server or starting another run. Check available storage and write permissions. The server will refuse to overwrite this run while saving still fails.'
+      : run.error || ['failed', 'interrupted'].includes(run.status)
+      ? 'This research run stopped before completing. Review its saved evidence and trace. You can retry saved-data research or inspect local evidence without training.'
+      : data.catalog_error ? 'The saved-data list could not be loaded. Check saved state to retry the read.'
+        : data.error ? 'The research service needs attention. Check saved state before making another request.' : '');
     if (data.active && (run.allow_shadow || byId('allow-shadow').checked)) watchShadow?.();
   }
   function schedule() {
@@ -356,12 +409,12 @@
   async function refresh() {
     if (requesting) return;
     requesting = true; byId('refresh').disabled = true; controls();
-    try { render(await request('/api/research')); }
-    catch (error) { showError(error.message); byId('status').textContent = 'Connection interrupted'; }
+    try { render(await request('/api/research')); return true; }
+    catch (error) { showError(error.message); byId('status').textContent = 'Connection interrupted'; return false; }
     finally { requesting = false; byId('refresh').disabled = false; controls(); schedule(); }
   }
   async function submit(mode) {
-    if (submitting || requesting || snapshot?.active || !byId('form').reportValidity()) return;
+    if (submitting || recovering || requesting || snapshot?.active || !byId('form').reportValidity()) return;
     if (mode === 'live' && (!snapshot?.configured?.nebius || !snapshot?.configured?.tavily)) return;
     if (!validSelection()) return;
     submitting = true; controls(); showError('');
@@ -369,8 +422,30 @@
       const result = await request('/api/research', {question: byId('question').value.trim(), record_ids: [...selected], mode, allow_shadow: mode === 'live' && byId('allow-shadow').checked === true});
       if (result.configured && result.catalog) render(result);
       else await refresh();
-    } catch (error) { showError(error.message); }
+    } catch (error) {
+      if (error.uncertainWrite) {
+        const priorId = snapshot?.run?.id;
+        const reconciled = await refresh();
+        showError(reconciled && (snapshot?.active || snapshot?.run?.id !== priorId)
+          ? 'The interrupted request has a saved server state. Review the run shown here; no duplicate request was sent.'
+          : `${error.message} The request outcome is not confirmed. No request has been repeated automatically.`);
+      } else showError(error.message);
+    }
     finally { submitting = false; controls(); schedule(); }
+  }
+  async function retryResearch(mode) {
+    if (submitting || recovering || requesting || snapshot?.active) return;
+    const priorId = snapshot?.run?.id;
+    byId('allow-shadow').checked = false;
+    recovering = true; controls();
+    const refreshed = await refresh();
+    recovering = false; controls();
+    if (!refreshed) return;
+    if (snapshot?.active || (snapshot?.run?.id && snapshot.run.id !== priorId)) {
+      showError('A newer or active run was found. Review its saved state; no duplicate request was sent.'); return;
+    }
+    if (mode === 'live' && ['completed', 'inspection_complete'].includes(snapshot?.run?.status)) return;
+    await submit(mode);
   }
   async function openSource(runId, evidence) {
     const serial = ++sourceRequest;
@@ -651,7 +726,9 @@
         }));
       }
       renderComparison(run.comparison);
-      error(run.error || data.error || '');
+      error(run.error || ['failed', 'timed_out', 'interrupted'].includes(run.status)
+        ? 'The beta trial did not complete. Saved events and partial results are retained. Refresh its state before preparing a separate trial; this attempt will not restart automatically.'
+        : data.error ? 'The beta service could not complete the request. Refresh trial state before trying again.' : '');
       pilotHint();
       manageControls();
     }
@@ -685,14 +762,20 @@
       try { config = selectedConfig(); } catch (failure) { error(failure.message); return; }
       busy = true; error(''); manageControls();
       try { const result = await request('/api/shadow/prepare', config); dirty = false; renderState(result); }
-      catch (failure) { error(failure.message); }
+      catch (failure) {
+        if (failure.uncertainWrite) await refreshShadow();
+        error(`${failure.message}${failure.uncertainWrite ? ' Saved trial state was checked; no prepare request was repeated automatically.' : ''}`);
+      }
       finally { busy = false; manageControls(); scheduleShadow(); }
     }
     async function startShadow() {
       if (busy || fetching || state?.active || dirty || !state?.runtime?.available || state?.run?.status !== 'frozen' || !state?.run?.id) return;
       busy = true; error(''); manageControls();
       try { renderState(await request('/api/shadow/start', {id: state.run.id})); }
-      catch (failure) { error(failure.message); }
+      catch (failure) {
+        if (failure.uncertainWrite) await refreshShadow();
+        error(`${failure.message}${failure.uncertainWrite ? ' Saved trial state was checked; no simulation was restarted automatically.' : ''}`);
+      }
       finally { busy = false; manageControls(); scheduleShadow(); }
     }
     function pilotHint() {
@@ -719,6 +802,9 @@
   byId('allow-shadow').addEventListener('change', controls);
   byId('offline').addEventListener('click', () => submit('offline'));
   byId('refresh').addEventListener('click', refresh);
+  byId('error-refresh').addEventListener('click', refresh);
+  byId('retry').addEventListener('click', () => retryResearch('live'));
+  byId('error-offline').addEventListener('click', () => retryResearch('offline'));
   byId('source-close').addEventListener('click', () => byId('source-dialog').close());
   document.querySelectorAll('[data-research-example]').forEach((button) => button.addEventListener('click', () => { byId('question').value = examples[button.dataset.researchExample]; byId('question').focus(); }));
   // Only a read on load. Research and model calls always require explicit submission.
