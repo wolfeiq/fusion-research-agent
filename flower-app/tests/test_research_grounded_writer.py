@@ -108,6 +108,27 @@ def test_final_boundary_detects_source_mutation(source):
         finalize_grounded(engine, draft)
 
 
+def test_optional_hypothesis_unknown_sources_are_quarantined_not_guessed(source):
+    engine = engine_for(source, ApprovingJudge())
+    args = selection(source)
+    args["hypotheses"][0]["evidence_ids"] = [args["fact_ids"][0], "W-imaginary"]
+    draft = _draft(engine, args)
+    assert draft["model_interpretation"]["hypotheses"] == []
+    rejected = draft["model_interpretation"]["rejected_hypotheses"]
+    assert len(rejected) == 1
+    assert rejected[0]["status"] == "invalid_source_references"
+    assert rejected[0]["evidence_ids"] == []
+    assert rejected[0]["rejected_evidence_ids"] == args["hypotheses"][0]["evidence_ids"]
+    reviewed = review_grounded(engine, {"draft": draft, "question": "What was measured?", "round": 1})["report"]
+    result = finalize_grounded(engine, reviewed)
+    assert result["evidence_sufficient"]
+    assert "999" not in result["answer"]
+    assert result["model_interpretation"]["rejected_hypotheses"] == rejected
+    args["fact_ids"] = ["F-imaginary"]
+    with pytest.raises(ValueError):
+        _draft(engine, args)  # Optional prose rejection must never relax factual checks.
+
+
 def current_source(saved, *, failed=False):
     content = json.loads(saved["content"])
     wrapper = {"schema": "fusion-advisor-shadow-evidence-v1", "trial_id": "current-trial",

@@ -239,6 +239,7 @@
     const badges = node('div', 'research-badges');
     badges.append(node('span', 'research-badge', claim.id || 'hypothesis'), node('span', 'research-badge uncertain', 'Unverified model interpretation'));
     if (claim.status === 'critic_rejected') badges.append(node('span', 'research-badge uncertain', 'Critic rejected this hypothesis'));
+    if (claim.status === 'invalid_source_references') badges.append(node('span', 'research-badge uncertain', 'Excluded: invalid source references'));
     card.append(badges, node('h4', '', claim.text));
     if (claim.confidence !== undefined) card.append(node('p', 'research-caption', `Model confidence: ${confidence(claim.confidence)}. This is not a calibrated probability.`));
     if (claim.verification) card.append(node('p', 'research-verification', `Recorded citation check: ${label(claim.verification.status)}. ${claim.verification.reason || ''}`));
@@ -300,7 +301,7 @@
     byId('model-draft').open = false;
     byId('model-answer').textContent = draft.answer || 'No model narrative was retained.';
     renderJudgment({...draft, judge: interpretation.judge || draft.judge}, run.mode);
-    const modelClaims = [...array(draft.claims), ...array(interpretation.hypotheses)];
+    const modelClaims = [...array(draft.claims), ...array(interpretation.hypotheses), ...array(interpretation.rejected_hypotheses)];
     byId('model-claims').replaceChildren(...modelClaims.map((claim) => modelClaimCard(typeof claim === 'string' ? {text: claim} : claim, run.id)));
     byId('model-proposals').replaceChildren(...array(draft.next_runs).map((proposal) => proposalCard(proposal, run.id, true)));
     const gaps = node('ul');

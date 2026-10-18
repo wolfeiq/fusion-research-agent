@@ -571,3 +571,14 @@ test('missing request is a diagnosis, and rejected hypotheses stay visibly rejec
   assert.match(descendantText(h.elements['research-model-claims']), /Critic rejected this hypothesis/);
   assert.equal(h.elements['research-model-draft'].open, false);
 });
+
+test('hypotheses with unknown sources are visibly excluded from recorded findings', async () => {
+  const h = await harness({initialResearchRun: {id: 'quarantine', mode: 'live', report: {
+    grounded_publication: publicationFixture(), model_interpretation: {
+      hypotheses: [], rejected_hypotheses: [{text: 'Invalid speculative statement',
+        status: 'invalid_source_references', evidence_ids: [], rejected_evidence_ids: ['made-up']}]
+    }}}});
+  assert.match(descendantText(h.elements['research-model-claims']), /Excluded: invalid source references/);
+  assert.doesNotMatch(descendantText(h.elements['research-claims']), /Invalid speculative statement/);
+  assert.equal(h.elements['research-model-draft'].open, false);
+});
