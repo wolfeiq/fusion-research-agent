@@ -8,6 +8,7 @@ import pytest
 from test_research_graph import FakeRetrieval, TeamModel
 
 from fusion_agent.research.engine import ResearchEngine
+from fusion_agent.research.grounded_excerpts import build_excerpt_catalogue
 from fusion_agent.research.grounded_facts import build_grounded_facts
 from fusion_agent.research.grounded_writer import (
     _draft,
@@ -34,7 +35,7 @@ def engine_for(source, model=None):
 def selection(source):
     cards = build_grounded_facts([source])
     return {"fact_ids": [next(c["id"] for c in cards if c["kind"] == "paired_raw_endpoint")],
-            "literature": [{"source_id": "W002", "anchor": "In centralized training,", "max_words": 11}],
+            "excerpt_ids": [build_excerpt_catalogue([web_source()])[0]["id"]],
             "hypotheses": [{"text": "The absolute cost is 999 and this establishes client-level privacy.",
                             "evidence_ids": [source["id"], "W002"]}],
             "next_run_source_id": "", "gaps": []}
@@ -95,7 +96,7 @@ def test_fact_text_and_literature_paraphrases_are_not_accepted_as_inputs(source)
     with pytest.raises(ValueError, match="exactly"):
         _draft(engine_for(source), args)
     args = selection(source)
-    args["literature"][0]["claim"] = "This supports client-level privacy"
+    args["excerpt_ids"] = [{"quote": "This supports client-level privacy"}]
     with pytest.raises(ValueError):
         _draft(engine_for(source), args)
 
@@ -106,6 +107,32 @@ def test_final_boundary_detects_source_mutation(source):
     engine.sources[source["id"]]["content"] += " "
     with pytest.raises(ValueError, match="hash"):
         finalize_grounded(engine, draft)
+
+
+@pytest.mark.parametrize("value", [["Qimaginary"], ["same", "same"], "[]"])
+def test_excerpt_selection_cannot_invent_or_duplicate_quotations(source, value):
+    args = selection(source)
+    args["excerpt_ids"] = value
+    with pytest.raises(ValueError):
+        _draft(engine_for(source), args)
+
+
+def test_final_boundary_reuses_server_question_for_ranked_catalogue(source, monkeypatch):
+    from fusion_agent.research import grounded_writer
+
+    original = build_excerpt_catalogue
+    questions = []
+
+    def catalogue(sources, question=""):
+        questions.append(question)
+        return original(sources, question)
+
+    monkeypatch.setattr(grounded_writer, "build_excerpt_catalogue", catalogue)
+    engine = engine_for(source)
+    report = _draft(engine, selection(source), "Does this apply to centralized training?")
+    result = finalize_grounded(engine, report)
+    assert questions == ["Does this apply to centralized training?"] * 2
+    assert result["grounded_publication"]["literature_excerpts"]
 
 
 def test_optional_hypothesis_unknown_sources_are_quarantined_not_guessed(source):
@@ -185,7 +212,6 @@ def test_review_receives_exact_literature_context_and_preserves_failed_revision_
             return super().complete(messages, tools, tool_choice)
     engine = engine_for(source, ContextJudge())
     args = selection(source)
-    args["literature"][0].update(anchor="gradients are clipped", max_words=7)
     reviewed = review_grounded(engine, {"draft": _draft(engine, args), "question": "What is supported?", "round": 1})["report"]
     reviewed["orchestration"]["reflection_failed"] = True
     result = finalize_grounded(engine, reviewed)
@@ -206,8 +232,7 @@ class GroundedTeam(TeamModel):
             payload = json.loads(messages[1]["content"])
             cards = payload["fact_catalogue"]
             args = {"fact_ids": [next(c["id"] for c in cards if c["kind"] == "paired_raw_endpoint")],
-                    "literature": [{"source_id": payload["web_sources"][0]["id"],
-                                    "anchor": "Clipping can limit large updates.", "max_words": 6}],
+                    "excerpt_ids": [payload["excerpt_catalogue"][0]["id"]],
                     "hypotheses": [], "next_run_source_id": "", "gaps": []}
             return call("submit_evidence_report", args), {"total_tokens": 10}
         if names == {"review_evidence_selection"}:
@@ -246,7 +271,7 @@ def test_secondary_summary_cannot_satisfy_primary_slot_even_with_approving_judge
     args = selection(source)
     with pytest.raises(ValueError, match="approved primary-publication"):
         _draft(engine, args)
-    args["literature"] = []
+    args["excerpt_ids"] = []
     report = review_grounded(engine, {"draft": _draft(engine, args), "question": "Require a primary paper.", "round": 1})["report"]
     result = finalize_grounded(engine, report)
     assert result["judge"]["decision"] == "accept"
@@ -268,16 +293,19 @@ def test_writer_offers_only_eligible_references_and_no_empty_enum(source):
             payload = json.loads(messages[1]["content"])
             schema = tools[0]["function"]["parameters"]["properties"]
             assert schema["fact_ids"]["maxItems"] == 12
-            literature = schema["literature"]
-            enum = literature["items"]["properties"]["source_id"].get("enum")
+            literature = schema["excerpt_ids"]
+            enum = literature["items"].get("enum")
             args = selection(source)
             if self.expect_primary:
-                assert enum == ["W002"] and len(payload["web_sources"]) == 1
+                assert enum == [item["id"] for item in payload["excerpt_catalogue"]]
+                assert len(payload["web_sources"]) == 1
+                assert all("request" not in item for item in payload["excerpt_catalogue"])
+                args["excerpt_ids"] = [enum[0]]
             else:
                 assert enum is None and literature["maxItems"] == 0
                 assert payload["web_sources"] == []
                 assert payload["primary_reference_gap"]
-                args["literature"] = []
+                args["excerpt_ids"] = []
             return call("submit_evidence_report", args), {}
 
     model = InspectWriter()
