@@ -5,6 +5,14 @@ extracts literature with Tavily, and uses seven LangGraph model contexts through
 Nebius Token Factory to produce a sourced critique and a next-experiment proposal.
 An optional bounded shadow trial tests a single change with fresh controllers.
 
+## Watch the project explanation — in order
+
+**Please watch the three videos in this order: 1 → 2 → 3.**
+
+1. **Start here:** [Project explanation — Part 1](https://www.loom.com/share/cf02db42bac04ab5bc3c84b9c7675de1)
+2. **Watch second:** [Project explanation — Part 2](https://www.loom.com/share/c91b19a804b3486a99e80ef7a841358c)
+3. **Watch last:** [Project explanation — Part 3](https://www.loom.com/share/fff3a216ff464a59899e1853b2ff4c76)
+
 This is an executable research prototype. The default report now uses typed
 selection: the model chooses evidence IDs and excerpts, while server code writes
 the factual statements, exact citations and validated next-run proposal. Optional
