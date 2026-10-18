@@ -16,7 +16,12 @@ import copy
 import json
 from typing import TypedDict
 
-from .primary_sources import terminal_primary_candidates
+from .primary_sources import (
+    MISSING_PRIMARY_GAP,
+    approved_primary_url,
+    eligible_primary_source,
+    terminal_primary_candidates,
+)
 from .retrieval_scope import public_literature_text
 from .source_views import source_views
 
@@ -231,6 +236,52 @@ def _findings(args, engine, role, role_read_ids):
     return result
 
 
+def _primary_recovery_state(engine, role_read_ids, turn):
+    """Bounded collection guard; preserve all existing role/global limits."""
+    with engine._lock:
+        sources = dict(engine.sources)
+        model_calls_left = max(0, engine.max_turns - engine.model_calls - REVIEW_CALL_RESERVE)
+        tool_calls_left = max(0, engine.max_calls - engine.calls - 2)
+        searches_left, extracts_left = max(0, 6 - engine.searches), max(0, 10 - engine.extracts)
+    read_primary = sorted(key for key in role_read_ids
+                          if eligible_primary_source(sources.get(key)))
+    if read_primary:
+        return {"status": "satisfied", "personally_read_primary_ids": read_primary}
+    candidates = sorted(key for key, source in sources.items()
+                        if key not in role_read_ids and approved_primary_url(source.get("uri"))
+                        and (source.get("kind") == "search" or eligible_primary_source(source)))
+    cached = any(eligible_primary_source(sources[key]) for key in candidates)
+    turns_left = max(0, min(5 - turn, model_calls_left))
+    required_calls = 1 if candidates else 2  # discover, then read the returned ID
+    if turns_left < required_calls:
+        reason = "role_or_reserved_model_budget_cannot_complete_primary_recovery"
+    elif tool_calls_left < required_calls:
+        reason = "tool_budget_reserved_for_report"
+    elif not cached and not extracts_left:
+        reason = "extraction_budget_exhausted"
+    elif not candidates and not searches_left:
+        reason = "search_budget_exhausted"
+    else:
+        reason = "primary_recovery_possible"
+    return {
+        "status": "retry_required" if reason == "primary_recovery_possible" else "unresolved",
+        "reason": reason,
+        "eligible_primary_source_ids": candidates,
+        "remaining_collection_model_calls": turns_left,
+        "remaining_collection_tool_calls": tool_calls_left,
+        "remaining_searches": searches_left,
+        "remaining_extractions": extracts_left,
+        "instruction": (
+            "No eligible extracted primary-publication reference has been personally read. "
+            "Author mirrors can contain genuine papers but cannot fill this publication-location slot. "
+            "Read an eligible_primary_source_id if available; otherwise search the same paper title "
+            "at its canonical venue (AISTATS/ICML: proceedings.mlr.press), arxiv.org, openreview.net "
+            "or another recognized publication location, then extract a returned source ID. "
+            "Do not fabricate a publication URL or relax source eligibility. Existing turn/tool limits apply."
+        ),
+    }
+
+
 def build_research_graph(engine):
     """Build the actual parallel graph using an injected bounded engine facade."""
     try:
@@ -400,6 +451,7 @@ def build_research_graph(engine):
 
     def researcher(state, role):
         local = role != "literature_researcher"
+        require_primary = not local and engine.grounded_reporting
         allowed = (
             {"read_experiment", "inspect_federation"}
             if local
@@ -445,6 +497,10 @@ def build_research_graph(engine):
                 "queries that return summary blogs. Once a relevant primary paper is discovered, "
                 "call read_page before spending remaining turns on more searches. A secondary "
                 "summary or a primary-paper search snippet cannot satisfy the primary-reference requirement. "
+                "read_page and search_literature return primary_reference eligibility feedback. "
+                "If an author mirror is ineligible, seek the same paper at its canonical venue, then "
+                "extract the discovered source. Do not finish while this repair remains possible within "
+                "your existing budget; if it becomes impossible, explicitly retain the unresolved gap. "
                 "That can be sufficient: assess relevance and submit findings rather than filling "
                 "every remaining turn with loosely related papers. Expand only for a specific gap. "
             ),
@@ -545,6 +601,19 @@ def build_research_graph(engine):
                     args = json.loads(call["function"]["arguments"])
                     if name == "submit_findings":
                         findings = _findings(args, engine, role, role_read_ids)
+                        if require_primary:
+                            recovery = _primary_recovery_state(engine, role_read_ids, turn)
+                            if recovery["status"] == "retry_required":
+                                event("primary_reference_recovery", role,
+                                      "Early literature completion rejected: bounded primary-source recovery remains possible",
+                                      state, **recovery)
+                                raise ValueError(recovery["instruction"])
+                            if recovery["status"] == "unresolved":
+                                findings["gaps"] = [*findings["gaps"][:11], MISSING_PRIMARY_GAP]
+                                findings["primary_reference_stop"] = recovery
+                                event("primary_reference_unresolved", role,
+                                      "Primary-publication gap retained because bounded recovery is unavailable",
+                                      state, **recovery)
                         event(
                             "agent_complete",
                             role,
@@ -588,6 +657,8 @@ def build_research_graph(engine):
                     }
                     if name == "submit_findings":
                         result["eligible_evidence_ids"] = eligible_evidence_ids(role, role_read_ids)
+                        if require_primary:
+                            result["primary_reference"] = _primary_recovery_state(engine, role_read_ids, turn)
                     event(
                         "agent_tool_rejected", role, result["error"], state, tool=name
                     )
@@ -602,11 +673,20 @@ def build_research_graph(engine):
             state,
             evidence_ids=retained_ids,
         )
-        return {
+        findings = {
             "summary": "Incomplete specialist assessment: no accepted findings were submitted before this role's turn budget. Personally read source snapshots are retained for direct writer and judge inspection; no specialist conclusion is certified.",
             "evidence_ids": retained_ids,
             "gaps": [f"{role} did not complete its evidence assessment. Retained sources are read evidence, not reviewed specialist conclusions."],
         }
+        if require_primary:
+            recovery = _primary_recovery_state(engine, role_read_ids, 5)
+            if recovery["status"] != "satisfied":
+                findings["gaps"].append(MISSING_PRIMARY_GAP)
+                findings["primary_reference_stop"] = recovery
+                event("primary_reference_unresolved", role,
+                      "Literature collection ended without an eligible primary snapshot",
+                      state, **recovery)
+        return findings
 
     def td3_specialist(state):
         return {"td3_findings": researcher(state, "td3_specialist")}

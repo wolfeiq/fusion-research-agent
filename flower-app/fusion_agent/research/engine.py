@@ -10,6 +10,11 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 
 from .policy import CHANGES, compare_clipping, dossier, draft_policy_trial
+from .primary_sources import (
+    PRIMARY_LOCATION_SCOPE,
+    approved_primary_url,
+    eligible_primary_source,
+)
 from .providers import ProviderError, public_url
 from .verification import (
     MAX_EVIDENCE_PER_CLAIM,
@@ -22,6 +27,27 @@ from .verification import (
 
 class ModelCallBudgetReserved(RuntimeError):
     """A collecting agent must yield its remaining calls to the writer/judge."""
+
+
+def _primary_reference_feedback(source):
+    """Routing feedback about a snapshot, never a scientific quality label."""
+    location = approved_primary_url(source.get("uri"))
+    eligible = eligible_primary_source(source)
+    return {
+        "recognized_publication_location": location,
+        "eligible_extracted_reference": eligible,
+        "scope": PRIMARY_LOCATION_SCOPE,
+        "next_action": (
+            "Assess this captured passage's relevance and limitations."
+            if eligible else
+            "Read this discovered publication with read_page before citing it."
+            if location else
+            "This location does not fill the required primary-publication slot, even if it is an author mirror. "
+            "Search the same paper title at its publication venue (AISTATS/ICML: proceedings.mlr.press), "
+            "arxiv.org, openreview.net or another recognized publication location. "
+            "Extract a relevant URL actually returned by Tavily; never invent a canonical URL."
+        ),
+    }
 
 
 SYSTEM = """You are the Fusion Research Advisor, a research layer above saved
@@ -729,7 +755,8 @@ class ResearchEngine:
                     )
                 if duplicate:
                     found.append(
-                        {k: duplicate[k] for k in ("id", "title", "uri", "kind")}
+                        {**{k: duplicate[k] for k in ("id", "title", "uri", "kind")},
+                         "primary_reference": _primary_reference_feedback(duplicate)}
                     )
                     continue
                 snippet = str(item.get("content") or "")[:4000]
@@ -754,7 +781,7 @@ class ResearchEngine:
                 self.event(
                     "source", "Search discovery; extract before citing", source=source
                 )
-                found.append(source)
+                found.append({**source, "primary_reference": _primary_reference_feedback(source)})
             self.event(
                 "retrieval_usage",
                 "Tavily search completed",
@@ -772,7 +799,7 @@ class ResearchEngine:
                 )
             if source["kind"] == "web":
                 self.read_ids.add(source["id"])
-                return source
+                return {**source, "primary_reference": _primary_reference_feedback(source)}
             if self.extracts >= 10:
                 raise ValueError("Extraction budget exhausted")
             self.extracts += 1
@@ -814,7 +841,7 @@ class ResearchEngine:
                 "Tavily extraction completed",
                 usage=response.get("usage", {}),
             )
-            return source
+            return {**source, "primary_reference": _primary_reference_feedback(source)}
         if name == "assess_evidence":
             gaps = args.get("gaps")
             if (
