@@ -30,9 +30,9 @@ const html = fs.readFileSync(path.join(root, 'frontend/index.html'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'frontend/research.js'), 'utf8');
 const flush = () => new Promise(setImmediate);
 
-async function harness({available = true, initialRun, initialResearchRun, researchConfigured = false, researchCatalog} = {}) {
+async function harness({available = true, initialRun, initialResearchRun, researchConfigured = false, researchCatalog, researchSources = {}} = {}) {
   const elements = {};
-  for (const match of html.matchAll(/<([a-z]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)) {
+  for (const match of html.matchAll(/<([a-z][a-z0-9]*)\b([^>]*\bid="([^"]+)"[^>]*)>/g)) {
     assert(!elements[match[3]], `Duplicate id: ${match[3]}`);
     const element = new Element(match[1]);
     element.value = /\bvalue="([^"]*)"/.exec(match[2])?.[1] || '';
@@ -62,6 +62,10 @@ async function harness({available = true, initialRun, initialResearchRun, resear
     fetch: async (url, options = {}) => {
       calls.push({url, options});
       if (url === '/api/research') return {ok: true, json: async () => research};
+      if (url.startsWith('/api/research/source?')) {
+        const source = researchSources[new URL(url, 'http://localhost').searchParams.get('source_id')];
+        return {ok: Boolean(source), status: source ? 200 : 404, json: async () => source || {error: 'Unknown research source'}};
+      }
       if (url === '/api/shadow/prepare') {
         const config = JSON.parse(options.body);
         shadow = {...shadow, active: false, run: {
@@ -408,4 +412,162 @@ test('next-run proposal exposes its candidate and planned budget without launchi
   assert.match(descendantText(h.get('comparison')), /No runnable configuration was proposed/);
   assert.match(descendantText(h.get('comparison')), /diagnose the saved failure first/);
   assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+});
+
+
+const publicationFixture = () => ({
+  schema: 'fusion-grounded-publication-v1', status: 'grounded',
+  answer: 'Recorded seed 17 endpoint costs are available. This does not establish efficacy.',
+  facts: [{id: 'F001', kind: 'recorded_measurement', text: 'Candidate raw endpoint cost = 0.09626584305007646 for seed 17.',
+    evidence: [{source_id: 'D001', locator: '/candidate/raw_cost', quote: '0.09626584305007646'}], source_id: 'D001', source_sha256: 'abc123',
+    provenance: {scope: 'one paired seed', adapter: 'shadow_comparison', trial_id: 'pilot'}, context: {seed: 17, arm: 'clipped', view: 'raw'}}],
+  literature_excerpts: [{id: 'L001', kind: 'exact_excerpt', text: 'Source states: model updates have to be clipped before adding privacy noise.',
+    evidence: [{source_id: 'W001', locator: 'chars:0:70', quote: 'model updates have to be clipped before adding privacy noise.'}], source_id: 'W001', source_sha256: 'paper123',
+    provenance: {scope: 'verbatim excerpt, no transfer claim'}}],
+  recommendation: {status: 'proposal_only', title: 'Repeat the paired comparison', request: {change: 'clip_norm_fraction', value: 0.001, seeds: [29, 43]},
+    budget: {episodes: 112}, controls: ['local', 'reset_only', 'uniform', 'clipped'], limitations: ['Development seeds only'], evidence: [], provenance: {scope: 'bounded proposal'}},
+  limitations: ['Only one training seed was recorded.'], scientific_efficacy_established: false, automatic_policy_changes_allowed: false,
+});
+
+test('legacy accepted model draft cannot become primary evidence', async () => {
+  const h = await harness({initialResearchRun: {id: 'legacy', mode: 'live', status: 'completed', report: {
+    answer: 'Federation always improves every reactor.', claims: [{id: 'C1', text: 'Legacy unsupported claim', kind: 'measured', confidence: 1,
+      verification: {status: 'verified', reason: 'Old model approved'}, evidence: []}], judge: {decision: 'accept', reason: 'Old model approval'},
+    next_runs: [{title: 'Automatically promote the candidate', hypothesis: 'Unverified claim'}], limitations: ['Old model limitation'], stop_reason: 'Everything is proven',
+  }}});
+  assert.match(h.elements['research-answer'].textContent, /No source-backed publication/);
+  assert.doesNotMatch(descendantText(h.elements['research-claims']), /Legacy unsupported/);
+  assert.doesNotMatch(descendantText(h.elements['research-proposals']), /Automatically promote/);
+  assert.equal(h.elements['research-model-draft'].open, false);
+  assert.match(h.elements['research-model-answer'].textContent, /Federation always/);
+  assert.match(descendantText(h.elements['research-model-claims']), /Unverified model interpretation/);
+  assert.match(descendantText(h.elements['research-model-proposals']), /MODEL PROPOSAL.*UNVERIFIED.*NOT LAUNCHED/);
+  assert.match(descendantText(h.elements['research-judgment']), /Judge accepted the draft/);
+  assert.match(h.elements['research-stop-reason'].textContent, /Publication: unavailable/);
+});
+
+test('grounded publication isolates server records and exact excerpts from model hypotheses', async () => {
+  const publication = publicationFixture();
+  const h = await harness({initialResearchRun: {id: 'grounded', mode: 'live', status: 'completed', report: {
+    answer: 'Untrusted legacy answer should not be used', grounded_publication: publication,
+    model_interpretation: {hypotheses: [{text: 'Clipping may improve transfer beyond this seed', evidence_ids: ['D001']}], gaps: ['More seeds are needed'], judge: {decision: 'accept'}},
+    model_draft: {answer: 'Original draft retained', claims: [{id: 'C1', text: 'Original model claim', evidence: []}]},
+  }}});
+  assert.equal(h.elements['research-answer'].textContent, publication.answer);
+  const facts = descendantText(h.elements['research-claims']);
+  assert.match(facts, /Recorded measurement/);
+  assert.match(facts, /raw endpoint cost = 0.09626584305007646/);
+  assert.match(facts, /one paired seed/);
+  assert.match(facts, /abc123/);
+  assert.doesNotMatch(facts, /Clipping may improve|Original model claim|Confidence/);
+  assert.match(descendantText(h.elements['research-literature']), /Exact source excerpt/);
+  assert.equal(h.elements['research-literature'].querySelectorAll('blockquote').length, 1);
+  assert.match(descendantText(h.elements['research-model-claims']), /Clipping may improve/);
+  assert.match(descendantText(h.elements['research-model-claims']), /Original model claim/);
+  assert.equal(h.elements['research-model-draft'].open, false);
+  assert.match(descendantText(h.elements['research-limitations']), /Only one training seed/);
+  assert.match(h.elements['research-stop-reason'].textContent, /Scientific efficacy is not established/);
+  assert.match(h.elements['research-stop-reason'].textContent, /Automatic policy changes are disabled/);
+});
+
+test('insufficient evidence packet retains recorded measurements without implying proof', async () => {
+  const publication = publicationFixture(); publication.status = 'insufficient_evidence'; publication.recommendation = null;
+  const h = await harness({initialResearchRun: {id: 'partial', mode: 'live', report: {grounded_publication: publication}}});
+  assert.match(descendantText(h.elements['research-claims']), /Recorded measurement/);
+  assert.match(h.elements['research-stop-reason'].textContent, /Publication: insufficient evidence/);
+  assert.match(descendantText(h.elements['research-proposals']), /No bounded next experiment proposal/);
+});
+
+for (const [name, change] of [
+  ['unknown schema', {schema: 'future-schema'}], ['unknown status', {status: 'model_accepted'}],
+  ['scientific proof assertion', {scientific_efficacy_established: true}], ['automatic policy assertion', {automatic_policy_changes_allowed: true}],
+  ['missing safety contract', {automatic_policy_changes_allowed: undefined}], ['malformed facts', {facts: 'model text'}], ['null fact', {facts: [null]}],
+  ['missing citation', {facts: [{text: 'Uncited number', evidence: []}]}], ['malformed citation', {facts: [{text: 'Claim', evidence: [{source_id: 'D1'}]}]}],
+]) test(`invalid publication fails closed: ${name}`, async () => {
+  const h = await harness({initialResearchRun: {id: 'invalid', mode: 'live', report: {answer: 'Model says accepted', grounded_publication: {...publicationFixture(), ...change}}}});
+  assert.match(h.elements['research-answer'].textContent, /No source-backed publication/);
+  assert.doesNotMatch(descendantText(h.elements['research-claims']), /0.09626584305007646/);
+});
+
+test('bounded proposal is read-only and does not inherit model acceptance', async () => {
+  const publication = publicationFixture();
+  const h = await harness({initialResearchRun: {id: 'proposal', mode: 'live', report: {grounded_publication: publication}}});
+  const proposal = h.elements['research-proposals'];
+  assert.match(descendantText(proposal), /RECORDED PROPOSAL.*NOT LAUNCHED/);
+  assert.match(descendantText(proposal), /clip_norm_fraction/);
+  assert.match(descendantText(proposal), /112/);
+  assert.equal(proposal.querySelectorAll('button').length, 0);
+  assert.equal(proposal.querySelectorAll('input').length, 0);
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+  publication.recommendation.status = 'approved';
+  h.setResearchState({run: {id: 'proposal', mode: 'live', report: {grounded_publication: publication}}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.match(descendantText(proposal), /No bounded next experiment proposal/);
+});
+
+test('published evidence opens exact saved source with locator and hash', async () => {
+  const publication = publicationFixture();
+  const h = await harness({initialResearchRun: {id: 'source-run', mode: 'live', report: {grounded_publication: publication}}, researchSources: {
+    D001: {id: 'D001', kind: 'experiment', title: 'Saved paired comparison', sha256: 'abc123', content: '{"candidate":{"raw_cost":0.09626584305007646}}', uri: 'javascript:alert(1)'},
+  }});
+  h.elements['research-claims'].querySelectorAll('button')[0].listeners.click(); await flush();
+  assert.equal(h.elements['research-source-dialog'].open, true);
+  assert.equal(h.elements['research-source-title'].textContent, 'Saved paired comparison');
+  const sourceText = descendantText(h.elements['research-source-body']);
+  assert.match(sourceText, /0.09626584305007646/);
+  assert.match(sourceText, /Locator: \/candidate\/raw_cost/);
+  assert.match(sourceText, /SHA-256: abc123/);
+  assert.match(sourceText, /JSON value at the recorded pointer/);
+  assert.match(sourceText, /matching text alone would not verify the claim/);
+  assert.equal(h.elements['research-source-body'].querySelectorAll('a').length, 0);
+  assert(h.calls.some((call) => call.url === '/api/research/source?run_id=source-run&source_id=D001'));
+});
+
+test('refresh to a historical report clears prior publication and never executes HTML', async () => {
+  const publication = publicationFixture(); publication.facts[0].text = '<script>alert(1)</script>';
+  const h = await harness({initialResearchRun: {id: 'first', mode: 'live', report: {grounded_publication: publication}}});
+  assert.match(descendantText(h.elements['research-claims']), /<script>alert\(1\)<\/script>/);
+  h.setResearchState({run: {id: 'second', mode: 'live', report: {answer: 'Historical draft', judge: {decision: 'accept'}}}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.match(h.elements['research-answer'].textContent, /No source-backed publication/);
+  assert.doesNotMatch(descendantText(h.elements['research-claims']), /alert|0.0962/);
+  assert.match(descendantText(h.elements['research-literature']), /No exact literature excerpts/);
+  assert.equal(h.elements['research-model-answer'].textContent, 'Historical draft');
+});
+
+
+test('fact cards visibly distinguish current and historical trial provenance', async () => {
+  const publication = publicationFixture();
+  publication.facts[0].source_label = 'Current research trial';
+  publication.facts[0].provenance.origin = 'research_shadow_execution';
+  publication.facts.push({...publication.facts[0], id: 'F002', source_label: undefined, provenance: {origin: 'saved_shadow_snapshot', trial_id: 'older17'}});
+  const h = await harness({initialResearchRun: {id: 'mixed', mode: 'live', report: {grounded_publication: publication}}});
+  const cards = h.elements['research-claims'].children;
+  assert.match(cards[0].children.find((item) => item.className === 'research-fact-scope').textContent, /Current research trial.*trial pilot/);
+  assert.match(cards[1].children.find((item) => item.className === 'research-fact-scope').textContent, /Saved trial.*trial older17/);
+});
+
+test('proposal preserves its reason, evaluation-subset explanation and unverified seed scope', async () => {
+  const publication = publicationFixture();
+  publication.recommendation.text = 'Repeat the frozen hypothesis; this is not efficacy evidence.';
+  publication.recommendation.budget_scope = 'Gate, initial and report episodes are subsets of evaluation, not additional episodes.';
+  publication.recommendation.seed_selection_scope = 'Check the full development and confirmation ledger before choosing these seeds.';
+  const h = await harness({initialResearchRun: {id: 'scopes', mode: 'live', report: {grounded_publication: publication}}});
+  const text = descendantText(h.elements['research-proposals']);
+  assert.match(text, /Repeat the frozen hypothesis/);
+  assert.match(text, /subsets of evaluation, not additional episodes/);
+  assert.match(text, /Check the full development and confirmation ledger/);
+});
+
+test('missing request is a diagnosis, and rejected hypotheses stay visibly rejected', async () => {
+  const publication = publicationFixture();
+  publication.recommendation.request = null; publication.recommendation.budget = null;
+  publication.recommendation.text = 'Diagnose the failed trial before a larger comparison.';
+  const h = await harness({initialResearchRun: {id: 'diagnosis', mode: 'live', report: {grounded_publication: publication,
+    model_interpretation: {hypotheses: [{text: 'Unjustified mechanism', status: 'critic_rejected', evidence_ids: []}], judge: {decision: 'accept'}}}}});
+  assert.match(descendantText(h.elements['research-proposals']), /Diagnosis before another run/);
+  assert.match(descendantText(h.elements['research-proposals']), /Diagnose the failed trial/);
+  assert.doesNotMatch(descendantText(h.elements['research-proposals']), /112/);
+  assert.match(descendantText(h.elements['research-model-claims']), /Critic rejected this hypothesis/);
+  assert.equal(h.elements['research-model-draft'].open, false);
 });

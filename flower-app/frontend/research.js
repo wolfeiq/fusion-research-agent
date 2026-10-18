@@ -198,6 +198,67 @@
       const list = node('ul'); list.append(...judge.unsupported_claims.map((claim) => node('li', '', display(claim)))); panel.append(list);
     }
   }
+  function publicationFor(report) {
+    const value = report.grounded_publication;
+    // Only this server-owned protocol can enter the primary evidence view.
+    const cardValid = (card) => card && typeof card === 'object' && typeof card.text === 'string'
+      && Array.isArray(card.evidence) && card.evidence.length > 0
+      && card.evidence.every((item) => item && typeof item.source_id === 'string' && typeof item.quote === 'string' && typeof item.locator === 'string');
+    if (!value || value.schema !== 'fusion-grounded-publication-v1'
+      || !['grounded', 'insufficient_evidence'].includes(value.status)
+      || !Array.isArray(value.facts) || !Array.isArray(value.literature_excerpts)
+      || !value.facts.every(cardValid) || !value.literature_excerpts.every(cardValid)
+      || !Array.isArray(value.limitations) || !value.limitations.every((item) => typeof item === 'string') || typeof value.answer !== 'string'
+      || value.scientific_efficacy_established !== false || value.automatic_policy_changes_allowed !== false) return null;
+    return value;
+  }
+  function evidenceLinks(items, runId) {
+    const citations = node('div', 'research-citations');
+    array(items).forEach((item) => { if (item?.source_id) citations.append(citationButton(item, runId)); });
+    if (!citations.childNodes.length) citations.append(node('span', 'research-caption', 'No supporting source attached.'));
+    return citations;
+  }
+  function publicationCard(fact, runId, excerpt = false) {
+    const card = node('article', `research-claim${excerpt ? ' research-excerpt' : ''}`);
+    const badges = node('div', 'research-badges');
+    badges.append(node('span', 'research-badge', fact.id || 'record'), node('span', 'research-badge supported', excerpt ? 'Exact source excerpt' : 'Recorded measurement'));
+    const origin = fact.provenance?.origin;
+    const scopeLabel = fact.source_label || (origin === 'research_shadow_execution' ? 'Current research trial'
+      : origin === 'saved_shadow_snapshot' ? 'Saved trial' : excerpt ? 'Captured literature source' : 'Captured source');
+    const trialLabel = fact.provenance?.trial_id ? ` · trial ${fact.provenance.trial_id}` : '';
+    card.append(badges, node('p', 'research-fact-scope', `${scopeLabel}${trialLabel}`), node(excerpt ? 'blockquote' : 'h4', '', fact.text), evidenceLinks(fact.evidence, runId));
+    if (fact.source_id) card.append(node('p', 'research-caption', `Source: ${fact.source_id}`));
+    const details = node('details', 'research-fact-provenance');
+    details.append(node('summary', '', 'Inspect measurement provenance'), node('pre', '', display({
+      source_sha256: fact.source_sha256, provenance: fact.provenance, ...(fact.context ? {context: fact.context} : {})
+    })));
+    card.append(details); return card;
+  }
+  function modelClaimCard(claim, runId) {
+    const card = node('article', 'research-claim');
+    const badges = node('div', 'research-badges');
+    badges.append(node('span', 'research-badge', claim.id || 'hypothesis'), node('span', 'research-badge uncertain', 'Unverified model interpretation'));
+    if (claim.status === 'critic_rejected') badges.append(node('span', 'research-badge uncertain', 'Critic rejected this hypothesis'));
+    card.append(badges, node('h4', '', claim.text));
+    if (claim.confidence !== undefined) card.append(node('p', 'research-caption', `Model confidence: ${confidence(claim.confidence)}. This is not a calibrated probability.`));
+    if (claim.verification) card.append(node('p', 'research-verification', `Recorded citation check: ${label(claim.verification.status)}. ${claim.verification.reason || ''}`));
+    const review = claim.review || claim.semantic_review;
+    if (review) card.append(node('p', 'research-verification', `Model judge: ${label(review.verdict || review.status)}. ${review.reason || ''}`));
+    const evidence = array(claim.evidence).length ? claim.evidence : array(claim.evidence_ids).map((source_id) => ({source_id}));
+    card.append(evidenceLinks(evidence, runId)); return card;
+  }
+  function proposalCard(proposal, runId, model = false) {
+    const card = node('article', 'research-proposal');
+    card.append(node('div', 'research-badges', model ? 'MODEL PROPOSAL · UNVERIFIED · NOT LAUNCHED' : 'RECORDED PROPOSAL · NOT LAUNCHED'), node('h4', '', !model && proposal.request === null ? 'Diagnosis before another run' : proposal.title || 'Bounded next experiment'));
+    if (typeof proposal.text === 'string') card.append(node('p', 'research-proposal-reason', proposal.text));
+    const description = node('dl');
+    for (const [key, title] of [['request', 'Proposed configuration'], ['hypothesis', 'Hypothesis'], ['changes', 'What changes'], ['controls', 'Controls'], ['metrics', 'Measures'], ['budget', 'Budget'], ['budget_scope', 'How the budget is counted'], ['seed_selection_scope', 'Seed selection scope'], ['stop_rule', 'Stopping rule'], ['limitations', 'Limitations']]) {
+      if (proposal[key] !== undefined && proposal[key] !== null) description.append(node('dt', '', title), node('dd', '', display(proposal[key])));
+    }
+    card.append(description, evidenceLinks(proposal.evidence || array(proposal.evidence_ids).map((source_id) => ({source_id})), runId));
+    if (proposal.provenance) card.append(node('p', 'research-caption', `Provenance: ${display(proposal.provenance)}`));
+    return card;
+  }
   function renderReport(run) {
     const signature = JSON.stringify({id: run.id, mode: run.mode, question: run.question, report: run.report, sources: run.sources});
     if (signature === reportSignature) return;
@@ -205,26 +266,18 @@
     const report = run.report;
     byId('results').hidden = !report;
     if (!report) return;
+    const publication = publicationFor(report);
     byId('result-mode').textContent = run.mode === 'live' ? 'Live · Token Factory + Tavily' : 'Local inspection · no LLM / no web';
     byId('run-question').textContent = run.question || '';
-    byId('answer').textContent = report.answer || 'No narrative answer was produced.';
-    renderJudgment(report, run.mode);
-    const claims = array(report.claims).map((claim) => {
-      const card = node('article', 'research-claim');
-      const badges = node('div', 'research-badges');
-      const status = claim.verification?.status || 'not verified';
-      const tone = ['supported', 'verified'].includes(status) ? 'supported' : 'uncertain';
-      badges.append(node('span', 'research-badge', claim.id || 'claim'), node('span', 'research-badge', label(claim.kind)), node('span', `research-badge ${tone}`, label(status)), node('span', 'research-badge', `Confidence · ${confidence(claim.confidence)}`));
-      card.append(badges, node('h4', '', claim.text), node('p', 'research-verification', `Citation check: ${claim.verification?.reason || 'No verification explanation was recorded.'}`));
-      const review = claim.review || claim.semantic_review;
-      if (review) card.append(node('p', 'research-verification', `Judge support assessment: ${label(review.verdict || review.status)}. ${review.reason || ''}`));
-      const citations = node('div', 'research-citations');
-      const evidence = array(claim.evidence);
-      evidence.forEach((item) => { if (item.source_id) citations.append(citationButton(item, run.id)); });
-      if (!evidence.length) citations.append(node('span', 'research-caption', 'No supporting source attached.'));
-      card.append(citations); return card;
-    });
-    byId('claims').replaceChildren(...(claims.length ? claims : [node('p', 'muted', 'No claim-level findings were produced.')]));
+    byId('answer').textContent = publication
+      ? publication.answer || 'No source-backed statement was produced.'
+      : 'No source-backed publication is available for this report. Its historical model draft is retained below as unverified material.';
+    byId('claims').replaceChildren(...(publication?.facts.length
+      ? publication.facts.map((fact) => publicationCard(fact, run.id))
+      : [node('p', 'muted', 'No recorded measurements were published.')]));
+    byId('literature').replaceChildren(...(publication?.literature_excerpts.length
+      ? publication.literature_excerpts.map((fact) => publicationCard(fact, run.id, true))
+      : [node('p', 'muted', 'No exact literature excerpts were published.')]));
     const sources = array(run.sources);
     byId('source-count').textContent = `(${sources.length})`;
     byId('sources').replaceChildren(...sources.map((source) => {
@@ -233,29 +286,27 @@
       if (source.kind === 'experiment' && source.metadata?.adapter === 'federation_dossier') description.append(node('span', 'research-telemetry-badge', 'Saved coordinator telemetry'));
       row.append(description, citationButton({source_id: source.id}, run.id, 'Inspect snapshot ↗')); return row;
     }));
-    const proposals = array(report.next_runs).map((proposal, index) => {
-      const card = node('article', 'research-proposal');
-      card.append(node('div', 'research-badges', `PROPOSAL ${String(index + 1).padStart(2, '0')} · NOT LAUNCHED`), node('h4', '', proposal.title));
-      const description = node('dl');
-      for (const [key, title] of [['hypothesis', 'Hypothesis'], ['changes', 'What changes'], ['controls', 'Controls'], ['metrics', 'Measures'], ['budget', 'Budget'], ['stop_rule', 'Stopping rule'], ['limitations', 'Limitations']]) {
-        if (proposal[key] !== undefined && proposal[key] !== null) description.append(node('dt', '', title), node('dd', '', display(proposal[key])));
-      }
-      card.append(description);
-      const verdict = array(report.judge?.proposal_verdicts).find((item) => item.index === index);
-      if (verdict) card.append(node('p', 'research-proposal-judgment', `Judge · ${label(verdict.verdict)}: ${verdict.reason || ''}`));
-      else if (proposal.review) card.append(node('p', 'research-proposal-judgment', display(proposal.review)));
-      const citations = node('div', 'research-citations');
-      array(proposal.evidence_ids).forEach((id) => {
-        const source = sources.find((item) => item.id === id);
-        if (source) citations.append(citationButton({source_id: id}, run.id));
-        else citations.append(node('span', 'research-badge', `Evidence · ${id}`));
-      });
-      if (citations.childNodes.length) card.append(citations);
-      return card;
-    });
-    byId('proposals').replaceChildren(...(proposals.length ? proposals : [node('p', 'muted', 'No experiment proposal was made in this run.')]));
-    byId('limitations').replaceChildren(...array(report.limitations).map((item) => node('li', '', display(item))));
-    byId('stop-reason').textContent = `Stopped because: ${display(report.stop_reason) || 'No stopping reason recorded.'}`;
+    const recommendation = publication?.recommendation;
+    byId('proposals').replaceChildren(recommendation?.status === 'proposal_only'
+      ? proposalCard(recommendation, run.id)
+      : node('p', 'muted', 'No bounded next experiment proposal was published.'));
+    const limits = publication ? publication.limitations : ['This historical report has not been published through the source-backed reporting protocol. Model approval alone does not establish its claims.'];
+    byId('limitations').replaceChildren(...limits.map((item) => node('li', '', display(item))));
+    byId('stop-reason').textContent = publication
+      ? `Publication: ${publication.status === 'grounded' ? 'source-backed evidence packet' : 'insufficient evidence'}. Scientific efficacy is not established. Automatic policy changes are disabled.`
+      : 'Publication: unavailable. Automatic policy changes are disabled.';
+    const draft = report.model_draft && typeof report.model_draft === 'object' ? report.model_draft : publication ? {} : report;
+    const interpretation = report.model_interpretation || {};
+    byId('model-draft').open = false;
+    byId('model-answer').textContent = draft.answer || 'No model narrative was retained.';
+    renderJudgment({...draft, judge: interpretation.judge || draft.judge}, run.mode);
+    const modelClaims = [...array(draft.claims), ...array(interpretation.hypotheses)];
+    byId('model-claims').replaceChildren(...modelClaims.map((claim) => modelClaimCard(typeof claim === 'string' ? {text: claim} : claim, run.id)));
+    byId('model-proposals').replaceChildren(...array(draft.next_runs).map((proposal) => proposalCard(proposal, run.id, true)));
+    const gaps = node('ul');
+    gaps.append(...[...array(interpretation.gaps), ...array(draft.limitations)].map((gap) => node('li', '', display(gap))));
+    byId('model-gaps').replaceChildren(node('h4', '', 'Model-reported gaps and limitations'), gaps);
+    if (draft.stop_reason) byId('model-gaps').append(node('p', '', `Model stopping reason: ${display(draft.stop_reason)}`));
   }
   function render(data) {
     snapshot = data;
@@ -322,9 +373,13 @@
       content.append(node('p', 'research-source-digest', `${label(source.kind)} · ${source.id}`));
       if (source.kind === 'experiment' && source.metadata?.adapter === 'federation_dossier') content.append(node('p', 'research-telemetry-badge', 'Saved coordinator telemetry · not a live control connection'));
       if (evidence.quote) {
-        content.append(node('h4', '', 'Excerpt cited by this claim'), node('blockquote', '', evidence.quote));
-        const matches = String(source.content || '').includes(evidence.quote);
-        content.append(node('p', 'research-source-digest', matches ? 'Exact excerpt found in this saved source. This checks text provenance, not whether the claim follows from it.' : 'Exact excerpt was not found in this snapshot. Review the claim and source before relying on it.'));
+        content.append(node('h4', '', 'Cited source text or value'), node('blockquote', '', evidence.quote));
+        if (typeof evidence.locator === 'string' && evidence.locator.startsWith('/')) {
+          content.append(node('p', 'research-source-digest', 'This citation identifies a JSON value at the recorded pointer below. The full saved record is shown for inspection; matching text alone would not verify the claim.'));
+        } else {
+          const matches = String(source.content || '').includes(evidence.quote);
+          content.append(node('p', 'research-source-digest', matches ? 'Exact excerpt found in this saved source. This checks text provenance, not whether the claim follows from it.' : 'Exact excerpt was not found in this snapshot. Review the claim and source before relying on it.'));
+        }
       }
       if (evidence.locator) content.append(node('p', '', `Locator: ${display(evidence.locator)}`));
       const url = webURL(source.uri);
