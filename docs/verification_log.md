@@ -482,3 +482,101 @@ Those tests use synthetic subprocesses and do not constitute live physics result
 The three corrected live cases remain pending until their execution and reports
 are independently audited. No outcome, deployment or efficacy pass is implied by
 this frozen protocol.
+
+
+## Three additional live workflow trials: completed physics, reporting audit open
+
+The three frozen seed-29, one-round SPARC-like datasets completed: SAC actor
+learning rate 0.0003 to 0.0001, SAC critic mixing 0.25 to 0.1, and TD3 critic
+coordinates normalized to physical. Actual work was 56 episodes per dataset,
+168 total: 96 training, 72 evaluation and 5,040 action windows. Seed 29 is
+previously used development data; the three configurations are not independent
+training-seed confirmations. Earlier calibration and replay-only optimizer work
+are separate costs.
+
+The [three-trial audit](three_trial_audit.md) links all saved comparisons and
+separates candidate-minus-baseline raw arm costs from candidate federation versus
+local. Candidate uniform-minus-local raw endpoint costs were +0.00367020,
++0.01578276 and -0.00476015 respectively (rounded cost differences, not percentages).
+All baseline/candidate raw competence flags were false across all four arms in
+all three datasets. Every recorded recommendation was keep_baseline. These
+results do not demonstrate a general federation or shots-to-competence advantage.
+
+The initial SAC actor report passed 62/63 independent checks but omitted local
+competence and used a generic literature quotation. The SAC critic-mixing report
+was insufficient at 59/63: local cost and reset-only competence were missing,
+and the retrieved mirror did not provide an eligible primary reference. The TD3
+physics evidence passed 38/38 checks, while its report failed three writer
+attempts involving malformed optional gaps, missing paired endpoint coverage and
+selection beyond the 12-card limit. None is recorded as a full initial workflow
+pass.
+
+Repairs introduced a mandatory current-source comparison bundle, source-bound
+recommendations, explicit quarantine of malformed optional annotations and
+bounded primary-source recovery. Three live report-only repairs now include the
+12 required measured fact cards and reused the completed datasets, adding zero
+physics work. The SAC critic-mixing repair still accepted an exact but irrelevant
+metadata excerpt. That defect is retained; excerpt-catalogue relevance is being
+fixed and independently verified. Three full end-to-end passes are not yet
+established. This newer audit updates the pending status in the frozen-protocol
+entry above, without deleting its pre-launch record.
+
+The [public dataset index](../examples/evidence/3demo-datasets.json) records the
+six exported files per dataset and their hashes. Five files retain exact trial
+bytes; run.json is a process-metadata-free projection. EvidenceCatalog verified
+the hash chain and recomputed comparison arithmetic; all 57 source members per
+archive match the recorded manifest and already-public source at commit
+2837fac587a87a07a731d8de199ef32db6df7eb6. That source match is not a claimed launch
+commit or independent physical replication. No provider transcripts, bulk web
+text or runtime logs accompany these numerical bundles. Original experiments,
+failed reports and numerical evidence remain unchanged; no policy or follow-up
+experiment has been automatically activated.
+
+## Three reporting-only repairs: scientific excerpts and scoped factual checks
+
+The completed seed-29 shadow datasets were reused for bounded reporting-only
+repairs. Attempt 1 failed on provider connection before successful inference;
+attempt 2 returned all measured cards but selected bibliographic metadata for
+the SAC critic-mixing case. Both attempts remain preserved. The latest attempt
+does not retrospectively convert the original partial, insufficient or failed
+research runs into full workflow passes.
+
+The excerpt catalogue now excludes identifiable frontmatter, navigation and
+bibliography. When a scientific sentence is repeated only in excluded material
+such as BibTeX, a server-selected original locator may disambiguate it. The
+locator must match an exact citation-helper candidate, be wholly within the
+retained scientific body and identify an anchor unique in that body. Publication
+revalidates it. Repeated scientific-body text, forged offsets and control
+characters remain invalid; source hashes and the 25-word bound are unchanged.
+The final public app suite recorded **1,277 passed, two skips and two existing
+warnings**. Counts from prior invocations are not added to this total.
+
+Attempt 3 completed reporting-only repairs for research runs
+`60c75c21a2c74c899d231159a72ec9a3`, `aaa68592d5da4e37a9cb57eaf4d6f0dc` and
+`8332c5c2279e417fa9f86543a6b1c941`. Independent mechanical audits passed **37/37
+checks for each**. The runs used **3, 2 and 2 model calls** respectively, with
+zero new searches, zero page extractions and zero additional physics episodes.
+Each answer contains twelve exact server-authored current-trial facts, all
+four paired raw cost differences, all four competence pairs, measured clipping,
+and the exact keep-baseline recommendation with an unlaunched 112-episode
+proposal. Original research records, numerical files and local source snapshots
+were confirmed unchanged. No shadow executor was available to these repairs.
+
+Manual review found scientific prose in all three excerpts, with explicit scope
+limits. The SAC reference describes the reward/entropy objective; the TD3
+reference discusses overestimation bias. Neither explains the measured change
+causally. The SAC critic-mixing answer selected HAPFL, whose surrounding text
+uses PPO to manage client model allocation and training intensity. That is
+adjacent context, not direct evidence about federating SAC critic parameters.
+The metadata-selection defect is resolved, while scientific applicability still
+requires review.
+
+Optional model gap notes still incorrectly call the recorded inactive SAC q0
+clipping evidence missing in the actor-learning-rate and TD3 cases. The TD3
+judge corrects this; the actor-learning-rate judge repeats the confusion. The
+authoritative fact card correctly records zero of three clipped contributors
+and all factors 1.0. All three model causal hypotheses were `critic_rejected`;
+none entered the factual answer. The [updated three-trial audit](three_trial_audit.md)
+records these remaining interpretation limits. This is three scoped factual
+publication checks using preserved data, not three complete workflow successes,
+new independent RL replications or evidence that federation solves cold start.

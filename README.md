@@ -26,9 +26,12 @@ the full trace or a bulk copy of web sources.
 The [negative verification record](examples/verification/negative_reporting_check.json)
 preserves the second scoped audit; its report is separate from the positive
 clipping reproduction.
-The bundled measurements are recorded local CPU experiments, not newly run when
-you open the app. No Nebius VM, NVIDIA GPU deployment or production reactor control
-is claimed. The current shadow worker uses CPU and in-process aggregation.
+The default demo uses three saved CPU TORAX datasets; opening the app does not
+run physics. A single-user container deployment runs on a Nebius VM, with model
+inference on Token Factory and retrieval through Tavily. Optional live TORAX
+generation is explicitly **Experimental / Beta — may fail**, requires opt-in, and
+uses CPU with in-process aggregation. No production reactor control or GPU
+training is claimed.
 Read [what the agents, shadow test and worker each do](docs/shadow_workflow.md).
 
 ## Run the app and inspect real evidence
@@ -42,10 +45,11 @@ uv sync --locked --extra research --extra dev
 uv run --no-sync python dashboard.py
 ```
 
-Open http://127.0.0.1:8787/#research. Select the two published shadow comparisons
-and use offline inspection without credentials. These are real recorded
+Open http://127.0.0.1:8787/#research. The three saved development datasets are
+selected by default. Use offline inspection without credentials. These are real recorded
 measurements; offline inspection does not use an LLM or search the web.
-Read [the evidence provenance](examples/evidence/README.md).
+Read [the evidence provenance](examples/evidence/README.md) and the
+[three-trial audit, including reporting failures](docs/three_trial_audit.md).
 
 ## Run the seven-agent research workflow
 
@@ -70,8 +74,11 @@ or return insufficient evidence. The server rebuilds the final answer from the
 selected sources; neither writer prose nor judge approval can change its facts.
 Current and historical trials remain explicitly labelled. Unknown references in
 optional hypotheses are quarantined and traced, rather than repaired or published.
-The writer can select up to 12 cards, including explicit baseline/candidate
-settings for each of the seven registered change types. A required literature
+For a current bounded shadow, the server includes the complete recorded comparison
+(up to 12 cards: status, changed setting, accounting, all four cost and competence
+comparisons, plus clipping when recorded). Optional model choices cannot displace
+required measurements. Saved historical evidence retains bounded model selection;
+malformed optional annotations in a current comparison are excluded and traced. A required literature
 excerpt must come from an extracted, hash-bound snapshot at a recognized paper
 URL. Secondary summaries cannot fill that slot, even if a model judge approves.
 This URL/path check does not certify authorship, peer review or scientific quality;
@@ -84,7 +91,7 @@ Inspect the selected source context and the separately labelled hypotheses.
 `scripts/verify_research_judge.py` retains the earlier bounded semantic-judge
 probe for comparison; it is not the new publication gate or a full live-run test.
 
-## Enable actual TORAX shadow trials
+## Optional live TORAX generation — Experimental / Beta
 
 The app and RL worker use separate virtual environments to isolate web-agent
 dependencies from the TORAX numerical runtime. The research UI can run without the RL environment.

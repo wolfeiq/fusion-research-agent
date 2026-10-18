@@ -28,19 +28,28 @@ not a highly available service or a safety-critical reactor controller.
 
 ## What is verified
 
-Local HTTP tests exercise public-mode authentication, Host/Origin checks, typed
-POST routing, local compatibility and a status-only health probe. The public CI
-workflow builds the Linux **research** target, tests its HTTP boundary, then runs
-the real Caddy configuration against the app using a runner-loopback HTTP site
-with dummy credentials (no ACME or provider calls). It checks missing/wrong login
-rejection, authenticated UI and research reads, spoofed-token replacement and
-cross-origin rejection. A disposable upstream also checks that Caddy strips the
-browser's Authorization header. HTTPS configuration is validated separately;
-real certificate issuance remains a VM acceptance check. Check the workflow's
-result for the commit being deployed.
-No claim of a successful container build, cloud deployment or CPU-image physics
-validation should be made until those checks actually run. The initial authoring
-machine did not have Docker available.
+The Linux **research** image build and container/proxy smoke checks passed in
+[GitHub Actions run 39138471875](https://github.com/wolfeiq/fusion-research-agent/actions/runs/39138471875)
+for commit `2837fac587a87a07a731d8de199ef32db6df7eb6` (42 seconds). That run
+tested the app's HTTP boundary and the real Caddy configuration on a
+runner-loopback HTTP site with dummy credentials, without ACME or provider calls.
+Missing/wrong login rejection, authenticated UI and research reads, spoofed-token
+replacement, cross-origin rejection and stripping the browser's Authorization
+header all passed. Caddy's HTTPS configuration also passed validation.
+
+The subsequent local suite passed **1,277 tests**, with **2 skipped** and **2 warnings**.
+Its HTTP coverage includes public-mode authentication, Host/Origin checks, typed
+POST routing, local compatibility and a status-only health probe.
+
+The initial Nebius VM deployment at `2837fac` also passed real HTTPS and login
+checks: unauthenticated API requests returned 401, authenticated app/research/
+shadow/health reads returned 200, and backend port 8787 was unreachable externally.
+Caddy obtained a valid certificate. The CPU `shadow` image built and imported
+TORAX, PyTorch and JAX successfully; physics execution inside that Linux image
+has not yet been validated. Saved datasets are the default, and live generation
+is explicitly experimental beta. A healthy server and available provider
+configuration do not by themselves verify a live research report. Check the
+workflow and acceptance results for the exact revision being deployed.
 
 The default `research` image runs research against the committed evidence but
 does **not** execute new TORAX trials. Choose `shadow` to install the optional RL
