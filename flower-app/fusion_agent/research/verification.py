@@ -66,6 +66,65 @@ def _strings(value: Any, name: str, maximum: int, minimum: int = 0) -> list[str]
     ]
 
 
+def _verbatim_prose(value: Any, name: str, limit: int) -> str:
+    """Validate free prose without deleting even its surrounding whitespace."""
+    if not isinstance(value, str):
+        raise ValueError(f"{name} must be a string")  # noqa: TRY004 - public schema API
+    if not value.strip() or len(value) > limit:
+        raise ValueError(f"{name} must contain 1–{limit} characters of nonblank prose")
+    if any(ord(char) < 32 and char not in "\n\r\t" for char in value):
+        raise ValueError(f"{name} contains control characters")
+    return value
+
+
+def normalize_report_transport(report: dict) -> tuple[dict, list[dict]]:
+    """Adapt only the two known limitations prose shapes, never scientific fields.
+
+    The advertised schema remains canonical. This boundary adapter accepts a
+    single report-level paragraph or a bounded native list of proposal-level
+    paragraphs. Every character and item order survive; metadata records the
+    original boundaries. All other schema and evidence checks run afterwards.
+    """
+    result = report.copy()
+    changes = []
+    limitations = report.get("limitations")
+    if isinstance(limitations, str):
+        _verbatim_prose(limitations, "limitations", 1500)
+        # An encoded container is not a single paragraph. Do not reinterpret
+        # nested JSON serialization as prose or decode it into more arguments.
+        try:
+            encoded = json.loads(limitations)
+        except ValueError:
+            encoded = None
+        if isinstance(encoded, (dict, list)):
+            raise ValueError("limitations must be prose, not a serialized JSON container")  # noqa: TRY004 - public schema API
+        result["limitations"] = [limitations]
+        changes.append({
+            "path": "/limitations", "source_type": "string", "target_type": "array",
+            "item_count": 1, "source_item_lengths": [len(limitations)],
+        })
+
+    proposals = report.get("next_runs")
+    if isinstance(proposals, list) and len(proposals) <= MAX_PROPOSALS:
+        result["next_runs"] = proposals.copy()
+        for index, proposal in enumerate(proposals):
+            if not isinstance(proposal, dict) or not isinstance(proposal.get("limitations"), list):
+                continue
+            name = f"next_runs[{index}].limitations"
+            paragraphs = _list(proposal["limitations"], name, 12, 1)
+            for item_index, paragraph in enumerate(paragraphs):
+                _verbatim_prose(paragraph, f"{name}[{item_index}]", 2500)
+            joined = "\n\n".join(paragraphs)
+            _verbatim_prose(joined, name, 2500)
+            result["next_runs"][index] = {**proposal, "limitations": joined}
+            changes.append({
+                "path": f"/next_runs/{index}/limitations", "source_type": "array",
+                "target_type": "string", "item_count": len(paragraphs),
+                "separator": "\n\n", "source_item_lengths": [len(item) for item in paragraphs],
+            })
+    return result, changes
+
+
 def _object(value: Any, name: str, keys: set[str]) -> dict:
     if not isinstance(value, dict):
         raise ValueError(f"{name} must be an object")  # noqa: TRY004 - public schema API
@@ -323,7 +382,9 @@ def validate_report(report: dict, sources: list[dict]) -> dict:
             },
         )
         proposal = {
-            key: _string(raw[key], f"next_run.{key}", 2500)
+            key: (_verbatim_prose if key == "limitations" else _string)(
+                raw[key], f"next_run.{key}", 2500
+            )
             for key in (
                 "title",
                 "hypothesis",
@@ -355,7 +416,10 @@ def validate_report(report: dict, sources: list[dict]) -> dict:
         "answer": render_answer(claims),
         "claims": claims,
         "next_runs": proposals,
-        "limitations": _strings(report["limitations"], "limitations", 12),
+        "limitations": [
+            _verbatim_prose(item, f"limitations[{index}]", 1500)
+            for index, item in enumerate(_list(report["limitations"], "limitations", 12))
+        ],
         "stop_reason": _string(report["stop_reason"], "stop_reason", 2000),
         "verification": {
             "mode": "structural_traceability_only",

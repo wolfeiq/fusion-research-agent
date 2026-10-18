@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 
 from .policy import CHANGES, compare_clipping, dossier, draft_policy_trial
 from .providers import ProviderError, public_url
-from .verification import render_answer, validate_report
+from .verification import normalize_report_transport, render_answer, validate_report
 
 
 class ModelCallBudgetReserved(RuntimeError):
@@ -506,6 +506,9 @@ class ResearchEngine:
                 raise ValueError("report must decode to exactly one object")
             if len(json.dumps(draft, ensure_ascii=False, allow_nan=False)) > 50_000:
                 raise ValueError("report exceeds the 50000-character limit")
+            draft, prose_normalizations = normalize_report_transport(draft)
+            if len(json.dumps(draft, ensure_ascii=False, allow_nan=False)) > 50_000:
+                raise ValueError("report exceeds the 50000-character limit after transport normalization")
             report = validate_report(draft, list(self.sources.values()))
             if transport_normalized:
                 self.event(
@@ -513,6 +516,14 @@ class ResearchEngine:
                     "Decoded one JSON string into a report object; strict report "
                     "and citation validation still apply.",
                     transport="json_string_in_report", decoded_layers=1,
+                )
+            if prose_normalizations:
+                report["verification"]["transport_normalizations"] = prose_normalizations
+                self.event(
+                    "report_transport_normalized",
+                    "Normalized known limitations prose shapes without changing text; "
+                    "strict report, citation and semantic checks still apply.",
+                    transport="limitations_prose_shapes", normalized_fields=prose_normalizations,
                 )
             rejected_claims = [
                 claim for claim in report["claims"]
