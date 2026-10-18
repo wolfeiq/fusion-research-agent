@@ -13,6 +13,20 @@ An optional bounded shadow trial tests a single change with fresh controllers.
 2. **Watch second:** [Project explanation — Part 2](https://www.loom.com/share/c91b19a804b3486a99e80ef7a841358c)
 3. **Watch last:** [Project explanation — Part 3](https://www.loom.com/share/fff3a216ff464a59899e1853b2ff4c76)
 
+## Try the live app
+
+- **App:** [Open Fusion Research Agent](https://fusion.81.85.1.211.sslip.io)
+- **Username:** `fusion`
+- **Password:** Available from the project owner.
+
+This is a shared demo account. Runs and reports are shared between visitors;
+please use the included datasets and keep private information out of prompts.
+For a first run, select only **TD3 critic action coordinates: normalized → physical**,
+leave **Live TORAX generation** unchecked, and follow the
+[verified demo instructions](docs/verified_demo.md).
+
+## About the prototype
+
 This is an executable research prototype. The default report now uses typed
 selection: the model chooses evidence IDs and excerpts, while server code writes
 the factual statements, exact citations and validated next-run proposal. Optional
