@@ -789,3 +789,29 @@ test('terminal persistence failure gives safe storage recovery guidance and keep
   assert.equal(h.elements['research-results'].hidden, false);
   assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
 });
+
+test('grounded local inspection shows saved measurements and intentionally skips literature and model review', async () => {
+  const publication = publicationFixture();
+  publication.status = 'insufficient_evidence'; publication.literature_excerpts = [];
+  publication.facts = Array.from({length: 12}, (_, index) => ({...publication.facts[0], id: `F${index + 1}`}));
+  publication.limitations = ['Local inspection only; no literature search or new training.'];
+  const h = await harness({initialResearchRun: {
+    id: 'local-audit', mode: 'offline', status: 'inspection_complete', events: [{kind: 'inspection_complete', message: 'Read saved comparison'}],
+    report: {grounded_publication: publication, evidence_sufficient: false, orchestration: {status: 'inspection_complete'}}
+  }});
+  assert.equal(h.elements['research-result-mode'].textContent, 'Local inspection — saved measurements only');
+  assert.equal(h.elements['research-claims'].children.length, 12);
+  assert.match(h.elements['research-answer'].textContent, /Recorded seed 17 endpoint/);
+  assert.doesNotMatch(h.elements['research-answer'].textContent, /No source-backed publication/);
+  assert.match(descendantText(h.elements['research-literature']), /No literature was retrieved.*saved measurements only/);
+  assert.match(descendantText(h.elements['research-proposals']), /Repeat the paired comparison/);
+  assert.match(h.elements['research-stop-reason'].textContent, /No LLM, Tavily retrieval, model judge or new training ran/);
+  assert.equal(h.elements['research-model-draft'].hidden, true);
+  assert.equal(h.elements['research-agent-map'].hidden, true);
+  assert.equal(h.calls.filter((call) => call.options.method === 'POST').length, 0);
+  h.setResearchState({run: {id: 'legacy-offline', mode: 'offline', status: 'inspection_complete', report: {answer: 'Legacy draft'}}});
+  h.elements['research-refresh'].listeners.click(); await flush();
+  assert.match(h.elements['research-answer'].textContent, /No source-backed publication/);
+  assert.equal(h.elements['research-model-draft'].hidden, false);
+  assert.match(h.elements['research-model-answer'].textContent, /Legacy draft/);
+});

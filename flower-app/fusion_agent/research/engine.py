@@ -1164,8 +1164,64 @@ class ResearchEngine:
         return report
 
 
+def _offline_saved_shadow_report(sources):
+    """Publish one saved comparison through the same deterministic fact boundary.
+
+    This is an inspection, not a live research answer: there is no provider,
+    literature selection, judge or new numerical work. Broader inventories keep
+    the existing bounded scalar path rather than implying a pooled comparison.
+    """
+    saved = [source for source in sources
+             if source.get("metadata", {}).get("adapter") == "shadow_comparison"]
+    if len(saved) != 1 or any(source.get("metadata", {}).get("adapter") == "shadow_execution"
+                              for source in sources):
+        return None
+    from types import SimpleNamespace
+
+    from .grounded_facts import build_grounded_facts, source_provenance
+    from .grounded_writer import _draft, current_shadow_bundle
+
+    if source_provenance(saved[0]) is None:
+        raise ValueError("Saved shadow evidence lacks a valid captured schema and content hash")
+    registry = {source["id"]: source for source in sources}
+    if len(registry) != len(sources):
+        raise ValueError("Offline evidence source IDs must be distinct")
+    coverage = current_shadow_bundle(registry, build_grounded_facts(registry))
+    if coverage["origin"] != "saved_shadow_snapshot":
+        return None
+    report = _draft(
+        SimpleNamespace(sources=registry, read_ids=set(registry)),
+        {"fact_ids": [], "excerpt_ids": [], "hypotheses": [], "next_run_source_id": "", "gaps": []},
+        question="Inspect the selected saved shadow comparison without live research.",
+    )
+    scope = (
+        "Offline saved evidence inspection: no model inference, web retrieval, model judgment "
+        "or new training ran. Recorded proposals are shown for inspection only; no live "
+        "research answer or scientific efficacy is established."
+    )
+    publication = report["grounded_publication"]
+    publication["answer"] = scope + "\n\n" + publication["answer"]
+    publication["limitations"].append(scope)
+    report.update(
+        answer=publication["answer"], limitations=list(publication["limitations"]),
+        evidence_sufficient=False,
+        stop_reason="Local saved-record inspection complete. Live research was not performed.",
+        inspection={"mode": "offline", "model_calls": 0, "retrieval_calls": 0,
+                    "judge_calls": 0, "new_physics_episodes": 0,
+                    "scientific_research_complete": False, "source_ids": coverage["source_ids"]},
+        orchestration={"framework": "deterministic_inspection", "agents": [],
+                       "status": "inspection_complete", "full_workflow_reexecuted": False},
+    )
+    report["verification"]["mode"] = "offline_server_authored_evidence"
+    report.pop("model_interpretation", None)
+    return report
+
+
 def offline_report(sources):
-    """Deterministic inventory, deliberately no fake LLM or fake literature."""
+    """Deterministic inspection, deliberately no fake LLM or fake literature."""
+    shadow_report = _offline_saved_shadow_report(sources)
+    if shadow_report is not None:
+        return shadow_report
     claims = []
 
     def scalars(value, path="", depth=0):

@@ -322,7 +322,9 @@
     byId('results').hidden = !report;
     if (!report) return;
     const publication = publicationFor(report);
-    byId('result-mode').textContent = run.mode === 'live' ? 'Live · Token Factory + Tavily' : 'Local inspection · no LLM / no web';
+    const localMeasurements = run.mode === 'offline' && Boolean(publication) && report.orchestration?.status === 'inspection_complete';
+    byId('result-mode').textContent = localMeasurements ? 'Local inspection — saved measurements only'
+      : run.mode === 'live' ? 'Live · Token Factory + Tavily' : 'Local inspection · no LLM / no web';
     byId('run-question').textContent = run.question || '';
     byId('answer').textContent = publication
       ? publication.answer || 'No source-backed statement was produced.'
@@ -332,7 +334,9 @@
       : [node('p', 'muted', 'No recorded measurements were published.')]));
     byId('literature').replaceChildren(...(publication?.literature_excerpts.length
       ? publication.literature_excerpts.map((fact) => publicationCard(fact, run.id, true))
-      : [node('p', 'muted', 'No exact literature excerpts were published.')]));
+      : [node('p', 'muted', localMeasurements
+        ? 'No literature was retrieved: this local inspection reads saved measurements only. Live research is a separate action that uses Nebius and Tavily.'
+        : 'No exact literature excerpts were published.')]));
     const sources = array(run.sources);
     byId('source-count').textContent = `(${sources.length})`;
     byId('sources').replaceChildren(...sources.map((source) => {
@@ -347,12 +351,15 @@
       : node('p', 'muted', 'No bounded next experiment proposal was published.'));
     const limits = publication ? publication.limitations : ['This historical report has not been published through the source-backed reporting protocol. Model approval alone does not establish its claims.'];
     byId('limitations').replaceChildren(...limits.map((item) => node('li', '', display(item))));
-    byId('stop-reason').textContent = publication
+    byId('stop-reason').textContent = localMeasurements
+      ? 'Local inspection complete: saved measurements and a recorded proposal only. No LLM, Tavily retrieval, model judge or new training ran. Literature-backed research conclusions remain unavailable. Scientific efficacy is not established. Automatic policy changes are disabled.'
+      : publication
       ? `Publication: ${publication.status === 'grounded' ? 'source-backed evidence packet' : 'insufficient evidence'}. Scientific efficacy is not established. Automatic policy changes are disabled.`
       : 'Publication: unavailable. Automatic policy changes are disabled.';
     const draft = report.model_draft && typeof report.model_draft === 'object' ? report.model_draft : publication ? {} : report;
     const interpretation = report.model_interpretation || {};
     byId('model-draft').open = false;
+    byId('model-draft').hidden = localMeasurements;
     byId('model-answer').textContent = draft.answer || 'No model narrative was retained.';
     renderJudgment({...draft, judge: interpretation.judge || draft.judge}, run.mode);
     const modelClaims = [...array(draft.claims), ...array(interpretation.hypotheses), ...array(interpretation.rejected_hypotheses)];
