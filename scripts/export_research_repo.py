@@ -26,7 +26,7 @@ BUNDLE_FILES = (
     "source.zip", "output/result.json",
 )
 ROOT_SCRIPTS = (
-    "run_shadow_trial.py", "run_coupled_federation.py",
+    "run_shadow_trial.py", "run_coupled_federation.py", "calibrate_deposition.py",
     "analyze_coupled_federation.py", "analyze_deposition_pilot.py",
     "stabilize_td3_heating.py", "export_research_repo.py",
 )

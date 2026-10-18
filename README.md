@@ -67,9 +67,11 @@ The shadow worker uses the numerical aggregation implementation and does not
 require Flower network transport. Its runtime metadata records Flower as absent.
 The legacy transport adapter is retained as reference code, outside this validated setup.
 
-The constraints record the package versions of the CPU reference runtime; they
-are not a complete transitive lock or a guarantee of identical cross-platform
-numerics. The app has its own `uv.lock`. Root dependency resolution and platform
+A hashed Windows/Python 3.12 CPU lock is included as `requirements-rl-windows.lock`.
+On Windows, use `uv pip sync --python .venv requirements-rl-windows.lock`, then
+`uv pip install --python .venv --no-deps -e .` to reproduce the resolved runtime.
+The shorter constraints record direct reference versions; neither file guarantees
+identical cross-platform numerics. The app has its own `uv.lock`. Root dependency resolution and platform
 support must be verified before describing a new environment as reproduced.
 
 In the research UI, prepare and start a shadow pilot, or explicitly enable one
