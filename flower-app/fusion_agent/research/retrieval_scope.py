@@ -10,7 +10,7 @@ _LOCAL_MARKERS = re.compile(
     r"|(?<!\w)[a-z]:[\\/][^\s<>\"']+"
     r"|\\\\[^\s<>\"']+"
     r"|(?<![\w:/])(?:\.{1,2}[\\/]|~[\\/]|\.(?:dashboard|codex)[\\/]"
-    r"|(?:flower-app|results|docs|artifacts|checkpoints|hfmarl|scripts)[\\/])[^\s<>\"']+"
+    r"|(?:flower-app|results|docs|examples|artifacts|checkpoints|hfmarl|scripts)[\\/])[^\s<>\"']+"
     r"|(?<![\w:/])/(?:Users|home|tmp|mnt|workspace|kaggle|private|var)/[^\s<>\"']+"
     r"|(?<![\w:])(?:[\w.-]+[\\/])+[\w.-]+\.(?:jsonl?|csv|tsv|npz|npy|pt|pth|ckpt|zip|log|ya?ml|toml)\b"
     r"|(?<![a-z0-9])[a-f0-9]{32,}(?![a-z0-9])"

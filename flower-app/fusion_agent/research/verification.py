@@ -49,7 +49,13 @@ def _identifier(value: Any, name: str) -> str:
 
 def _list(value: Any, name: str, maximum: int, minimum: int = 0) -> list:
     if not isinstance(value, list) or not minimum <= len(value) <= maximum:
-        raise ValueError(f"{name} must be a list of {minimum}–{maximum} items")
+        received = type(value).__name__
+        if isinstance(value, (list, str, dict)):
+            received += f" of length {len(value)}"
+        raise ValueError(
+            f"{name} must be a list of {minimum}–{maximum} items; received {received}. "
+            "Return a native JSON array within the stated bounds, not a serialized JSON string."
+        )
     return value
 
 
@@ -139,6 +145,20 @@ def _trace_evidence(evidence: dict, source: dict | None) -> str | None:
             valid = False
         if not valid:
             return "An extracted web source needs an HTTP(S) citation URL."
+        # Empty locators are the legacy whole-page citation format. An explicit
+        # offset locator promises an exact span, so it must not fall back to a
+        # matching quotation elsewhere on the page.
+        locator = evidence["locator"]
+        if locator:
+            span = re.fullmatch(r"chars:(0|[1-9][0-9]*):(0|[1-9][0-9]*)", locator)
+            if span is None:
+                return "A web locator must be empty or an exact chars:start:end span."
+            start, end = map(int, span.groups())
+            if not 0 <= start < end <= len(content):
+                return "The web citation character span is outside the stored source."
+            if content[start:end] != evidence["quote"]:
+                return "The quotation does not exactly match the cited web character span."
+            content = content[start:end]
     if kind == "experiment":
         # An empty RFC pointer technically selects the whole document, but it
         # defeats a judge's ability to locate the exact result being cited.

@@ -126,6 +126,37 @@ def test_web_quotes_allow_whitespace_differences_but_not_case_or_omissions():
     assert claim_status(validate_report(data, [web])) == "unsupported"
 
 
+@pytest.mark.parametrize("locator", [
+    "chars:9000:9029", "chars:0:0", "chars:8:1", "chars:-1:8",
+    "chars:01:8", "chars:0:999", "chars:0:8:9", "Abstract", "/content",
+])
+def test_invalid_web_spans_cannot_be_rescued_by_quote_elsewhere_on_page(locator):
+    data = report()
+    data["claims"][0]["evidence"][0].update(quote="measured", locator=locator)
+    result = validate_report(data, [source(kind="web", content="A measured result.")])
+    assert claim_status(result) == "unsupported"
+    assert "[E001]" not in result["answer"]
+
+
+def test_web_span_must_match_exactly_and_stays_bound_to_original_unicode_offsets():
+    content = "\u03b2: A  measured\nresult. More context."
+    quote = "A  measured\nresult."
+    start = content.index(quote)
+    data = report()
+    evidence = data["claims"][0]["evidence"][0]
+    evidence.update(quote=quote, locator=f"chars:{start}:{start + len(quote)}")
+    web = source(kind="web", content=content)
+    assert claim_status(validate_report(data, [web])) == "traceable"
+    evidence["locator"] = f"chars:0:{len(quote)}"
+    assert claim_status(validate_report(data, [web])) == "unsupported"
+    evidence["locator"] = f"chars:{start}:{start + len(quote)}"
+    evidence["quote"] = "A measured result."
+    assert claim_status(validate_report(data, [web])) == "unsupported"
+    # Saved pre-offset citations retain documented whitespace-tolerant lookup.
+    evidence["locator"] = ""
+    assert claim_status(validate_report(data, [web])) == "traceable"
+
+
 def test_aggregate_quote_cap_counts_distinct_quotes_and_redacts_overflow():
     words = [f"word{index}" for index in range(30)]
     data = report()
@@ -264,3 +295,21 @@ def test_invalid_enum_type_raises_schema_error(field):
     data["claims"][0][field] = []
     with pytest.raises(ValueError):
         validate_report(data, [source()])
+
+
+@pytest.mark.parametrize("value,description", [
+    (["private detail"] * 13, "list of length 13"),
+    ('["private detail"]', "str of length 18"),
+    ({"private detail": True}, "dict of length 1"),
+    (None, "NoneType"),
+])
+def test_array_schema_errors_report_safe_type_and_length_without_contents(value, description):
+    data = report()
+    data["limitations"] = value
+    with pytest.raises(ValueError) as raised:
+        validate_report(data, [source()])
+    message = str(raised.value)
+    assert "limitations must be a list of 0–12 items" in message
+    assert "received " + description in message
+    assert "native JSON array" in message
+    assert "private detail" not in message
