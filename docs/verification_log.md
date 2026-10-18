@@ -428,3 +428,57 @@ are not factual findings.
 This pass verifies the reporting of saved unfavorable evidence. It is not an
 independent RL replicate, a federation efficacy claim or a guarantee of correct
 autonomous scientific decisions for every future question.
+
+## Three additional live workflow trials: frozen protocol
+
+The next three cases test different bounded controller changes. Their questions,
+configuration values, evidence selections and request hashes were frozen before
+launch. Outcome signs are not selected in advance. Each uses the same SPARC-like
+simulation, development seed 29 and one federation round, with fresh controllers
+and paired local, reset-only, uniform and clipped arms for both configurations.
+These are three configuration datasets, not three reactors or independent seeds.
+Seed 29 was previously used in development and is not confirmation data.
+
+| Case | Changed setting | Baseline | Candidate |
+| --- | --- | --- | --- |
+| SAC actor learning | `sac_actor_lr` | 0.0003 | 0.0001 |
+| SAC critic mixing | `sac_mix` | 0.25 | 0.1 |
+| TD3 action coordinates | `heating_critic_coordinates` | `normalized` | `physical` |
+
+The frozen budget is 56 episodes per case: 32 training and 24 evaluation, up to
+1,680 action windows and a 600-second worker limit. For all three cases this is
+168 episodes, 96 training, 72 evaluation and up to 5,040 action windows. These
+are planned budgets; actual work and incomplete attempts must be audited
+separately. Earlier calibration and replay-only optimizer work are additional
+costs. A lower candidate endpoint cost does not by itself establish a federation
+advantage over local learning or faster shots-to-competence.
+
+Each question requests the current status, exact changed setting, actual
+accounting, all four paired raw endpoint differences, all four competence
+comparisons and available candidate SAC clipping evidence. The report must
+distinguish its new shadow from saved evidence, preserve negative and inconclusive
+outcomes, and keep raw learner and gate fallback separate. It must retrieve and
+read a relevant primary publication through Tavily. One exact excerpt supplies
+methodological context; it does not prove the numerical change helps. Optional
+explanations remain untested. A reported next-run proposal is not launched or
+activated automatically.
+
+The first SAC actor request, `3ed89057e8d34f16a8eb63ff003cb59f`, was intentionally
+interrupted before any `shadow_start` event or worker lease. Its question
+requested seed 29, while the old agent tool fixed seed 17. This was an interface
+contract failure caught before physics, not a numerical trial. The interrupted
+attempt is retained separately from the preceding 28 terminal reporting checks.
+
+The corrected agent tool requires an explicit integer seed from 0 through
+1,000,000. Missing, boolean, fractional, string, null or out-of-range seeds fail
+before consuming the one-attempt allowance or starting a worker. The event
+records the validated seed and one-round limit; the same values enter the frozen
+manifest, worker configuration and returned evidence. Only direct historical
+service callers retain the default seed 17. The change does not expose extra
+rounds or multiple seeds to the agent and leaves the 56-episode ceiling unchanged.
+The engine/service/graph/reflection focused suite passed 96 tests; Ruff passed.
+Those tests use synthetic subprocesses and do not constitute live physics results.
+
+The three corrected live cases remain pending until their execution and reports
+are independently audited. No outcome, deployment or efficacy pass is implied by
+this frozen protocol.

@@ -376,10 +376,11 @@ class ShadowService:
             except (OSError, ValueError):
                 raise ValueError("Unknown shadow trial") from None
 
-    def run_for_advisor(self, change, value):
-        """One caller's bounded, fixed-seed experiment, returning measured evidence."""
+    def run_for_advisor(self, change, value, *, seed=17):
+        """One caller's bounded, single-seed experiment, returning measured evidence."""
+        config = validate_config({"change": change, "value": value, "seeds": [seed], "rounds": 1})
         with self.lock:
-            frozen = self.prepare({"change": change, "value": value, "seeds": [17], "rounds": 1})
+            frozen = self.prepare(config)
             identifier = frozen["run"]["id"]
             self.start(identifier)
         while True:

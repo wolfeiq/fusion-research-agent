@@ -16,7 +16,7 @@ from fusion_agent.research.engine import ResearchEngine
 from fusion_agent.research.graph import AGENTS, RESEARCHERS, build_research_graph
 
 SHADOW_ARGS = {
-    "source_id": "E001", "change": "td3_actor_lr", "value": .00005,
+    "source_id": "E001", "change": "td3_actor_lr", "value": .00005, "seed": 17,
     "reason": "Test one justified learning-rate change in an isolated pilot.",
 }
 SHADOW_RESULT = {
@@ -119,7 +119,8 @@ def setup(*, enabled=True, **kwargs):
     events, executions = [], []
     model = ShadowTeamModel(**kwargs)
 
-    def executor(change, value):
+    def executor(change, value, *, seed):
+        assert seed == 17
         executions.append((change, value))
         return copy.deepcopy(SHADOW_RESULT)
 

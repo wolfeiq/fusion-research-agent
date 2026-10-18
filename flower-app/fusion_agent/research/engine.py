@@ -76,7 +76,8 @@ heads, optimizers and SAC temperature stay local. Never mix TD3 with SAC, or q0
 with q1. q0 and q1 name the two critic branches, not statistical quantiles.
 A locally verified proposal is still untested in TORAX. If test_shadow is
 available, read a selected experiment first, justify one allowed change, then
-inspect its measured results. The tool fixes seed 17, one round, four controls,
+inspect its measured results. Explicitly select one development seed; use the
+seed requested by the user when given. The tool fixes one round, four controls,
 two configurations and a 600-second worker limit. Only one attempted trial is
 allowed across the entire graph; failed attempts count. This is in-process
 numerical aggregation, not Flower network transport or full fleet retraining.
@@ -234,10 +235,12 @@ TOOLS = [
         "test_shadow",
         "Test one allowed TD3/SAC or clipping change in an isolated live-TORAX pilot. "
         "Only available when enabled for this graph. Read source_id first. "
-        "One attempt total, seed17, one round, baseline/candidate, local/reset/uniform/clipped, 600 seconds. "
+        "One attempt total, one explicit development seed, one round, baseline/candidate, "
+        "local/reset/uniform/clipped, 600 seconds. Use the user's requested seed when given. "
         "Returns measured outcomes or a retained failure; never touches current experiments.",
         {"source_id": STR, "change": {"type": "string", "enum": sorted(CHANGES)},
-         "value": {"anyOf": [{"type": "number"}, {"type": "string"}]}, "reason": STR},
+         "value": {"anyOf": [{"type": "number"}, {"type": "string"}]},
+         "seed": {"type": "integer", "minimum": 0, "maximum": 1_000_000}, "reason": STR},
     ),
     function(
         "search_literature",
@@ -647,7 +650,10 @@ class ResearchEngine:
         if name == "test_shadow":
             from .shadow import validate_config
 
-            config = validate_config({"change": args.get("change"), "value": args.get("value")})
+            if "seed" not in args:
+                raise ValueError("Shadow tool calls require an explicit development seed")
+            config = validate_config({"change": args.get("change"), "value": args.get("value"),
+                                      "seeds": [args["seed"]], "rounds": 1})
             with self._lock:
                 source = self.sources.get(args.get("source_id"))
                 if self.shadow_executor is None:
@@ -659,8 +665,9 @@ class ResearchEngine:
                 if self.shadow_attempted:
                     raise ValueError("The graph's one shadow-trial attempt has already been used")
                 self.shadow_attempted = True
-            self.event("shadow_start", reason, change=config["change"], value=config["value"])
-            result = self.shadow_executor(config["change"], config["value"])
+            self.event("shadow_start", reason, change=config["change"], value=config["value"],
+                       seeds=config["seeds"], rounds=config["rounds"])
+            result = self.shadow_executor(config["change"], config["value"], seed=config["seeds"][0])
             return self._computed_source(name, source, result, "Measured isolated TORAX shadow comparison", reason,
                 metadata={"adapter": "shadow_execution", "scope": "new isolated development pilot; failures retained; no current policy activation"})
         if name in ("inspect_federation", "compare_clipping", "draft_policy_trial"):

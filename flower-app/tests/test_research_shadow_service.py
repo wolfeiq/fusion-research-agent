@@ -102,10 +102,17 @@ def test_advisor_return_projects_only_hash_verified_worker_telemetry(repo, tmp_p
     path.write_bytes(raw + (b" " if tampered else b""))
     run.update(status="completed", comparison={"provenance": {"result_sha256": hashlib.sha256(raw).hexdigest()}})
     before = files(folder)
-    monkeypatch.setattr(svc, "prepare", lambda request: {"run": run})
+    captured_requests = []
+
+    def prepare(request):
+        captured_requests.append(request)
+        return {"run": run}
+
+    monkeypatch.setattr(svc, "prepare", prepare)
     monkeypatch.setattr(svc, "start", lambda identifier: None)
     monkeypatch.setattr(svc, "export", lambda identifier: copy.deepcopy(run))
     evidence = svc.run_for_advisor("td3_actor_lr", .00005)
+    assert captured_requests == [validate_config(REQUEST)]  # Direct service API retains seed17 default.
     view = evidence["round_aggregation_diagnostics"]
     assert view["status"] == ("unavailable_unverified_result" if tampered else "partial_or_unavailable")
     if not tampered:
@@ -113,6 +120,67 @@ def test_advisor_return_projects_only_hash_verified_worker_telemetry(repo, tmp_p
     assert evidence["comparison"] == run["comparison"]
     assert evidence["policy_activated"] is False
     assert files(folder) == before
+
+
+@pytest.mark.parametrize("arguments,expected_seed", [({"seed": 17}, 17), ({"seed": 29}, 29)])
+def test_agent_seed_matches_event_frozen_manifest_worker_and_returned_evidence(
+        repo, tmp_path, monkeypatch, arguments, expected_seed):
+    """Exercise the real engine/service boundary with a synthetic subprocess only."""
+    from test_research_shadow_engine import ARGS, engine
+
+    from fusion_agent.research import shadow_analysis
+
+    monkeypatch.setattr(shadow_analysis, "analyze_shadow_result", lambda result: {
+        "schema": "fusion-shadow-comparison-v1", "status": "complete",
+        "recommendation": {"code": "repeat_paired_seeds"},
+    })
+    worker_configs, events = [], []
+
+    class Worker:
+        pid = 0
+
+        def __init__(self, command, **kwargs):
+            config = json.loads(Path(command[command.index("--config") + 1]).read_text())
+            worker_configs.append(config)
+            output = Path(command[command.index("--output") + 1])
+            (output / "result.json").write_text(json.dumps({"status": "complete", "config": config}))
+
+        def wait(self, timeout=None):
+            return 0
+
+    svc = service(repo, tmp_path, popen=Worker)
+    model = engine(svc.run_for_advisor, events)
+    before = files(repo)
+    with model.agent("federation_strategist"):
+        model.execute("read_experiment", {"source_id": "E001", "reason": "Inspect before trial"})
+        source = model.execute("test_shadow", {**ARGS, **arguments})
+    evidence = json.loads(source["content"])
+    expected = validate_config({**REQUEST, "seeds": [expected_seed]})
+    assert evidence["config"] == expected
+    assert worker_configs == [expected]
+    assert evidence["status"] == "completed" and evidence["policy_activated"] is False
+    run = svc.export(evidence["trial_id"])
+    assert run["config"] == run["manifest"]["config"] == expected
+    assert run["manifest"]["identity"] == evidence["manifest_identity"]
+    svc._verify(svc.state_dir / evidence["trial_id"])
+    assert evidence["budget"]["total_episodes"] == 56
+    assert evidence["budget"]["training_episodes"] == 32
+    assert evidence["budget"]["evaluation_episodes"] == 24
+    assert evidence["budget"]["maximum_action_windows"] == 1680
+    event = next(event for event in events if event["kind"] == "shadow_start")
+    assert event["seeds"] == [expected_seed] and event["rounds"] == 1
+    assert files(repo) == before
+
+
+@pytest.mark.parametrize("seed", [True, False, "29", 29.0, None, -1, 1_000_001, [29]])
+def test_advisor_rejects_invalid_seed_before_freezing_or_spawning(repo, tmp_path, monkeypatch, seed):
+    svc = service(repo, tmp_path)
+    before = files(svc.state_dir)
+    monkeypatch.setattr(svc, "prepare", lambda *_: pytest.fail("Invalid seed reached freezing"))
+    monkeypatch.setattr(svc, "start", lambda *_: pytest.fail("Invalid seed reached the worker"))
+    with pytest.raises(ValueError, match="development seeds"):
+        svc.run_for_advisor("td3_actor_lr", .00005, seed=seed)
+    assert files(svc.state_dir) == before and not svc.active
 
 
 def test_frozen_worker_has_own_cwd_outputs_secrets_removed_and_result_provenance(repo, tmp_path, monkeypatch):
