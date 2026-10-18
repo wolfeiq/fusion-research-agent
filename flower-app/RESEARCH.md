@@ -228,7 +228,22 @@ That proposal has not launched. Keep the negative seed-17 outcome in the record.
 
 ## Registered runs and diagnostic records
 
-The federation adapter currently registers exactly two runs:
+The public repository includes two six-file recorded shadow bundles:
+
+| Catalogue ID | Recorded comparison |
+|---|---|
+| `examples/evidence/shadow/993df979e388405297f0195bfca504d6/comparison.json` | Lower TD3 actor learning rate; negative development result |
+| `examples/evidence/shadow/43d55b69d02440b3a019cf9b64f6845a/comparison.json` | Smaller clipping threshold; one-seed mechanism pilot |
+
+These are the starter sources for a fresh clone. Both pass the same archive,
+configuration, result-hash and deterministic comparison checks as local shadow
+outputs. The bundles do not include every raw trajectory. They are recorded
+evidence, not newly run by opening the app, and neither establishes efficacy or
+cold-start speedup. The latest eight local comparisons and up to eight published
+examples are discoverable separately; older valid records remain directly readable.
+
+The federation adapter also retains exactly two historical run registrations.
+Their files are optional and are not included in the public starter export:
 
 | Catalogue ID | Registered artifact directory |
 |---|---|
@@ -271,8 +286,8 @@ From the repository root, using the app environment (not the RL environment):
 
 ```powershell
 cd flower-app
-uv sync --extra dev --extra research --frozen
-uv run --extra research python dashboard.py
+uv sync --locked --extra dev --extra research
+uv run --no-sync python dashboard.py
 ```
 
 Open `http://127.0.0.1:8787/#research`. If another instance uses that port, start
@@ -287,7 +302,8 @@ the dossier. It calls neither an LLM nor Tavily and drafts no policy proposals.
 The run is explicitly labelled offline.
 
 Configure these variables in the server's environment, then restart the server.
-The existing ignored `.env.research` file can be loaded with:
+In a fresh clone, copy `research.env.example` to `.env.research` and configure
+the keys locally. The ignored secret file can then be loaded with:
 
 ```powershell
 uv run --env-file .env.research --no-sync python dashboard.py
@@ -310,8 +326,9 @@ snapshots or Git. Do not put keys in questions. The browser displays credential
 presence, not values. Custom endpoints must use HTTPS without URL credentials
 or query parameters. No automatic provider calls occur when opening the page.
 
-For the first live run, select the local-smoke federation dossier, the incomplete
-Kaggle federation dossier and the repair comparison. Ask:
+For the first live run in the public repository, select the two published shadow
+comparisons listed above. In the original research checkout, historical federation
+dossiers and repair comparisons are additional optional evidence. Ask:
 
 > Does the saved evidence justify claiming federated TD3/SAC accelerates
 > cold-start reactor control? Did clipping actually change the recorded updates,
@@ -392,8 +409,13 @@ When keys are available, run it first in an isolated cookbook environment:
 ```powershell
 uv venv .venv-cookbook --python 3.12
 uv pip install --python .venv-cookbook/Scripts/python.exe -r scripts/research-cookbook.requirements.txt
-.venv-cookbook/Scripts/python.exe scripts/research_cookbook.py "What is TORAX? Cite its original paper."
+uv run --no-project --env-file .env.research .venv-cookbook/Scripts/python.exe scripts/research_cookbook.py "What is TORAX? Cite its original paper."
 ```
+
+These commands run from `flower-app`. On Linux/macOS use
+`.venv-cookbook/bin/python` in place of `.venv-cookbook/Scripts/python.exe`.
+The `uv run --env-file` wrapper loads the local keys; directly invoking the
+interpreter would require exporting those environment variables separately.
 
 That reference environment is deliberately separate from both the app and RL
 environments. The reference has now completed on the configured dedicated
@@ -414,6 +436,11 @@ Reproducible bounded checks, using the app environment:
 uv run --env-file .env.research --no-sync python scripts/verify_research_providers.py
 uv run --env-file .env.research --no-sync python scripts/verify_research_judge.py
 ```
+
+The judge check uses the published negative-learning-rate bundle when present,
+and the same private recorded trial in the original development checkout when
+the public bundle is absent. An incomplete or corrupt public bundle fails
+verification; it is never bypassed by silently selecting a private copy.
 
 The provider check passed a live forced Nemotron function call and Tavily search
 plus extraction through the actual adapters. The one-call judge challenge used
@@ -520,6 +547,16 @@ hashes, linked to exact raw-result pointers. The projection checks scalar
 consistency and preserves the hash-verified raw artifacts; it does not recompute
 tensors or alter stored comparisons. Missing telemetry remains unavailable.
 
+### Independent review remains required
+
+A later live research report received an acceptance decision from the model
+judge. Independent review then found incomplete citation coverage and problems
+with the scope of the context used to support claims. Fixes and verification are
+ongoing. A model's acceptance is not independent confirmation that every claim
+is supported, and this report must not yet be described as a fully verified
+end-to-end success. The earlier failed attempts and the measured shadow results
+remain in the record; they are not replaced by the accepted draft.
+
 ## Verification and CLI
 
 The completed implementation passed 667 app tests (one skipped), 33 worker
@@ -533,8 +570,8 @@ deprecation warnings remain.
 
 ```powershell
 uv run --extra dev --extra research python -m pytest tests/test_research_evidence.py tests/test_research_federation.py tests/test_research_policy.py tests/test_research_verification.py tests/test_research_engine.py tests/test_research_service.py tests/test_research_graph.py tests/test_dashboard.py
-uv run --extra research python -m fusion_agent.research.cli --list
-uv run --extra research python -m fusion_agent.research.cli --offline --record federation:local-smoke
+uv run --no-sync python -m fusion_agent.research.cli --list
+uv run --no-sync python -m fusion_agent.research.cli --offline --record examples/evidence/shadow/993df979e388405297f0195bfca504d6/comparison.json
 ```
 
 Tests inject model/retrieval doubles. They exercise graph execution, parallel

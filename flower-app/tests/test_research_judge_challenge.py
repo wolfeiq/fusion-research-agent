@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from fusion_agent.research.evidence import EvidenceError
+
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts/verify_research_judge.py"
 SPEC = importlib.util.spec_from_file_location("verify_research_judge", SCRIPT)
 challenge = importlib.util.module_from_spec(SPEC)
@@ -108,3 +110,43 @@ def test_different_experiment_shape_is_rejected_before_model_call():
     altered["content"] = json.dumps(data)
     with pytest.raises(ValueError, match="frozen challenge"):
         challenge.build_challenge(altered)
+
+
+def test_public_bundle_is_used_for_fresh_clone_and_rechecked(tmp_path):
+    folder = (tmp_path / challenge.PUBLIC_RECORD).parent
+    folder.mkdir(parents=True)
+    model, catalog = FakeModel(), FakeCatalog()
+    result = challenge.run_challenge(tmp_path, model, catalog=catalog)
+    assert result["passed"]
+    assert result["record_id"] == challenge.PUBLIC_RECORD
+    assert catalog.calls == [challenge.PUBLIC_RECORD, challenge.PUBLIC_RECORD]
+    assert len(model.calls) == 1
+
+
+def test_original_checkout_without_public_bundle_keeps_private_source(tmp_path):
+    assert challenge.challenge_record(tmp_path) == challenge.RECORD
+
+
+def test_missing_public_file_does_not_fall_back_to_private_copy(tmp_path):
+    (tmp_path / challenge.PUBLIC_RECORD).parent.mkdir(parents=True)
+    model = FakeModel()
+    with pytest.raises(EvidenceError, match="missing or unreadable"):
+        challenge.run_challenge(tmp_path, model)
+    assert model.calls == []
+
+
+def test_invalid_public_bundle_is_not_bypassed_by_a_second_catalog_read(tmp_path):
+    (tmp_path / challenge.PUBLIC_RECORD).parent.mkdir(parents=True)
+
+    class RejectingCatalog(FakeCatalog):
+        def snapshot(self, record):
+            self.calls.append(record)
+            if record == challenge.PUBLIC_RECORD:
+                raise EvidenceError("Public bundle hash mismatch")
+            return source()
+
+    model, catalog = FakeModel(), RejectingCatalog()
+    with pytest.raises(EvidenceError, match="hash mismatch"):
+        challenge.run_challenge(tmp_path, model, catalog=catalog)
+    assert catalog.calls == [challenge.PUBLIC_RECORD]
+    assert model.calls == []

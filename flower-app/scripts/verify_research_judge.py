@@ -31,6 +31,7 @@ RECORD = (
     "flower-app/.dashboard/shadow/993df979e388405297f0195bfca504d6/"
     "comparison.json"
 )
+PUBLIC_RECORD = RECORD.replace("flower-app/.dashboard/shadow/", "examples/evidence/shadow/")
 POINTER = "/candidate_vs_baseline_raw_endpoint/local/by_seed/0/mean_cost_difference"
 QUESTION = (
     "Validation-only adversarial report review. The supplied claims are test "
@@ -153,9 +154,23 @@ def challenge_checks(before, reviewed, raw_response, model_calls, mismatch_check
     }
 
 
+def challenge_record(repo_root):
+    """Use the published copy of the same frozen trial when bundled.
+
+    An incomplete or invalid public bundle fails verification rather than
+    silently falling back to a private copy. The original development checkout
+    can still use its private run when no public bundle directory exists.
+    """
+    published_folder = (Path(repo_root) / PUBLIC_RECORD).parent
+    if published_folder.exists() or published_folder.is_symlink():
+        return PUBLIC_RECORD
+    return RECORD
+
+
 def run_challenge(repo_root, model, *, catalog=None):
     catalog = catalog or EvidenceCatalog(repo_root)
-    snapshot = catalog.snapshot(RECORD)
+    record_id = challenge_record(repo_root)
+    snapshot = catalog.snapshot(record_id)
     source = {**snapshot, "id": "E001"}
     prepared, mismatch_check = build_challenge(source)
     before = deepcopy(prepared)
@@ -170,7 +185,7 @@ def run_challenge(repo_root, model, *, catalog=None):
         before, reviewed, recorded_model.responses[0],
         engine.model_calls, mismatch_check,
     )
-    after = catalog.snapshot(RECORD)
+    after = catalog.snapshot(record_id)
     checks["source_snapshot_and_provenance_unchanged"] = snapshot == after
     return {
         "validation_only": True,
@@ -180,7 +195,7 @@ def run_challenge(repo_root, model, *, catalog=None):
             "No retrieval, simulation, policy change or current-run mutation."
         ),
         "passed": all(checks.values()), "checks": checks,
-        "source": source, "question": QUESTION,
+        "source": source, "record_id": record_id, "question": QUESTION,
         "expected": {"C001": "supported", "C002": "unsupported_or_uncertain",
                      "C003": "unsupported_or_uncertain", "decision": "not_accept"},
         "traceability_validated_input": before,
