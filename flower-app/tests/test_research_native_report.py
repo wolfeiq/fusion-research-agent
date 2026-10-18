@@ -180,6 +180,8 @@ def test_native_report_retains_total_size_and_read_source_requirements():
 
 
 def test_advertised_schema_uses_native_objects_with_closed_bounded_children():
+    from fusion_agent.research.verification import MAX_EVIDENCE_PER_CLAIM
+
     tool = next(tool for tool in TOOLS if tool["function"]["name"] == "finish_report")
     parameters = tool["function"]["parameters"]
     assert parameters == REPORT_SCHEMA
@@ -188,6 +190,7 @@ def test_advertised_schema_uses_native_objects_with_closed_bounded_children():
     }
     assert "report" not in parameters["properties"]
     assert "report_json" not in json.dumps(tool)
+    assert parameters["properties"]["claims"]["items"]["properties"]["evidence"]["maxItems"] == MAX_EVIDENCE_PER_CLAIM == 16
 
     def check(schema):
         if schema["type"] == "object":

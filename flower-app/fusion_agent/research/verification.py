@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 MAX_CLAIMS = 12
+MAX_EVIDENCE_PER_CLAIM = 16
 MAX_PROPOSALS = 4
 MAX_WEB_QUOTE_WORDS = 25
 _ID = re.compile(r"[A-Za-z][A-Za-z0-9_-]{0,95}\Z")
@@ -304,7 +305,7 @@ def validate_report(report: dict, sources: list[dict]) -> dict:
             "confidence": "low" if kind == "hypothesis" else confidence,
             "evidence": [],
         }
-        for raw_evidence in _list(raw["evidence"], "claim.evidence", 8):
+        for raw_evidence in _list(raw["evidence"], "claim.evidence", MAX_EVIDENCE_PER_CLAIM):
             raw_evidence = _object(
                 raw_evidence, "evidence", {"source_id", "quote", "locator"}
             )

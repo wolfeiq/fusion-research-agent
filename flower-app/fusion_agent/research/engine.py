@@ -11,7 +11,12 @@ from datetime import UTC, datetime
 
 from .policy import CHANGES, compare_clipping, dossier, draft_policy_trial
 from .providers import ProviderError, public_url
-from .verification import normalize_report_transport, render_answer, validate_report
+from .verification import (
+    MAX_EVIDENCE_PER_CLAIM,
+    normalize_report_transport,
+    render_answer,
+    validate_report,
+)
 
 
 class ModelCallBudgetReserved(RuntimeError):
@@ -161,7 +166,7 @@ REPORT_SCHEMA = _report_object({
             "source_id": REPORT_ID_SCHEMA,
             "quote": _report_string(2000, 0),
             "locator": _report_string(512, 0),
-        }), 8),
+        }), MAX_EVIDENCE_PER_CLAIM),
     }), 12, 1),
     "next_runs": _report_array(_report_object({
         "title": _report_string(2500),

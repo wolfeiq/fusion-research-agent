@@ -6,6 +6,7 @@ from copy import deepcopy
 import pytest
 
 from fusion_agent.research.verification import (
+    MAX_EVIDENCE_PER_CLAIM,
     render_answer,
     resolve_json_pointer,
     validate_report,
@@ -72,6 +73,32 @@ def test_valid_local_claim_is_traceable_not_verified_and_summary_is_rebuilt():
     assert result["verification"]["semantic_review_required"] is True
     assert result["verification"]["mode"] == "structural_traceability_only"
     assert result["next_runs"][0]["status"] == "proposal_only"
+
+
+@pytest.mark.parametrize("count", [9, 16])
+def test_detailed_claim_accepts_bounded_distinct_citations_without_weakening_each_check(count):
+    data = report()
+    costs = [index / 100 for index in range(count)]
+    saved = source(content=json.dumps({"costs": costs}))
+    data["claims"][0]["text"] = f"The saved record contains {count} endpoint costs."
+    data["claims"][0]["evidence"] = [
+        {"source_id": "E001", "quote": json.dumps(value), "locator": f"/costs/{index}"}
+        for index, value in enumerate(costs)
+    ]
+    result = validate_report(data, [saved])
+    assert len(result["claims"][0]["evidence"]) == count
+    assert claim_status(result) == "traceable"
+    assert result["verification"]["semantic_review_required"] is True
+    data["claims"][0]["evidence"][-1]["quote"] = "999"
+    assert claim_status(validate_report(data, [saved])) == "unsupported"
+
+
+def test_seventeen_citations_are_rejected_instead_of_silently_dropped():
+    assert MAX_EVIDENCE_PER_CLAIM == 16
+    data = report()
+    data["claims"][0]["evidence"] *= MAX_EVIDENCE_PER_CLAIM + 1
+    with pytest.raises(ValueError, match=r"claim.evidence must be a list of 0–16 items; received list of length 17"):
+        validate_report(data, [source()])
 
 
 @pytest.mark.parametrize(
