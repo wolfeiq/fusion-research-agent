@@ -26,6 +26,7 @@ BASELINE = {
     "td3_mix": .25, "sac_mix": .25, "clipping_initial_norm_fraction": .1,
     "heating_critic_coordinates": "normalized",
 }
+_REPLACE_RETRY_DELAYS = (.01, .02, .04, .08, .16)
 
 
 def validate_config(value):
@@ -105,14 +106,37 @@ def runtime_metadata():
             "packages": packages, "flower_transport_used": False}
 
 
-def _write(path, value):
+def _replace_published_file(temporary, path, *, retry_deadline=None):
+    """Allow brief Windows reader locks without abandoning atomic publication.
+
+    Access-denied can also be permanent: retry only the known Windows sharing/
+    access codes, then propagate the original error. Never delete the old file,
+    retry serialization, or extend the worker's deadline to finish publishing.
+    """
+    for attempt in range(len(_REPLACE_RETRY_DELAYS) + 1):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError as error:
+            if (getattr(error, "winerror", None) not in (5, 32, 33)
+                    or attempt == len(_REPLACE_RETRY_DELAYS)):
+                raise
+            delay = _REPLACE_RETRY_DELAYS[attempt]
+            if retry_deadline is not None and time.monotonic() + delay >= retry_deadline:
+                raise
+            time.sleep(delay)
+            if retry_deadline is not None and time.monotonic() >= retry_deadline:
+                raise
+
+
+def _write(path, value, *, retry_deadline=None):
     path = Path(path)
     temporary = path.with_name(path.name + ".tmp")
     with temporary.open("w", encoding="utf-8") as handle:
         json.dump(value, handle, indent=2, sort_keys=True, allow_nan=False)
         handle.flush()
         os.fsync(handle.fileno())
-    os.replace(temporary, path)
+    _replace_published_file(temporary, path, retry_deadline=retry_deadline)
 
 
 def _make_environments(reference):
@@ -162,6 +186,7 @@ def run(config, reference_path, output, *, max_seconds=600):
     if any(output.iterdir()):
         raise ValueError("Refusing to overwrite a nonempty shadow output directory")
     start = time.monotonic()
+    publication_deadline = start + max_seconds
     conditions = specification(config)
     reference = json.loads(Path(reference_path).read_text(encoding="utf-8"))
     conditions["reference_sha256"] = _digest(reference)
@@ -183,12 +208,13 @@ def run(config, reference_path, output, *, max_seconds=600):
 
     def save():
         result["elapsed_seconds"] = time.monotonic() - start
-        _write(output / "result.json", result)
+        _write(output / "result.json", result, retry_deadline=publication_deadline)
         _write(output / "progress.json", {"status": result["status"], "phase": phase,
             "elapsed_seconds": result["elapsed_seconds"], "completed_episodes": sum(
                 result[name]["accounting"][key] for name in ("baseline", "candidate")
                 for key in ("training_episodes", "evaluation_episodes")),
-            "maximum_episodes": conditions["budget"]["total_episodes"]})
+            "maximum_episodes": conditions["budget"]["total_episodes"]},
+            retry_deadline=publication_deadline)
 
     def check_time():
         if time.monotonic() - start >= max_seconds:
@@ -263,7 +289,7 @@ def run(config, reference_path, output, *, max_seconds=600):
                     path = output / "episodes" / f"{variant}-{seed}-{count:03d}.json"
                     attempt = {"status": "started", "phase": phase, "train": train,
                                "scenario": {"initial_temperature_factor": factor}, "seed": shot_seed}
-                    _write(path, attempt)
+                    _write(path, attempt, retry_deadline=publication_deadline)
                     save()
                     before = pair_state_digest(pair) if not train and not fixed else None
                     case = (fixed_episode(environment(factor), reference["joint_action"], shot_seed) if fixed
@@ -271,7 +297,7 @@ def run(config, reference_path, output, *, max_seconds=600):
                                          warmup=warmup, active="both"))
                     case["scenario"] = attempt["scenario"]
                     attempt.update(status="complete", result=case)
-                    _write(path, attempt)
+                    _write(path, attempt, retry_deadline=publication_deadline)
                     account = item["accounting"]
                     account["training_episodes" if train else "evaluation_episodes"] += 1
                     account["windows"] += case["windows"]
@@ -415,7 +441,8 @@ def main():
         # watchdog survives a dashboard restart and kills wedged native calls.
         try:
             _write(args.output / "timeout.json", {"status": "failed", "type": "TimeoutError",
-                "message": "Worker hard wall-time limit reached", "max_seconds": args.max_seconds})
+                "message": "Worker hard wall-time limit reached", "max_seconds": args.max_seconds},
+                retry_deadline=time.monotonic())
         finally:
             os._exit(124)
 
